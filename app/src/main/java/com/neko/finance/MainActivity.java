@@ -3,8 +3,10 @@ package com.neko.finance;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -27,7 +29,32 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
+        webView.setOnApplyWindowInsetsListener((view, insets) -> {
+            int left;
+            int top;
+            int right;
+            int bottom;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                android.graphics.Insets safeArea = insets.getInsets(
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
+                );
+                left = safeArea.left;
+                top = safeArea.top;
+                right = safeArea.right;
+                bottom = safeArea.bottom;
+            } else {
+                left = insets.getSystemWindowInsetLeft();
+                top = insets.getSystemWindowInsetTop();
+                right = insets.getSystemWindowInsetRight();
+                bottom = insets.getSystemWindowInsetBottom();
+            }
+            view.setPadding(left, top, right, bottom);
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    ? WindowInsets.CONSUMED
+                    : insets.consumeSystemWindowInsets();
+        });
         setContentView(webView);
+        webView.requestApplyInsets();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -79,7 +106,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-build-info-home-empty");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-safe-area-logo");
         } else {
             webView.restoreState(savedInstanceState);
         }
