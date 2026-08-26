@@ -1,0 +1,46 @@
+import java.util.Properties
+
+plugins {
+    id 'com.android.application'
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+android {
+    signingConfigs {
+        neko {
+            storeFile rootProject.file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
+    namespace 'com.neko.finance'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.neko.finance"
+        minSdk 26
+        targetSdk 35
+        versionCode 5
+        versionName "1.1.1"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.neko
+        }
+        debug {
+            signingConfig signingConfigs.neko
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

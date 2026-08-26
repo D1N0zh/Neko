@@ -1,0 +1,9 @@
+NEKO ANDROID V1 - BUILD STATUS
+
+Progetto Android: COMPLETO
+APK compilato: NO
+
+Motivo: l'ambiente corrente dispone di Java/Kotlin ma non di Android SDK,
+Build Tools o Gradle, e non ha accesso di rete per scaricarli.
+
+Il progetto è pronto per Android Studio / Gradle.
