@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-home-edit-touch-drag");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-home-edit-drag-polish");
         } else {
             webView.restoreState(savedInstanceState);
         }
