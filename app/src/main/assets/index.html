@@ -53,9 +53,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 @keyframes homeEditEnter{from{transform:translateY(5px) scale(.992);border-color:var(--line);box-shadow:0 2px 8px rgba(0,0,0,.02)}to{transform:translateY(0) scale(1);border-color:#cfd5ff;box-shadow:0 8px 22px rgba(46,58,117,.09)}}
 @keyframes homeEditBarEnter{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes homeEditControlsEnter{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
-.homeBlock.dragging{opacity:.82;transform:scale(.985)}.homeBlock.dragover{border-color:var(--accent)!important;transform:scale(1.008)}
-.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;opacity:.98!important;transform:scale(.985)!important;transform-origin:center!important;border:1px solid rgba(70,87,168,.20)!important;border-radius:18px!important;background:var(--card)!important;box-shadow:0 14px 34px rgba(30,41,59,.18)!important;transition:none!important;will-change:left,top;overflow:hidden!important}
-.homeTouchGhost .homeBlockControls{display:none!important}
+.homeBlock.dragging{opacity:1!important;position:relative!important;z-index:18!important;pointer-events:none!important;animation:none!important;transition:none!important;box-shadow:0 16px 38px rgba(30,41,59,.20)!important}.homeBlock.dragover{border-color:var(--accent)!important;transform:scale(1.008)}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
 .addHomePanel{display:none;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:12px}.addHomePanel.active{display:block}.addHomeGrid{display:flex;gap:8px;flex-wrap:wrap}.addHomeGrid button{background:var(--soft)}
@@ -890,6 +888,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
   display:block!important;
   object-fit:cover!important;
   border-radius:12px!important;
+  transform:scale(1.28);
 }
 </style>
 
@@ -2679,15 +2678,10 @@ function bindHomeBlockEditing(){
    el.onpointerup=el.onpointercancel=el.onpointerleave=e=>{if(e.pointerType!=="touch")cancelLongPress()};
    const beginTouchDrag=(x,y)=>{
      homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
-     const rect=el.getBoundingClientRect();homeTouchOffsetX=x-rect.left;homeTouchOffsetY=y-rect.top;
-     homeTouchGhost=el.cloneNode(true);homeTouchGhost.removeAttribute("id");homeTouchGhost.classList.remove("dragging","dragover");homeTouchGhost.classList.add("homeTouchGhost");
-     homeTouchGhost.querySelectorAll("[id]").forEach(node=>node.removeAttribute("id"));
-     homeTouchGhost.querySelectorAll(".homeBlockControls").forEach(node=>node.remove());
-     homeTouchGhost.style.width=rect.width+"px";homeTouchGhost.style.height=rect.height+"px";
-     homeTouchGhost.style.left=(x-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(y-homeTouchOffsetY)+"px";
-     document.body.appendChild(homeTouchGhost);
+     homeTouchOffsetX=x;homeTouchOffsetY=y;
    };
    el.ontouchstart=e=>{
+     if(homeTouchDragKey||e.touches.length>1){e.preventDefault();return}
      const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartAt=Date.now();touchMoved=false;
      if(homeEditMode){
        if(e.target.closest("button,input,select,textarea,a,.homeBlockControls")){homeTouchDragKey=null;return}
@@ -2707,7 +2701,7 @@ function bindHomeBlockEditing(){
      const t=e.touches[0];
      if(homeEditMode&&homeTouchDragKey){
        e.preventDefault();
-       if(homeTouchGhost){homeTouchGhost.style.left=(t.clientX-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(t.clientY-homeTouchOffsetY)+"px"}
+       el.style.transform=`translate3d(${t.clientX-homeTouchOffsetX}px,${t.clientY-homeTouchOffsetY}px,0) scale(1.015)`;
        document.querySelectorAll("#home .homeBlock.dragover").forEach(x=>x.classList.remove("dragover"));
        const target=document.elementFromPoint(t.clientX,t.clientY)?.closest("#home .homeBlock");
        if(target){homeTouchDropKey=target.dataset.homekey;target.classList.add("dragover")}
@@ -2720,15 +2714,15 @@ function bindHomeBlockEditing(){
        e.preventDefault();
        const from=homeTouchDragKey,to=homeTouchDropKey;
        homeTouchDragKey=null;homeTouchDropKey=null;
-       if(homeTouchGhost){homeTouchGhost.remove();homeTouchGhost=null}
-       document.querySelectorAll("#home .homeBlock").forEach(x=>x.classList.remove("dragging","dragover"));
+       el.style.transform="";
+       document.querySelectorAll("#home .homeBlock").forEach(x=>{x.classList.remove("dragging","dragover");x.style.transform=""});
        if(from&&to&&from!==to)moveHomeBlockTo(from,to);
      }else if(!touchMoved&&Date.now()-touchStartAt>=500){
        e.preventDefault();enterHomeEdit();
      }
      cancelLongPress();
    };
-   el.ontouchcancel=()=>{homeTouchDragKey=null;homeTouchDropKey=null;if(homeTouchGhost){homeTouchGhost.remove();homeTouchGhost=null}document.querySelectorAll("#home .homeBlock").forEach(x=>x.classList.remove("dragging","dragover"));cancelLongPress()};
+   el.ontouchcancel=()=>{homeTouchDragKey=null;homeTouchDropKey=null;document.querySelectorAll("#home .homeBlock").forEach(x=>{x.classList.remove("dragging","dragover");x.style.transform=""});cancelLongPress()};
    el.oncontextmenu=e=>{e.preventDefault();if(!homeEditMode)enterHomeEdit();return false};
    el.ondragstart=e=>{if(!homeEditMode){e.preventDefault();return}el.classList.add("dragging");e.dataTransfer.setData("text/plain",key)};
    el.ondragend=()=>el.classList.remove("dragging");
@@ -3183,7 +3177,12 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 #statsCategoriesCard .catStatHead{align-items:center}
 #statsCategoriesCard.statsEditing .catStatValue{margin-left:auto}
 #statsCategoriesCard.statsEditing .catStatBtn{outline:none!important;cursor:default!important}
-#home.home-editing > .homeBlock{padding-right:58px!important}
+#home.home-editing > .homeBlock > .homeHeroTop,
+#home.home-editing > .homeBlock > .homeSectionHead{padding-right:42px!important}
 #home.home-editing .homeBlockControls{top:9px!important;right:9px!important}
 #home.home-editing .homeBlockRemove{width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px!important;display:grid!important;place-items:center!important}
+#home.home-editing .homeBlock button:not(.homeBlockRemove),
+#home.home-editing .homeBlock a,
+#home.home-editing .homeBlock input,
+#home.home-editing .homeBlock select{pointer-events:none!important}
 </style>
