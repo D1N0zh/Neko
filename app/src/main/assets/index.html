@@ -47,8 +47,9 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .homeConfigRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.homeConfigRow:last-child{border:0}.homeConfigRow input{width:auto}
 .hiddenHomeBlock{display:none!important}
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
-.home-editing .homeBlock{outline:0;cursor:grab;position:relative;touch-action:none;border-color:#cfd5ff!important;box-shadow:0 8px 22px rgba(46,58,117,.09)}.home-editing .homeBlock:active{cursor:grabbing}
+.home-editing .homeBlock{outline:0;cursor:grab;position:relative;touch-action:pan-y;border-color:#cfd5ff!important;box-shadow:0 8px 22px rgba(46,58,117,.09)}.home-editing .homeBlock:active{cursor:grabbing}
 .homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:opacity .18s ease,transform .18s ease,outline-color .18s ease}
+#home,.bottom,.compactHead{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
 .home-editing .homeBlock{animation:homeEditEnter .32s cubic-bezier(.22,.8,.3,1) both}.home-editing #homeEditBar{animation:homeEditBarEnter .28s cubic-bezier(.22,.8,.3,1) both}.home-editing .homeBlockControls{animation:homeEditControlsEnter .34s .08s ease both}
 @keyframes homeEditEnter{from{transform:translateY(5px) scale(.992);border-color:var(--line);box-shadow:0 2px 8px rgba(0,0,0,.02)}to{transform:translateY(0) scale(1);border-color:#cfd5ff;box-shadow:0 8px 22px rgba(46,58,117,.09)}}
 @keyframes homeEditBarEnter{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1752,7 +1753,6 @@ button:active,
     <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente">‹</button>
     <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese">
       <span id="monthLabel" class="monthLabel"></span>
-      <span class="monthDrop">⌄</span>
     </button>
     <button id="nextMonth" class="monthArrow secondary" type="button" aria-label="Mese successivo">›</button>
   </div>
@@ -2685,7 +2685,13 @@ function bindHomeBlockEditing(){
      const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartAt=Date.now();touchMoved=false;
      if(homeEditMode){
        if(e.target.closest("button,input,select,textarea,a,.homeBlockControls")){homeTouchDragKey=null;return}
-       e.preventDefault();beginTouchDrag(t.clientX,t.clientY);
+       cancelLongPress();
+       longPressTimer=setTimeout(()=>{
+         longPressTimer=null;
+         if(touchMoved)return;
+         beginTouchDrag(touchStartX,touchStartY);
+         if(navigator.vibrate)navigator.vibrate(12);
+       },180);
      }else if(!e.target.closest("button,input,select,textarea,a,.homeBlockControls")){
        cancelLongPress();
        longPressTimer=setTimeout(()=>{
@@ -2699,6 +2705,7 @@ function bindHomeBlockEditing(){
    };
    el.ontouchmove=e=>{
      const t=e.touches[0];
+     if(!homeTouchDragKey&&Math.hypot(t.clientX-touchStartX,t.clientY-touchStartY)>12){touchMoved=true;cancelLongPress();return}
      if(homeEditMode&&homeTouchDragKey){
        e.preventDefault();
        el.style.transform=`translate3d(${t.clientX-homeTouchOffsetX}px,${t.clientY-homeTouchOffsetY}px,0) scale(1.015)`;
@@ -2717,7 +2724,7 @@ function bindHomeBlockEditing(){
        el.style.transform="";
        document.querySelectorAll("#home .homeBlock").forEach(x=>{x.classList.remove("dragging","dragover");x.style.transform=""});
        if(from&&to&&from!==to)moveHomeBlockTo(from,to);
-     }else if(!touchMoved&&Date.now()-touchStartAt>=500){
+     }else if(!homeEditMode&&!touchMoved&&Date.now()-touchStartAt>=500){
        e.preventDefault();enterHomeEdit();
      }
      cancelLongPress();

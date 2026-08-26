@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-live-card-drag");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-edit-scroll");
         } else {
             webView.restoreState(savedInstanceState);
         }
