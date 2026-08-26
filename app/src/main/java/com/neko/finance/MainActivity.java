@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-one-touch-drag");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-consistent-drag");
         } else {
             webView.restoreState(savedInstanceState);
         }
