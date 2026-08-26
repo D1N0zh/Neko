@@ -54,8 +54,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 @keyframes homeEditBarEnter{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes homeEditControlsEnter{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
 .homeBlock.dragging{opacity:.82;transform:scale(.985)}.homeBlock.dragover{border-color:var(--accent)!important;transform:scale(1.008)}
-.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;width:min(260px,72vw)!important;height:52px!important;padding:0 16px!important;display:flex!important;align-items:center!important;gap:11px!important;opacity:1!important;border:1px solid rgba(70,87,168,.18)!important;border-radius:16px!important;background:rgba(255,255,255,.98)!important;color:var(--text)!important;box-shadow:0 12px 30px rgba(30,41,59,.18)!important;transition:none!important;will-change:left,top;overflow:hidden;font-size:13px!important;font-weight:800!important}
-.homeTouchGhostIcon{width:28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:16px;flex:none}
+.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;opacity:.98!important;transform:scale(.985)!important;transform-origin:center!important;border:1px solid rgba(70,87,168,.20)!important;border-radius:18px!important;background:var(--card)!important;box-shadow:0 14px 34px rgba(30,41,59,.18)!important;transition:none!important;will-change:left,top;overflow:hidden!important}
 .homeTouchGhost .homeBlockControls{display:none!important}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
@@ -2680,9 +2679,11 @@ function bindHomeBlockEditing(){
    el.onpointerup=el.onpointercancel=el.onpointerleave=e=>{if(e.pointerType!=="touch")cancelLongPress()};
    const beginTouchDrag=(x,y)=>{
      homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
-     const rect=el.getBoundingClientRect();homeTouchOffsetX=Math.min(130,rect.width*.36);homeTouchOffsetY=26;
-     homeTouchGhost=document.createElement("div");homeTouchGhost.className="homeTouchGhost";
-     homeTouchGhost.innerHTML=`<span class="homeTouchGhostIcon">↕</span><span>${HOME_BLOCK_LABELS[key]||"Sezione Home"}</span>`;
+     const rect=el.getBoundingClientRect();homeTouchOffsetX=x-rect.left;homeTouchOffsetY=y-rect.top;
+     homeTouchGhost=el.cloneNode(true);homeTouchGhost.removeAttribute("id");homeTouchGhost.classList.remove("dragging","dragover");homeTouchGhost.classList.add("homeTouchGhost");
+     homeTouchGhost.querySelectorAll("[id]").forEach(node=>node.removeAttribute("id"));
+     homeTouchGhost.querySelectorAll(".homeBlockControls").forEach(node=>node.remove());
+     homeTouchGhost.style.width=rect.width+"px";homeTouchGhost.style.height=rect.height+"px";
      homeTouchGhost.style.left=(x-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(y-homeTouchOffsetY)+"px";
      document.body.appendChild(homeTouchGhost);
    };
