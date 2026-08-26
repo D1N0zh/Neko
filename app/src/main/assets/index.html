@@ -47,6 +47,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .homeConfigRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.homeConfigRow:last-child{border:0}.homeConfigRow input{width:auto}
 .hiddenHomeBlock{display:none!important}
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
+.homeEditLauncher{display:flex;justify-content:flex-end;margin:0 0 10px}.home-editing .homeEditLauncher{display:none}
 .home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative}.home-editing .homeBlock:active{cursor:grabbing}
 .homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .homeBlock.dragging{opacity:.45}.homeBlock.dragover{outline-color:var(--accent)}
@@ -1745,6 +1746,7 @@ button:active,
   <div class="kicker" style="margin-bottom:8px">Sezioni disponibili</div>
   <div id="addHomeGrid" class="addHomeGrid"></div>
 </div>
+<div class="homeEditLauncher"><button id="startHomeEdit" class="secondary" type="button">✎ Modifica Home</button></div>
 
 <div id="homeSummary" class="homeBlock homeHero" data-homekey="summary">
   <div class="homeBlockControls">
@@ -2895,7 +2897,12 @@ confirmImport.onclick=()=>{for(const m of pending){if(m.why==="learned"&&m.categ
 if(statsBulkAll)statsBulkAll.onclick=statsSelectAll;
 if(statsBulkCancel)statsBulkCancel.onclick=()=>{statsSelectMode=false;statsSelected.clear();renderStatsCategoryMoves()};
 if(statsBulkAssign)statsBulkAssign.onclick=openStatsBulkAssign;
-doneHomeEdit.onclick=exitHomeEdit;addHomeBlockBtn.onclick=()=>addHomePanel.classList.toggle("active");
+const startHomeEditBtn=document.getElementById("startHomeEdit");
+const doneHomeEditBtn=document.getElementById("doneHomeEdit");
+const addHomeBlockButton=document.getElementById("addHomeBlockBtn");
+if(startHomeEditBtn)startHomeEditBtn.onclick=enterHomeEdit;
+if(doneHomeEditBtn)doneHomeEditBtn.onclick=exitHomeEdit;
+if(addHomeBlockButton)addHomeBlockButton.onclick=()=>addHomePanel.classList.toggle("active");
 const closeStatsDetailBtn=document.getElementById("closeStatsDetail");
 if(closeStatsDetailBtn)closeStatsDetailBtn.onclick=closeStatsCategoryDetail;
 document.getElementById("toggleStatsEdit").onclick=()=>{
