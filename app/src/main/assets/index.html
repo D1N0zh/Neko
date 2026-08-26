@@ -19,7 +19,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .preview{max-height:55vh;overflow:auto}.previewItem{padding:12px;border:1px solid var(--line);border-radius:15px;margin-bottom:8px}.previewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.previewSelect{margin-top:9px}
 .badge{font-size:11px;padding:4px 7px;border-radius:99px;background:#edf1f4;color:#555}.badge.auto{background:#edf8f0;color:#17613b}.badge.warn{background:#fff4d6;color:#765800}.badge.learn{background:#e9f6ff;color:#185c86}
 .hint{padding:10px 12px;background:#f7f7fa;border-radius:13px;font-size:12px;color:var(--muted)}
-.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.catManageRow{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.catManageRow:last-child{border:0}.catName{flex:1;font-weight:700}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
+.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.catManageRow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line)}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;margin:0!important;line-height:1}.catName{min-width:0;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{align-self:center;min-width:74px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
 
 .catStatBtn{border-radius:14px!important;padding:10px!important;transition:background .15s ease}
 .catStatBtn:active{transform:scale(.995)}
@@ -2250,6 +2250,7 @@ button:active,
 <label class="f">Nome categoria</label><input id="manageCatName" type="text" maxlength="30" placeholder="es. Animali">
 <label class="f">Icona</label><div id="iconPicker" class="iconGrid"></div>
 <label class="f">Colore</label><div id="colorPicker" class="colorGrid"></div>
+<label class="f" for="customCategoryColor">Colore personalizzato</label><input id="customCategoryColor" type="color" style="height:44px;padding:5px;width:100%">
 <div class="actions" style="margin-top:12px"><button id="saveManagedCat" class="primary">Salva</button><button id="deleteManagedCat" class="danger" style="display:none">Elimina</button></div>
 <div id="manageCatMsg" class="status"></div>
 </div></div>
@@ -2666,16 +2667,17 @@ function openBudget(cat=null){
  budgetCat.disabled=!!cat;budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
 }
 
-const CATEGORY_ICONS=["•","🛒","🏠","🏡","💡","🚗","🚌","🍴","🛍️","🎮","✚","↻","🏧","€","💼","↑","⇄","§","🐾","🎁","✈️","🎓","🧾","💻"];
+const CATEGORY_ICONS=["•","🛒","🏠","🏡","💡","🚗","🚌","🍴","🛍️","🎮","✚","↻","🏧","€","💼","↑","⇄","§","🐾","🎁","✈️","🎓","🧾","💻","👶","👕","👟","📱","🛠️","🌱","🎵","🎬","⚽","📚","💇","🦷","☕","🍕","🐱","🐶","❤️"];
 const CATEGORY_COLORS=["#55a870","#7a8fc7","#d6a84b","#4f8fb8","#62a6a0","#d67c65","#c56fa6","#8c73bd","#d26176","#6985c8","#9b7f72","#8c929c","#43a376","#5e91a8","#b9895f","#94a3b8"];
 let pickedIcon=null,pickedColor=null;
-function renderStylePickers(name){
- pickedIcon=(categoryStyles[name]&&categoryStyles[name].icon)||iconFor(name);
- pickedColor=(categoryStyles[name]&&categoryStyles[name].color)||colorFor(name);
+function renderStylePickers(name,reset=false){
+ if(reset||!pickedIcon)pickedIcon=(categoryStyles[name]&&categoryStyles[name].icon)||iconFor(name);
+ if(reset||!pickedColor)pickedColor=(categoryStyles[name]&&categoryStyles[name].color)||colorFor(name);
  iconPicker.innerHTML=CATEGORY_ICONS.map(i=>`<button type="button" class="iconChoice ${i===pickedIcon?"active":""}" data-icon="${i}">${i}</button>`).join("");
  colorPicker.innerHTML=CATEGORY_COLORS.map(c=>`<button type="button" class="colorChoice ${c===pickedColor?"active":""}" data-color="${c}" style="background:${c}"></button>`).join("");
  iconPicker.querySelectorAll(".iconChoice").forEach(b=>b.onclick=()=>{pickedIcon=b.dataset.icon;renderStylePickers(name)});
  colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.onclick=()=>{pickedColor=b.dataset.color;renderStylePickers(name)});
+ const custom=document.getElementById("customCategoryColor");if(custom){custom.value=pickedColor;custom.oninput=()=>{pickedColor=custom.value;renderStylePickers(name)}}
 }
 
 
@@ -2821,7 +2823,7 @@ function exitHomeEdit(){
 function openCategoryManager(name=null){
  editingCategory=name; manageCatMsg.textContent="";
  manageCatTitle.textContent=name?"Modifica categoria":"Nuova categoria";manageCatName.value=name||"";
- deleteManagedCat.style.display=name&&name!=="Da classificare"?"inline-block":"none";renderStylePickers(name||"Altro");manageCatModal.style.display="flex";
+ deleteManagedCat.style.display=name&&name!=="Da classificare"?"inline-block":"none";pickedIcon=null;pickedColor=null;renderStylePickers(name||"Altro",true);manageCatModal.style.display="flex";
 }
 function renameCategory(oldName,newName){
  const oldCanon=canonicalCat(oldName);
@@ -3000,20 +3002,23 @@ function go(s){
  requestAnimationFrame(()=>{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0});
 }
 
-let screenSwipeStart=null;
+let screenSwipeStart=null,suppressSwipeClick=false;
 document.addEventListener("touchstart",e=>{
+ screenSwipeStart=null;
  if(e.touches.length!==1||homeEditMode||statsEditMode||document.querySelector('.modal[style*="display: flex"]'))return;
- if(e.target.closest("button,input,select,textarea,label,a,.catStatBtn,.row"))return;
+ if(e.target.closest("input,select,textarea,[contenteditable=true]"))return;
  const t=e.touches[0];screenSwipeStart={x:t.clientX,y:t.clientY,time:Date.now()};
 },{passive:true});
+document.addEventListener("touchcancel",()=>screenSwipeStart=null,{passive:true});
 document.addEventListener("touchend",e=>{
  if(!screenSwipeStart||!e.changedTouches.length){screenSwipeStart=null;return}
  const t=e.changedTouches[0],dx=t.clientX-screenSwipeStart.x,dy=t.clientY-screenSwipeStart.y,elapsed=Date.now()-screenSwipeStart.time;
  screenSwipeStart=null;
  if(elapsed>700||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.35)return;
  const current=document.querySelector(".screen.active"),index=SCREEN_ORDER.indexOf(current&&current.id);
- const next=index+(dx<0?1:-1);if(next>=0&&next<SCREEN_ORDER.length)go(SCREEN_ORDER[next]);
+ const next=index+(dx<0?1:-1);if(next>=0&&next<SCREEN_ORDER.length){suppressSwipeClick=true;go(SCREEN_ORDER[next]);setTimeout(()=>suppressSwipeClick=false,350)}
 },{passive:true});
+document.addEventListener("click",e=>{if(suppressSwipeClick){e.preventDefault();e.stopPropagation();suppressSwipeClick=false}},true);
 
 
 const toggleFiltersBtn=document.getElementById("toggleFilters"),filtersPanelEl=document.getElementById("filtersPanel");
@@ -3082,8 +3087,8 @@ Analisi PDF…`}
      previewListEl.querySelectorAll("select").forEach(s=>s.addEventListener("change",()=>{const i=Number(s.dataset.i);pending[i].category=s.value;pending[i].why="learned"}));
    }
    if(previewModalEl)previewModalEl.style.display="flex";
-   if(statusEl){statusEl.textContent=`PDF letto correttamente.
-${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare.`;statusEl.className="status ok"}
+   if(statusEl)statusEl.textContent="";
+   showTemporaryMessage(`PDF letto · ${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`);
  }catch(e){
    console.error("Errore import PDF",e);
    if(statusEl){statusEl.textContent="Errore importazione: "+(e&&e.message?e.message:String(e));statusEl.className="status err"}
@@ -3093,13 +3098,14 @@ function onPdfSelected(e){
  const input=e.currentTarget;const file=input.files&&input.files[0];
  const statusEl=document.getElementById("status");
  if(file){if(statusEl){statusEl.textContent=`File selezionato: ${file.name}`;statusEl.className="status"}choose(file)}
- else if(statusEl){statusEl.textContent="Selezione annullata.";statusEl.className="status"}
+ else if(statusEl)statusEl.textContent="";
  input.value="";
 }
 if(pdfInput){pdfInput.addEventListener("change",onPdfSelected);pdfInput.addEventListener("input",()=>{})}
 if(pdfInput2){pdfInput2.addEventListener("change",onPdfSelected);pdfInput2.addEventListener("input",()=>{})}
 let importSummaryTimer=null;
-function showImportSummary(imported,ignored,ambiguous){const el=document.getElementById("importSummaryToast");if(!el)return;el.textContent=`${imported} movimenti importati · ${ignored} già presenti ignorati · ${ambiguous} da controllare`;el.classList.add("active");clearTimeout(importSummaryTimer);importSummaryTimer=setTimeout(()=>el.classList.remove("active"),6500)}
+function showTemporaryMessage(message,duration=4500){const el=document.getElementById("importSummaryToast");if(!el)return;el.textContent=message;el.classList.add("active");clearTimeout(importSummaryTimer);importSummaryTimer=setTimeout(()=>el.classList.remove("active"),duration)}
+function showImportSummary(imported,ignored,ambiguous){showTemporaryMessage(`${imported} movimenti importati · ${ignored} già presenti ignorati · ${ambiguous} da controllare`,6500)}
 confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}pending=[];pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
 
 
