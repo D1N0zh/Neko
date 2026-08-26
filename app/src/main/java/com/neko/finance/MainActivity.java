@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-duplicate-import");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-swipe-category-polish");
         } else {
             webView.restoreState(savedInstanceState);
         }
