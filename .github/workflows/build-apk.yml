@@ -2,6 +2,11 @@ name: Build Neko APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'NekoProject.zip'
 
 jobs:
   build:
@@ -25,11 +30,11 @@ jobs:
       - name: Extract Neko project
         run: unzip -o NekoProject.zip
 
-      - name: Build APK
-        run: gradle assembleDebug
+      - name: Build signed APK
+        run: gradle assembleRelease
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk Neko.apk
+        run: cp app/build/outputs/apk/release/app-release.apk Neko.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
