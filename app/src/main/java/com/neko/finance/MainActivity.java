@@ -14,11 +14,16 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 1001;
+    private static final int SAVE_FILE_REQUEST = 1002;
 
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
+    private byte[] pendingSaveContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,13 +115,13 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-edit-scroll");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-settings-export-drag");
         } else {
             webView.restoreState(savedInstanceState);
         }
     }
 
-    private static class AppInfoBridge {
+    private class AppInfoBridge {
         @JavascriptInterface
         public String getVersionName() { return BuildConfig.VERSION_NAME; }
 
@@ -125,6 +130,18 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getBuildRevision() { return BuildConfig.BUILD_REVISION; }
+
+        @JavascriptInterface
+        public void saveTextFile(String fileName, String mimeType, String content) {
+            pendingSaveContent = content.getBytes(StandardCharsets.UTF_8);
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType(mimeType);
+                intent.putExtra(Intent.EXTRA_TITLE, fileName);
+                startActivityForResult(intent, SAVE_FILE_REQUEST);
+            });
+        }
     }
 
     @Override
@@ -136,6 +153,24 @@ public class MainActivity extends Activity {
     @Override
     @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SAVE_FILE_REQUEST) {
+            boolean saved = false;
+            if (resultCode == RESULT_OK && data != null && data.getData() != null && pendingSaveContent != null) {
+                try (OutputStream output = getContentResolver().openOutputStream(data.getData())) {
+                    if (output != null) {
+                        output.write(pendingSaveContent);
+                        saved = true;
+                    }
+                } catch (Exception ignored) {
+                    saved = false;
+                }
+            }
+            pendingSaveContent = null;
+            if (webView != null) {
+                webView.evaluateJavascript("window.onNekoFileSaved&&window.onNekoFileSaved(" + saved + ")", null);
+            }
+            return;
+        }
         if (requestCode == FILE_CHOOSER_REQUEST) {
             Uri[] results = null;
 
