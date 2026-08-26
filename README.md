@@ -1,4 +1,4 @@
-# Neko Android v1
+# Neko Android 1.1.1
 
 Prima conversione Android della versione web Neko V10.8.28.
 
@@ -9,6 +9,7 @@ Prima conversione Android della versione web Neko V10.8.28.
 - icona Neko per tutte le densità Android
 - package: `com.neko.finance`
 - minSdk 26, targetSdk 35
+- Home Edit con pressione prolungata, riordino drag-and-drop e ordine salvato in locale
 
 ## Build
 Aprire la cartella in Android Studio e lasciare sincronizzare Gradle.
@@ -27,9 +28,8 @@ quindi il parsing PDF funziona con connessione. Un passaggio successivo consigli
 
 ## Prossimi step nativi
 1. Test reale import PDF e persistenza.
-2. Home modificabile con pressione prolungata e drag nativo.
-3. Export CSV/backup con Storage Access Framework nativo.
-4. Eventuale blocco biometrico/PIN.
+2. Export CSV/backup con Storage Access Framework nativo.
+3. Eventuale blocco biometrico/PIN.
 
 
 ## GitHub Actions

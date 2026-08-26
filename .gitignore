@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+local.properties
+**/build/
+*.iml
+.DS_Store
+keystore.properties
+*.jks
+*.keystore
+NEKO_GITHUB_SECRETS_PRIVATE.txt
