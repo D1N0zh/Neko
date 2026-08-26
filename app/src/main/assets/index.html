@@ -47,8 +47,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .homeConfigRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.homeConfigRow:last-child{border:0}.homeConfigRow input{width:auto}
 .hiddenHomeBlock{display:none!important}
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
-.homeEditLauncher{display:flex;justify-content:flex-end;margin:0 0 10px}.home-editing .homeEditLauncher{display:none}
-.home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative}.home-editing .homeBlock:active{cursor:grabbing}
+.home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative;touch-action:none}.home-editing .homeBlock:active{cursor:grabbing}
 .homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .homeBlock.dragging{opacity:.45}.homeBlock.dragover{outline-color:var(--accent)}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
@@ -1739,19 +1738,15 @@ button:active,
 <section id="home" class="screen active">
 
 <div id="homeEditBar" class="homeEditBar">
-  <div><b>Modifica Home</b><div class="kicker">Trascina le sezioni oppure usa ↑ ↓. Puoi anche rimuoverle.</div></div>
+  <div><b>Modifica Home</b><div class="kicker">Trascina le sezioni per riordinarle. Puoi anche rimuoverle.</div></div>
   <div class="actions"><button id="addHomeBlockBtn" class="secondary" type="button">＋ Aggiungi</button><button id="doneHomeEdit" class="primary" type="button">Fine</button></div>
 </div>
 <div id="addHomePanel" class="addHomePanel">
   <div class="kicker" style="margin-bottom:8px">Sezioni disponibili</div>
   <div id="addHomeGrid" class="addHomeGrid"></div>
 </div>
-<div class="homeEditLauncher"><button id="startHomeEdit" class="secondary" type="button">✎ Modifica Home</button></div>
-
 <div id="homeSummary" class="homeBlock homeHero" data-homekey="summary">
   <div class="homeBlockControls">
-    <button type="button" class="secondary homeBlockUp">↑</button>
-    <button type="button" class="secondary homeBlockDown">↓</button>
     <button type="button" class="danger homeBlockRemove">✕</button>
   </div>
   <div class="homeHeroTop">
@@ -1779,8 +1774,6 @@ button:active,
 
 <div id="homeCompare" class="homeBlock homeSection" data-homekey="compare">
   <div class="homeBlockControls">
-    <button type="button" class="secondary homeBlockUp">↑</button>
-    <button type="button" class="secondary homeBlockDown">↓</button>
     <button type="button" class="danger homeBlockRemove">✕</button>
   </div>
   <div class="homeSectionHead">
@@ -1810,8 +1803,6 @@ button:active,
 
 <div id="homeBudgetCard" class="homeBlock homeSection" data-homekey="budget">
   <div class="homeBlockControls">
-    <button type="button" class="secondary homeBlockUp">↑</button>
-    <button type="button" class="secondary homeBlockDown">↓</button>
     <button type="button" class="danger homeBlockRemove">✕</button>
   </div>
   <div class="homeSectionHead">
@@ -1826,8 +1817,6 @@ button:active,
 
 <div id="homeTopCats" class="homeBlock homeSection" data-homekey="topcats">
   <div class="homeBlockControls">
-    <button type="button" class="secondary homeBlockUp">↑</button>
-    <button type="button" class="secondary homeBlockDown">↓</button>
     <button type="button" class="danger homeBlockRemove">✕</button>
   </div>
   <div class="homeSectionHead">
@@ -1842,8 +1831,6 @@ button:active,
 
 <div id="homeLatest" class="homeBlock homeSection homeLatestSection" data-homekey="latest">
   <div class="homeBlockControls">
-    <button type="button" class="secondary homeBlockUp">↑</button>
-    <button type="button" class="secondary homeBlockDown">↓</button>
     <button type="button" class="danger homeBlockRemove">✕</button>
   </div>
   <div class="homeSectionHead">
@@ -2291,6 +2278,7 @@ let categoryOrder=JSON.parse(localStorage.getItem("micio_v91_catorder")||"[]");
 let homeOrder=JSON.parse(localStorage.getItem("micio_v92_homeorder")||'["summary","compare","budget","topcats","latest"]');
 let statsCategoryOrder=JSON.parse(localStorage.getItem("micio_v93_statsorder")||"[]");
 let homeEditMode=false,statsEditMode=false,longPressTimer=null;
+let homeTouchDragKey=null,homeTouchDropKey=null;
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
@@ -2625,7 +2613,7 @@ function renderAddHomePanel(){
 function bindHomeBlockEditing(){
  document.querySelectorAll("#home .homeBlock").forEach(el=>{
    const key=el.dataset.homekey;
-   let touchStartX=0,touchStartY=0;
+   let touchStartX=0,touchStartY=0,touchStartAt=0,touchMoved=false;
    const cancelLongPress=()=>{if(longPressTimer){clearTimeout(longPressTimer);longPressTimer=null}};
    const startLongPress=()=>{
      if(homeEditMode)return;
@@ -2635,9 +2623,36 @@ function bindHomeBlockEditing(){
    el.setAttribute("draggable",homeEditMode?"true":"false");
    el.onpointerdown=e=>{if(e.pointerType!=="touch")startLongPress()};
    el.onpointerup=el.onpointercancel=el.onpointerleave=e=>{if(e.pointerType!=="touch")cancelLongPress()};
-   el.ontouchstart=e=>{const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;startLongPress()};
-   el.ontouchmove=e=>{const t=e.touches[0];if(Math.hypot(t.clientX-touchStartX,t.clientY-touchStartY)>12)cancelLongPress()};
-   el.ontouchend=el.ontouchcancel=cancelLongPress;
+   el.ontouchstart=e=>{
+     const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartAt=Date.now();touchMoved=false;
+     if(homeEditMode){
+       e.preventDefault();homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
+     }
+   };
+   el.ontouchmove=e=>{
+     const t=e.touches[0];
+     if(homeEditMode&&homeTouchDragKey){
+       e.preventDefault();
+       document.querySelectorAll("#home .homeBlock.dragover").forEach(x=>x.classList.remove("dragover"));
+       const target=document.elementFromPoint(t.clientX,t.clientY)?.closest("#home .homeBlock");
+       if(target){homeTouchDropKey=target.dataset.homekey;target.classList.add("dragover")}
+       return;
+     }
+     if(Math.hypot(t.clientX-touchStartX,t.clientY-touchStartY)>12)touchMoved=true;
+   };
+   el.ontouchend=e=>{
+     if(homeEditMode&&homeTouchDragKey){
+       e.preventDefault();
+       const from=homeTouchDragKey,to=homeTouchDropKey;
+       homeTouchDragKey=null;homeTouchDropKey=null;
+       document.querySelectorAll("#home .homeBlock").forEach(x=>x.classList.remove("dragging","dragover"));
+       if(from&&to&&from!==to)moveHomeBlockTo(from,to);
+     }else if(!touchMoved&&Date.now()-touchStartAt>=500){
+       e.preventDefault();enterHomeEdit();
+     }
+     cancelLongPress();
+   };
+   el.ontouchcancel=()=>{homeTouchDragKey=null;homeTouchDropKey=null;cancelLongPress()};
    el.oncontextmenu=e=>{e.preventDefault();if(!homeEditMode)enterHomeEdit();return false};
    el.ondragstart=e=>{if(!homeEditMode){e.preventDefault();return}el.classList.add("dragging");e.dataTransfer.setData("text/plain",key)};
    el.ondragend=()=>el.classList.remove("dragging");
@@ -2645,8 +2660,6 @@ function bindHomeBlockEditing(){
    el.ondragleave=()=>el.classList.remove("dragover");
    el.ondrop=e=>{if(!homeEditMode)return;e.preventDefault();el.classList.remove("dragover");moveHomeBlockTo(e.dataTransfer.getData("text/plain"),key)};
  });
- document.querySelectorAll(".homeBlockUp").forEach(b=>b.onclick=e=>{e.stopPropagation();moveHomeBlock(b.closest(".homeBlock").dataset.homekey,-1)});
- document.querySelectorAll(".homeBlockDown").forEach(b=>b.onclick=e=>{e.stopPropagation();moveHomeBlock(b.closest(".homeBlock").dataset.homekey,1)});
  document.querySelectorAll(".homeBlockRemove").forEach(b=>b.onclick=e=>{e.stopPropagation();homePrefs[b.closest(".homeBlock").dataset.homekey]=false;save();applyHomePrefs()});
 }
 function enterHomeEdit(){
@@ -2897,10 +2910,8 @@ confirmImport.onclick=()=>{for(const m of pending){if(m.why==="learned"&&m.categ
 if(statsBulkAll)statsBulkAll.onclick=statsSelectAll;
 if(statsBulkCancel)statsBulkCancel.onclick=()=>{statsSelectMode=false;statsSelected.clear();renderStatsCategoryMoves()};
 if(statsBulkAssign)statsBulkAssign.onclick=openStatsBulkAssign;
-const startHomeEditBtn=document.getElementById("startHomeEdit");
 const doneHomeEditBtn=document.getElementById("doneHomeEdit");
 const addHomeBlockButton=document.getElementById("addHomeBlockBtn");
-if(startHomeEditBtn)startHomeEditBtn.onclick=enterHomeEdit;
 if(doneHomeEditBtn)doneHomeEditBtn.onclick=exitHomeEdit;
 if(addHomeBlockButton)addHomeBlockButton.onclick=()=>addHomePanel.classList.toggle("active");
 const closeStatsDetailBtn=document.getElementById("closeStatsDetail");
@@ -3051,7 +3062,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));render();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));render();applyHomePrefs();
 </script>
 </body></html>
 <style>
