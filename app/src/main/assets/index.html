@@ -2158,6 +2158,19 @@ button:active,
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
+          <div class="settingsActionTitle">Backup automatico</div>
+          <div id="autoBackupDesc" class="settingsActionDesc">Crea periodicamente una copia locale dei dati.</div>
+        </div>
+        <select id="autoBackupFrequency" aria-label="Frequenza backup automatico" style="width:auto;min-width:126px">
+          <option value="off">Disattivato</option>
+          <option value="daily">Giornaliero</option>
+          <option value="weekly">Settimanale</option>
+          <option value="monthly">Mensile</option>
+        </select>
+      </div>
+
+      <div class="settingsActionRow">
+        <div class="settingsActionText">
           <div class="settingsActionTitle">Ripristina backup</div>
           <div class="settingsActionDesc">Carica un backup JSON precedente.</div>
         </div>
@@ -2240,8 +2253,7 @@ button:active,
 </div></div>
 
 <div id="categoryDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Elimina categoria</b><div class="kicker">Questa operazione non può essere annullata.</div></div><button id="cancelCategoryDeleteTop" class="secondary" type="button">Chiudi</button></div>
-<div class="hint" style="margin-top:14px">I movimenti della categoria <b id="categoryDeleteName"></b> verranno spostati in <b>Altro</b>.</div>
+<div><b id="categoryDeleteQuestion">Sei sicuro di voler eliminare questa categoria?</b></div>
 <div class="actions" style="margin-top:14px"><button id="confirmCategoryDelete" class="danger" type="button">Elimina categoria</button><button id="cancelCategoryDelete" class="secondary" type="button">Annulla</button></div>
 </div></div>
 
@@ -2339,6 +2351,7 @@ let statsTouchDragCat=null,statsTouchDropCat=null,statsTouchStartX=0,statsTouchS
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
+let autoBackupFrequency=localStorage.getItem("micio_v94_autobackup_frequency")||"off";
 const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(n), esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])), uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
 const sanitizeDescription=s=>String(s)
  .replace(/\bBONGIORNO\s+CALOGERO\s+IVAN\b/gi,"")
@@ -2348,7 +2361,7 @@ const sanitizeDescription=s=>String(s)
  .replace(/^\s*[-–—,:;|]+\s*/,"")
  .replace(/\s*[-–—,:;|]+\s*$/,"")
  .trim();
-const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth)};
+const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth);maybeCreateAutoBackup()};
 
 
 function parseItDate(s){const [d,m,y]=s.split("/").map(Number);return new Date(y,m-1,d)}
@@ -2779,7 +2792,7 @@ function exitHomeEdit(){
 function openCategoryManager(name=null){
  editingCategory=name; manageCatMsg.textContent="";
  manageCatTitle.textContent=name?"Modifica categoria":"Nuova categoria";manageCatName.value=name||"";
- deleteManagedCat.style.display=name?"inline-block":"none";renderStylePickers(name||"Altro");manageCatModal.style.display="flex";
+ deleteManagedCat.style.display=name&&name!=="Da classificare"?"inline-block":"none";renderStylePickers(name||"Altro");manageCatModal.style.display="flex";
 }
 function renameCategory(oldName,newName){
  const oldCanon=canonicalCat(oldName);
@@ -2789,7 +2802,7 @@ function renameCategory(oldName,newName){
  else renamedCats[oldCanon]=newName;
 }
 function removeCategory(name){
- const fallback="Altro"; moves.forEach(m=>{if(m.category===name)m.category=fallback});Object.keys(rules).forEach(k=>{if(rules[k]===name)rules[k]=fallback});
+ const fallback="Da classificare"; moves.forEach(m=>{if(m.category===name)m.category=fallback});Object.keys(rules).forEach(k=>{if(rules[k]===name)rules[k]=fallback});
  if(budgets[name])delete budgets[name]; if(categoryStyles[name])delete categoryStyles[name]; if(customCats.includes(name))customCats=customCats.filter(c=>c!==name);else{const canon=canonicalCat(name);deletedCats.push(canon);delete renamedCats[canon]}
 }
 
@@ -2948,7 +2961,30 @@ function openManual(){
  if(modal)modal.style.display="flex";
 }
 function itDate(iso){const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
-function go(s){document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("active",x.id===s));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));if(s==="stats")requestAnimationFrame(()=>render())}
+const SCREEN_ORDER=["home","moves","stats","settings"];
+function go(s){
+ if(!SCREEN_ORDER.includes(s))return;
+ document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("active",x.id===s));
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));
+ if(s==="settings")openSettingsPage("settingsMainPage");
+ if(s==="stats")requestAnimationFrame(()=>render());
+ requestAnimationFrame(()=>{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0});
+}
+
+let screenSwipeStart=null;
+document.addEventListener("touchstart",e=>{
+ if(e.touches.length!==1||homeEditMode||statsEditMode||document.querySelector('.modal[style*="display: flex"]'))return;
+ if(e.target.closest("button,input,select,textarea,label,a,.catStatBtn,.row"))return;
+ const t=e.touches[0];screenSwipeStart={x:t.clientX,y:t.clientY,time:Date.now()};
+},{passive:true});
+document.addEventListener("touchend",e=>{
+ if(!screenSwipeStart||!e.changedTouches.length){screenSwipeStart=null;return}
+ const t=e.changedTouches[0],dx=t.clientX-screenSwipeStart.x,dy=t.clientY-screenSwipeStart.y,elapsed=Date.now()-screenSwipeStart.time;
+ screenSwipeStart=null;
+ if(elapsed>700||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.35)return;
+ const current=document.querySelector(".screen.active"),index=SCREEN_ORDER.indexOf(current&&current.id);
+ const next=index+(dx<0?1:-1);if(next>=0&&next<SCREEN_ORDER.length)go(SCREEN_ORDER[next]);
+},{passive:true});
 
 
 const toggleFiltersBtn=document.getElementById("toggleFilters"),filtersPanelEl=document.getElementById("filtersPanel");
@@ -3105,7 +3141,7 @@ function saveTextFile(name,mime,content,statusEl){
  const blob=new Blob([content],{type:mime}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
  if(statusEl){statusEl.textContent="File esportato.";statusEl.className="status ok"}
 }
-window.onNekoFileSaved=success=>{if(pendingExportStatus){pendingExportStatus.textContent=success?"File salvato correttamente.":"Salvataggio annullato.";pendingExportStatus.className=success?"status ok":"status"}pendingExportStatus=null};
+window.onNekoFileSaved=success=>{if(pendingExportStatus){if(success){const el=pendingExportStatus;el.textContent="File salvato correttamente.";el.className="status ok";setTimeout(()=>{if(el.textContent==="File salvato correttamente.")el.textContent=""},3500)}else pendingExportStatus.textContent=""}pendingExportStatus=null};
 exportCsv.onclick=()=>{
  const headers=["Data","Data valuta","Tipo","Importo","Categoria","Descrizione","Nota","Escluso statistiche"];
  const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>[m.date,m.valueDate||m.date,m.amount<0?"Uscita":"Entrata",m.amount,m.category,sanitizeDescription(m.description),m.note||"",m.excludeStats?"Sì":"No"]);
@@ -3113,15 +3149,29 @@ exportCsv.onclick=()=>{
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
  saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
 };
-exportBackup.onclick=()=>{const data={version:9,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder};saveTextFile("neko-backup.json","application/json",JSON.stringify(data,null,2),backupStatus)};
-importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
+function backupData(){return{version:10,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder,autoBackupFrequency}}
+function maybeCreateAutoBackup(force=false){
+ if(autoBackupFrequency==="off")return;
+ const intervals={daily:86400000,weekly:604800000,monthly:2592000000},last=Number(localStorage.getItem("micio_v94_autobackup_at")||0);
+ if(!force&&Date.now()-last<(intervals[autoBackupFrequency]||Infinity))return;
+ localStorage.setItem("micio_v94_autobackup",JSON.stringify(backupData()));localStorage.setItem("micio_v94_autobackup_at",String(Date.now()));updateAutoBackupUi();
+}
+function updateAutoBackupUi(){
+ const select=document.getElementById("autoBackupFrequency"),desc=document.getElementById("autoBackupDesc"),last=Number(localStorage.getItem("micio_v94_autobackup_at")||0);
+ if(select)select.value=autoBackupFrequency;
+ if(desc)desc.textContent=autoBackupFrequency==="off"?"Crea periodicamente una copia locale dei dati.":last?`Ultima copia locale: ${new Date(last).toLocaleString("it-IT")}.`:`La prima copia verrà creata automaticamente.`;
+}
+const autoBackupSelect=document.getElementById("autoBackupFrequency");
+if(autoBackupSelect)autoBackupSelect.onchange=()=>{autoBackupFrequency=autoBackupSelect.value;localStorage.setItem("micio_v94_autobackup_frequency",autoBackupFrequency);if(autoBackupFrequency!=="off")maybeCreateAutoBackup(true);else updateAutoBackupUi()};
+exportBackup.onclick=()=>saveTextFile("neko-backup.json","application/json",JSON.stringify(backupData(),null,2),backupStatus);
+importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];if(["off","daily","weekly","monthly"].includes(d.autoBackupFrequency)){autoBackupFrequency=d.autoBackupFrequency;localStorage.setItem("micio_v94_autobackup_frequency",autoBackupFrequency)}save();updateAutoBackupUi();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
 closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
 saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
 categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
-const categoryDeleteModal=document.getElementById("categoryDeleteModal"),categoryDeleteName=document.getElementById("categoryDeleteName");
+const categoryDeleteModal=document.getElementById("categoryDeleteModal"),categoryDeleteQuestion=document.getElementById("categoryDeleteQuestion");
 const closeCategoryDelete=()=>{if(categoryDeleteModal)categoryDeleteModal.style.display="none"};
-deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteName)categoryDeleteName.textContent=`“${editingCategory}”`;if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
-document.getElementById("cancelCategoryDelete").onclick=closeCategoryDelete;document.getElementById("cancelCategoryDeleteTop").onclick=closeCategoryDelete;
+deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteQuestion)categoryDeleteQuestion.textContent=`Sei sicuro di voler eliminare “${editingCategory}”?`;if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
+document.getElementById("cancelCategoryDelete").onclick=closeCategoryDelete;
 document.getElementById("confirmCategoryDelete").onclick=()=>{if(!editingCategory)return;removeCategory(editingCategory);save();render();renderCategoryManager();manageCatModal.style.display="none";closeCategoryDelete()};
 const bulkModalCloseBtn=document.getElementById("bulkModalClose");
 const bulkConfirmBtn=document.getElementById("bulkConfirm");
@@ -3205,7 +3255,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));maybeCreateAutoBackup();updateAutoBackupUi();render();applyHomePrefs();
 </script>
 </body></html>
 <style>
