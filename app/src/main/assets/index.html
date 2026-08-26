@@ -48,8 +48,10 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .hiddenHomeBlock{display:none!important}
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
 .home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative;touch-action:none}.home-editing .homeBlock:active{cursor:grabbing}
-.homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.homeBlock.dragging{opacity:.45}.homeBlock.dragover{outline-color:var(--accent)}
+.homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:opacity .18s ease,transform .18s ease,outline-color .18s ease}
+.homeBlock.dragging{opacity:.22;transform:scale(.98)}.homeBlock.dragover{outline-color:var(--accent);transform:scale(1.015)}
+.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;opacity:.94!important;transform:translate3d(0,0,0) scale(1.035) rotate(1deg)!important;box-shadow:0 18px 44px rgba(27,35,74,.28)!important;transition:none!important;will-change:left,top;overflow:hidden}
+.homeTouchGhost .homeBlockControls{display:none!important}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
 .addHomePanel{display:none;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:12px}.addHomePanel.active{display:block}.addHomeGrid{display:flex;gap:8px;flex-wrap:wrap}.addHomeGrid button{background:var(--soft)}
@@ -2278,7 +2280,7 @@ let categoryOrder=JSON.parse(localStorage.getItem("micio_v91_catorder")||"[]");
 let homeOrder=JSON.parse(localStorage.getItem("micio_v92_homeorder")||'["summary","compare","budget","topcats","latest"]');
 let statsCategoryOrder=JSON.parse(localStorage.getItem("micio_v93_statsorder")||"[]");
 let homeEditMode=false,statsEditMode=false,longPressTimer=null;
-let homeTouchDragKey=null,homeTouchDropKey=null;
+let homeTouchDragKey=null,homeTouchDropKey=null,homeTouchGhost=null,homeTouchOffsetX=0,homeTouchOffsetY=0;
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
@@ -2626,13 +2628,20 @@ function bindHomeBlockEditing(){
    el.ontouchstart=e=>{
      const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartAt=Date.now();touchMoved=false;
      if(homeEditMode){
+       if(e.target.closest("button,input,select,textarea,a,.homeBlockControls")){homeTouchDragKey=null;return}
        e.preventDefault();homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
+       const rect=el.getBoundingClientRect();homeTouchOffsetX=t.clientX-rect.left;homeTouchOffsetY=t.clientY-rect.top;
+       homeTouchGhost=el.cloneNode(true);homeTouchGhost.removeAttribute("id");homeTouchGhost.classList.add("homeTouchGhost");
+       homeTouchGhost.style.width=rect.width+"px";homeTouchGhost.style.height=rect.height+"px";
+       homeTouchGhost.style.left=(t.clientX-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(t.clientY-homeTouchOffsetY)+"px";
+       document.body.appendChild(homeTouchGhost);
      }
    };
    el.ontouchmove=e=>{
      const t=e.touches[0];
      if(homeEditMode&&homeTouchDragKey){
        e.preventDefault();
+       if(homeTouchGhost){homeTouchGhost.style.left=(t.clientX-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(t.clientY-homeTouchOffsetY)+"px"}
        document.querySelectorAll("#home .homeBlock.dragover").forEach(x=>x.classList.remove("dragover"));
        const target=document.elementFromPoint(t.clientX,t.clientY)?.closest("#home .homeBlock");
        if(target){homeTouchDropKey=target.dataset.homekey;target.classList.add("dragover")}
@@ -2645,6 +2654,7 @@ function bindHomeBlockEditing(){
        e.preventDefault();
        const from=homeTouchDragKey,to=homeTouchDropKey;
        homeTouchDragKey=null;homeTouchDropKey=null;
+       if(homeTouchGhost){homeTouchGhost.remove();homeTouchGhost=null}
        document.querySelectorAll("#home .homeBlock").forEach(x=>x.classList.remove("dragging","dragover"));
        if(from&&to&&from!==to)moveHomeBlockTo(from,to);
      }else if(!touchMoved&&Date.now()-touchStartAt>=500){
@@ -2652,7 +2662,7 @@ function bindHomeBlockEditing(){
      }
      cancelLongPress();
    };
-   el.ontouchcancel=()=>{homeTouchDragKey=null;homeTouchDropKey=null;cancelLongPress()};
+   el.ontouchcancel=()=>{homeTouchDragKey=null;homeTouchDropKey=null;if(homeTouchGhost){homeTouchGhost.remove();homeTouchGhost=null}document.querySelectorAll("#home .homeBlock").forEach(x=>x.classList.remove("dragging","dragover"));cancelLongPress()};
    el.oncontextmenu=e=>{e.preventDefault();if(!homeEditMode)enterHomeEdit();return false};
    el.ondragstart=e=>{if(!homeEditMode){e.preventDefault();return}el.classList.add("dragging");e.dataTransfer.setData("text/plain",key)};
    el.ondragend=()=>el.classList.remove("dragging");
