@@ -70,6 +70,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .settingsHero{padding:16px;border-radius:18px;background:linear-gradient(135deg,var(--accent-soft),#f8f9ff);border:1px solid #e1e5ff;margin-bottom:12px}.settingsHero h3{margin-bottom:4px}
 .settingsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.settingsCardBtn{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff}.settingsCardBtn .bigIcon{font-size:22px}.settingsCardBtn b{font-size:14px}.settingsCardBtn span{font-size:12px;color:var(--muted)}.settingsCardBtn.active{border-color:#cfd5ff;background:var(--accent-soft)}
 .settingsContent{margin-top:12px}.settingsSection{display:none}.settingsSection.active{display:block}.settingsSectionHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.importSummaryToast{position:fixed;left:50%;bottom:82px;transform:translate(-50%,18px);width:min(430px,calc(100% - 28px));padding:12px 14px;border-radius:14px;background:#26304a;color:#fff;box-shadow:0 12px 32px rgba(30,41,59,.24);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}.importSummaryToast.active{opacity:1;transform:translate(-50%,0)}
 @media(max-width:560px){.settingsGrid{grid-template-columns:1fr}}
 .filtersButtonRow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0}.filtersSummary{font-size:12px;color:var(--muted)}
 .filtersPanel{display:none;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafbfc;margin-bottom:10px}.filtersPanel.active{display:block}.filterCats{display:flex;gap:7px;flex-wrap:wrap}.filterCatBtn{background:var(--soft);padding:8px 11px;border-radius:99px}.filterCatBtn.active{background:var(--accent);color:#fff}
@@ -2196,6 +2197,7 @@ button:active,
 </div>
 
 <nav class="bottom"><div class="nav"><button class="active" data-screen="home"><span>⌂</span>Home</button><button data-screen="moves"><span>≡</span>Movimenti</button><button data-screen="stats"><span>◔</span>Statistiche</button><button data-screen="settings"><span>⚙</span>Impostazioni</button></div></nav>
+<div id="importSummaryToast" class="importSummaryToast" role="status" aria-live="polite"></div>
 
 <div id="appInfoModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Info Neko</b><div class="kicker">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button">Chiudi</button></div>
@@ -2335,7 +2337,7 @@ const MERCHANT_RULES=[
  ["CAFFE","Ristorazione"],["CAFE","Ristorazione"],["RISTORANTE","Ristorazione"],["PIZZERIA","Ristorazione"],["PANIFICIO","Ristorazione"],["BAR ","Ristorazione"],["FOOD","Ristorazione"]
 ];
 
-let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],selected=null,filter="Tutte";
+let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],pendingImportSummary={ignored:0,ambiguous:0},selected=null,filter="Tutte";
 let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
@@ -2361,6 +2363,33 @@ const sanitizeDescription=s=>String(s)
  .replace(/^\s*[-–—,:;|]+\s*/,"")
  .replace(/\s*[-–—,:;|]+\s*$/,"")
  .trim();
+function normalizedMovementDescription(value){return sanitizeDescription(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9]+/g," ").replace(/\s+/g," ").trim()}
+function movementReference(m){
+ const direct=m.transactionId||m.referenceId||m.externalId;if(direct)return String(direct).trim().toUpperCase();
+ const match=String(m.description||"").toUpperCase().match(/\b(?:CRO|TRN|ID(?:\s+OPERAZIONE)?|RIF(?:ERIMENTO)?)\s*[:#-]?\s*([A-Z0-9]{6,})\b/);
+ return match?match[1]:"";
+}
+function movementAmountKey(m){return String(Math.round(Number(m.amount||0)*100))}
+function movementTypeKey(m){return Number(m.amount||0)<0?"expense":"income"}
+function movementLooseSignature(m){return [m.date||"",m.valueDate||m.date||"",movementAmountKey(m),movementTypeKey(m)].join("|")}
+function movementStableSignature(m){
+ const ref=movementReference(m);if(ref)return "ref|"+ref+"|"+movementAmountKey(m)+"|"+movementTypeKey(m);
+ return "movement|"+movementLooseSignature(m)+"|"+normalizedMovementDescription(m.description);
+}
+function detectImportedDuplicates(candidates,existing){
+ const available=new Map(),knownLoose=new Map();
+ existing.forEach(m=>{const strong=movementStableSignature(m),loose=movementLooseSignature(m);available.set(strong,(available.get(strong)||0)+1);if(!knownLoose.has(loose))knownLoose.set(loose,new Set());knownLoose.get(loose).add(strong)});
+ const accepted=[],acceptedLoose=new Map();let ignored=0,ambiguous=0;
+ candidates.forEach(m=>{
+   const strong=movementStableSignature(m),loose=movementLooseSignature(m),count=available.get(strong)||0;
+   if(count>0){available.set(strong,count-1);ignored++;return}
+   const similarExisting=knownLoose.has(loose)&&!knownLoose.get(loose).has(strong);
+   const similarIncoming=acceptedLoose.has(loose)&&!acceptedLoose.get(loose).has(strong);
+   if(similarExisting||similarIncoming){m.duplicateReview=true;ambiguous++}
+   accepted.push(m);if(!acceptedLoose.has(loose))acceptedLoose.set(loose,new Set());acceptedLoose.get(loose).add(strong);
+ });
+ return{accepted,ignored,ambiguous};
+}
 const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth);maybeCreateAutoBackup()};
 
 
@@ -2446,7 +2475,7 @@ async function extract(file){
  text=text.replace(/\s+/g," ");const re=/(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+([+-]?\d{1,3}(?:\.\d{3})*,\d{2})\s+(.+?)(?=\s+\d{2}\/\d{2}\/\d{4}\s+\d{2}\/\d{2}\/\d{4}\s+[+-]?\d|$)/g;
  let out=[],m;while((m=re.exec(text))){let amount=parseAmount(m[3]),desc=sanitizeDescription(m[4].replace(/Stampa da Relax Banking.*?(?=\d{2}\/\d{2}\/\d{4}|$)/i,"").trim()),cl=classify(desc,amount);out.push({date:m[1],valueDate:m[2],amount,description:desc,category:cl.cat,why:cl.why,source:"pdf",note:"",excludeStats:false})}return out
 }
-function badge(m){if(m.why==="learned")return'<span class="badge learn">imparato</span>';if(m.why==="local")return'<span class="badge auto">riconosciuto</span>';return'<span class="badge warn">da controllare</span>'}
+function badge(m){if(m.duplicateReview)return'<span class="badge warn">possibile duplicato</span>';if(m.why==="learned")return'<span class="badge learn">imparato</span>';if(m.why==="local")return'<span class="badge auto">riconosciuto</span>';return'<span class="badge warn">da controllare</span>'}
 function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${m.date} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><select class="previewSelect" data-i="${i}">${CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("")}</select></div>`}
 
 function renderRulesManager(){
@@ -3045,18 +3074,16 @@ async function choose(file){
 Analisi PDF…`}
  try{
    if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile. Riapri l'app con una connessione Internet.");
-   pending=await extract(file);
-   const keys=new Set(moves.map(m=>`${m.date}|${m.valueDate}|${m.amount}|${sanitizeDescription(m.description)}`));
-   pending=pending.filter(m=>!keys.has(`${m.date}|${m.valueDate}|${m.amount}|${sanitizeDescription(m.description)}`));
-   const unknown=pending.filter(m=>m.category==="Da classificare").length;
-   if(previewInfoEl)previewInfoEl.textContent=`${pending.length} nuovi · ${unknown} da controllare`;
+   const detection=detectImportedDuplicates(await extract(file),moves);pending=detection.accepted;pendingImportSummary={ignored:detection.ignored,ambiguous:detection.ambiguous};
+   const unknown=pending.filter(m=>m.category==="Da classificare"&&!m.duplicateReview).length,review=unknown+detection.ambiguous;
+   if(previewInfoEl)previewInfoEl.textContent=`${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`;
    if(previewListEl){
      previewListEl.innerHTML=pending.map(previewCard).join("")||'<div class="empty">Nessun nuovo movimento.</div>';
      previewListEl.querySelectorAll("select").forEach(s=>s.addEventListener("change",()=>{const i=Number(s.dataset.i);pending[i].category=s.value;pending[i].why="learned"}));
    }
    if(previewModalEl)previewModalEl.style.display="flex";
    if(statusEl){statusEl.textContent=`PDF letto correttamente.
-${pending.length} nuovi movimenti trovati.`;statusEl.className="status ok"}
+${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare.`;statusEl.className="status ok"}
  }catch(e){
    console.error("Errore import PDF",e);
    if(statusEl){statusEl.textContent="Errore importazione: "+(e&&e.message?e.message:String(e));statusEl.className="status err"}
@@ -3071,7 +3098,9 @@ function onPdfSelected(e){
 }
 if(pdfInput){pdfInput.addEventListener("change",onPdfSelected);pdfInput.addEventListener("input",()=>{})}
 if(pdfInput2){pdfInput2.addEventListener("change",onPdfSelected);pdfInput2.addEventListener("input",()=>{})}
-confirmImport.onclick=()=>{for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}pending=[];save();previewModal.style.display="none";render();go("home")};cancelImport.onclick=()=>{pending=[];previewModal.style.display="none"};
+let importSummaryTimer=null;
+function showImportSummary(imported,ignored,ambiguous){const el=document.getElementById("importSummaryToast");if(!el)return;el.textContent=`${imported} movimenti importati · ${ignored} già presenti ignorati · ${ambiguous} da controllare`;el.classList.add("active");clearTimeout(importSummaryTimer);importSummaryTimer=setTimeout(()=>el.classList.remove("active"),6500)}
+confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}pending=[];pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
 
 
 

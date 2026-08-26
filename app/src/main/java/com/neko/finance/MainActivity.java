@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-swipe-auto-backup");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-duplicate-import");
         } else {
             webView.restoreState(savedInstanceState);
         }
