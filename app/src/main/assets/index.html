@@ -53,8 +53,9 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 @keyframes homeEditEnter{from{transform:translateY(5px) scale(.992);border-color:var(--line);box-shadow:0 2px 8px rgba(0,0,0,.02)}to{transform:translateY(0) scale(1);border-color:#cfd5ff;box-shadow:0 8px 22px rgba(46,58,117,.09)}}
 @keyframes homeEditBarEnter{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes homeEditControlsEnter{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
-.homeBlock.dragging{opacity:.68;transform:scale(.965)}.homeBlock.dragover{border-color:var(--accent)!important;transform:scale(1.008)}
-.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;opacity:.98!important;transform:translate3d(0,0,0) scale(.97)!important;transform-origin:center!important;border:1px solid #bfc8ff!important;background:var(--card)!important;box-shadow:0 12px 28px rgba(46,58,117,.18)!important;transition:none!important;will-change:left,top;overflow:hidden}
+.homeBlock.dragging{opacity:.82;transform:scale(.985)}.homeBlock.dragover{border-color:var(--accent)!important;transform:scale(1.008)}
+.homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;width:min(260px,72vw)!important;height:52px!important;padding:0 16px!important;display:flex!important;align-items:center!important;gap:11px!important;opacity:1!important;border:1px solid rgba(70,87,168,.18)!important;border-radius:16px!important;background:rgba(255,255,255,.98)!important;color:var(--text)!important;box-shadow:0 12px 30px rgba(30,41,59,.18)!important;transition:none!important;will-change:left,top;overflow:hidden;font-size:13px!important;font-weight:800!important}
+.homeTouchGhostIcon{width:28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:16px;flex:none}
 .homeTouchGhost .homeBlockControls{display:none!important}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
@@ -2637,6 +2638,7 @@ function moveCategory(name,dir){
  [cats[i],cats[j]]=[cats[j],cats[i]];categoryOrder=cats;save();render();
 }
 function renderHomeConfig(){/* Gestione spostata direttamente nella Home */}
+const HOME_BLOCK_LABELS={summary:"Riepilogo saldo",compare:"Andamento del mese",budget:"Budget del mese",topcats:"Spese principali",latest:"Ultimi movimenti"};
 function moveHomeBlock(key,dir){
  const keys=[...homeOrder];const i=keys.indexOf(key),j=i+dir;if(i<0||j<0||j>=keys.length)return;
  [keys[i],keys[j]]=[keys[j],keys[i]];homeOrder=keys;save();applyHomePrefs();
@@ -2658,7 +2660,7 @@ function applyHomePrefs(){
 }
 function renderAddHomePanel(){
  const panel=document.getElementById("addHomeGrid");if(!panel)return;
- const labels={summary:"Riepilogo saldo",compare:"Confronto mese precedente",budget:"Budget del mese",topcats:"Spese principali",latest:"Ultimi movimenti"};
+ const labels=HOME_BLOCK_LABELS;
  const hidden=Object.keys(labels).filter(k=>homePrefs[k]===false);
  panel.innerHTML=hidden.length?hidden.map(k=>`<button type="button" class="addHomeChoice" data-key="${k}">＋ ${labels[k]}</button>`).join(""):'<div class="kicker">Tutte le sezioni sono già presenti.</div>';
  panel.querySelectorAll(".addHomeChoice").forEach(b=>b.onclick=()=>{homePrefs[b.dataset.key]=true;if(!homeOrder.includes(b.dataset.key))homeOrder.push(b.dataset.key);save();applyHomePrefs()});
@@ -2676,16 +2678,28 @@ function bindHomeBlockEditing(){
    el.setAttribute("draggable",homeEditMode?"true":"false");
    el.onpointerdown=e=>{if(e.pointerType!=="touch")startLongPress()};
    el.onpointerup=el.onpointercancel=el.onpointerleave=e=>{if(e.pointerType!=="touch")cancelLongPress()};
+   const beginTouchDrag=(x,y)=>{
+     homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
+     const rect=el.getBoundingClientRect();homeTouchOffsetX=Math.min(130,rect.width*.36);homeTouchOffsetY=26;
+     homeTouchGhost=document.createElement("div");homeTouchGhost.className="homeTouchGhost";
+     homeTouchGhost.innerHTML=`<span class="homeTouchGhostIcon">↕</span><span>${HOME_BLOCK_LABELS[key]||"Sezione Home"}</span>`;
+     homeTouchGhost.style.left=(x-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(y-homeTouchOffsetY)+"px";
+     document.body.appendChild(homeTouchGhost);
+   };
    el.ontouchstart=e=>{
      const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartAt=Date.now();touchMoved=false;
      if(homeEditMode){
        if(e.target.closest("button,input,select,textarea,a,.homeBlockControls")){homeTouchDragKey=null;return}
-       e.preventDefault();homeTouchDragKey=key;homeTouchDropKey=key;el.classList.add("dragging");
-       const rect=el.getBoundingClientRect();homeTouchOffsetX=t.clientX-rect.left;homeTouchOffsetY=t.clientY-rect.top;
-       homeTouchGhost=el.cloneNode(true);homeTouchGhost.removeAttribute("id");homeTouchGhost.classList.add("homeTouchGhost");
-       homeTouchGhost.style.width=rect.width+"px";homeTouchGhost.style.height=rect.height+"px";
-       homeTouchGhost.style.left=(t.clientX-homeTouchOffsetX)+"px";homeTouchGhost.style.top=(t.clientY-homeTouchOffsetY)+"px";
-       document.body.appendChild(homeTouchGhost);
+       e.preventDefault();beginTouchDrag(t.clientX,t.clientY);
+     }else if(!e.target.closest("button,input,select,textarea,a,.homeBlockControls")){
+       cancelLongPress();
+       longPressTimer=setTimeout(()=>{
+         longPressTimer=null;
+         if(touchMoved)return;
+         enterHomeEdit();
+         beginTouchDrag(touchStartX,touchStartY);
+         if(navigator.vibrate)navigator.vibrate(20);
+       },500);
      }
    };
    el.ontouchmove=e=>{
@@ -3168,4 +3182,7 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 #statsCategoriesCard .catStatHead{align-items:center}
 #statsCategoriesCard.statsEditing .catStatValue{margin-left:auto}
 #statsCategoriesCard.statsEditing .catStatBtn{outline:none!important;cursor:default!important}
+#home.home-editing > .homeBlock{padding-right:58px!important}
+#home.home-editing .homeBlockControls{top:9px!important;right:9px!important}
+#home.home-editing .homeBlockRemove{width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px!important;display:grid!important;place-items:center!important}
 </style>
