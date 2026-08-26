@@ -7,6 +7,7 @@ plugins {
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+def buildRevision = (System.getenv("GITHUB_SHA") ?: "local").take(7)
 
 android {
     signingConfigs {
@@ -27,6 +28,11 @@ android {
         targetSdk 35
         versionCode 5
         versionName "1.1.1"
+        buildConfigField "String", "BUILD_REVISION", "\"${buildRevision}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
