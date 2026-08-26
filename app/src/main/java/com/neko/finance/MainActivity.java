@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-build-info");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-build-info-home-empty");
         } else {
             webView.restoreState(savedInstanceState);
         }

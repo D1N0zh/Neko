@@ -49,12 +49,17 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
 .home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative;touch-action:none}.home-editing .homeBlock:active{cursor:grabbing}
 .homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:opacity .18s ease,transform .18s ease,outline-color .18s ease}
+.home-editing .homeBlock{animation:homeEditEnter .32s cubic-bezier(.22,.8,.3,1) both}.home-editing #homeEditBar{animation:homeEditBarEnter .28s cubic-bezier(.22,.8,.3,1) both}.home-editing .homeBlockControls{animation:homeEditControlsEnter .34s .08s ease both}
+@keyframes homeEditEnter{from{transform:translateY(5px) scale(.992);outline-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.02)}to{transform:translateY(0) scale(1);outline-color:rgba(70,87,168,.35)}}
+@keyframes homeEditBarEnter{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes homeEditControlsEnter{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
 .homeBlock.dragging{opacity:.22;transform:scale(.98)}.homeBlock.dragover{outline-color:var(--accent);transform:scale(1.015)}
 .homeTouchGhost{position:fixed!important;z-index:9999!important;pointer-events:none!important;margin:0!important;opacity:.94!important;transform:translate3d(0,0,0) scale(1.035) rotate(1deg)!important;box-shadow:0 18px 44px rgba(27,35,74,.28)!important;transition:none!important;will-change:left,top;overflow:hidden}
 .homeTouchGhost .homeBlockControls{display:none!important}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
 .addHomePanel{display:none;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:12px}.addHomePanel.active{display:block}.addHomeGrid{display:flex;gap:8px;flex-wrap:wrap}.addHomeGrid button{background:var(--soft)}
+.home-loading #home{visibility:hidden}.homeEmptyState{display:none;text-align:center;padding:34px 18px;border:1px dashed var(--line);border-radius:20px;background:var(--card)}.home-empty .homeEmptyState{display:block}.home-empty.home-editing .homeEmptyState{display:none}
 .statsEditBar{display:flex;justify-content:flex-end;margin-bottom:10px}.statsEditing .catStatBtn{outline:2px dashed rgba(70,87,168,.18)}
 .statsMoveControls{display:none;gap:5px;margin-left:auto;flex:none}.statsEditing .statsMoveControls{display:flex}.statsMoveControls button{padding:5px 8px;min-height:30px;font-size:12px}
 .settingsGroup{display:grid;gap:10px}.settingsTile{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#fafbfc}.settingsTileLeft{display:flex;align-items:center;gap:11px;min-width:0}.settingsIcon{width:38px;height:38px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center;flex:none}.settingsText{min-width:0}.settingsTitle{font-weight:800}.settingsDesc{font-size:12px;color:var(--muted);margin-top:2px}.settingsChevron{font-size:20px;color:var(--muted)}
@@ -1722,7 +1727,7 @@ button:active,
 }
 </style>
 </head>
-<body>
+<body class="home-loading">
 <div class="app">
 <div class="head compactHead">
   <div class="compactBrandMark" aria-label="Neko"><img src="assets/neko-logo.png" alt="Logo Neko"></div>
@@ -1746,6 +1751,12 @@ button:active,
 <div id="addHomePanel" class="addHomePanel">
   <div class="kicker" style="margin-bottom:8px">Sezioni disponibili</div>
   <div id="addHomeGrid" class="addHomeGrid"></div>
+</div>
+<div id="homeEmptyState" class="homeEmptyState">
+  <div style="font-size:28px;margin-bottom:8px">⌂</div>
+  <b>La Home è vuota</b>
+  <div class="kicker" style="margin:5px 0 14px">Puoi scegliere nuovamente le sezioni da mostrare.</div>
+  <button id="restoreHomeBlocks" class="primary" type="button">＋ Aggiungi sezioni</button>
 </div>
 <div id="homeSummary" class="homeBlock homeHero" data-homekey="summary">
   <div class="homeBlockControls">
@@ -2622,8 +2633,10 @@ function applyHomePrefs(){
  const before=document.getElementById("homeEditBar"),addPanel=document.getElementById("addHomePanel");
  homeOrder.forEach(k=>{const el=document.getElementById(map[k]);if(el)home.appendChild(el)});
  Object.entries(map).forEach(([k,id])=>{const el=document.getElementById(id);if(el)el.classList.toggle("hiddenHomeBlock",homePrefs[k]===false)});
+ home.classList.toggle("home-empty",!Object.keys(map).some(k=>homePrefs[k]!==false));
  if(before)home.insertBefore(before,home.firstChild);if(addPanel&&before)home.insertBefore(addPanel,before.nextSibling);
  renderAddHomePanel();bindHomeBlockEditing();
+ document.body.classList.remove("home-loading");
 }
 function renderAddHomePanel(){
  const panel=document.getElementById("addHomeGrid");if(!panel)return;
@@ -2962,8 +2975,10 @@ if(statsBulkCancel)statsBulkCancel.onclick=()=>{statsSelectMode=false;statsSelec
 if(statsBulkAssign)statsBulkAssign.onclick=openStatsBulkAssign;
 const doneHomeEditBtn=document.getElementById("doneHomeEdit");
 const addHomeBlockButton=document.getElementById("addHomeBlockBtn");
+const restoreHomeBlocksButton=document.getElementById("restoreHomeBlocks");
 if(doneHomeEditBtn)doneHomeEditBtn.onclick=exitHomeEdit;
 if(addHomeBlockButton)addHomeBlockButton.onclick=()=>addHomePanel.classList.toggle("active");
+if(restoreHomeBlocksButton)restoreHomeBlocksButton.onclick=()=>{enterHomeEdit();addHomePanel.classList.add("active")};
 const closeStatsDetailBtn=document.getElementById("closeStatsDetail");
 if(closeStatsDetailBtn)closeStatsDetailBtn.onclick=closeStatsCategoryDetail;
 document.getElementById("toggleStatsEdit").onclick=()=>{
