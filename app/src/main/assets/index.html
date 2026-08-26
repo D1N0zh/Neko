@@ -48,6 +48,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .hiddenHomeBlock{display:none!important}
 .homeEditBar{display:none;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px dashed var(--accent);background:var(--accent-soft);border-radius:14px;margin-bottom:12px}.homeEditBar.active{display:flex}
 .home-editing .homeBlock{outline:2px dashed rgba(70,87,168,.35);outline-offset:-4px;cursor:grab;position:relative}.home-editing .homeBlock:active{cursor:grabbing}
+.homeBlock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .homeBlock.dragging{opacity:.45}.homeBlock.dragover{outline-color:var(--accent)}
 .homeBlockControls{display:none;position:absolute;top:8px;right:8px;gap:5px;z-index:5}.home-editing .homeBlockControls{display:flex}
 .homeBlockControls button{padding:6px 8px;min-height:32px;font-size:12px}
@@ -2622,9 +2623,20 @@ function renderAddHomePanel(){
 function bindHomeBlockEditing(){
  document.querySelectorAll("#home .homeBlock").forEach(el=>{
    const key=el.dataset.homekey;
+   let touchStartX=0,touchStartY=0;
+   const cancelLongPress=()=>{if(longPressTimer){clearTimeout(longPressTimer);longPressTimer=null}};
+   const startLongPress=()=>{
+     if(homeEditMode)return;
+     cancelLongPress();
+     longPressTimer=setTimeout(()=>{longPressTimer=null;enterHomeEdit()},550);
+   };
    el.setAttribute("draggable",homeEditMode?"true":"false");
-   el.onpointerdown=e=>{if(homeEditMode)return;longPressTimer=setTimeout(()=>enterHomeEdit(),550)};
-   el.onpointerup=el.onpointercancel=el.onpointerleave=()=>{if(longPressTimer){clearTimeout(longPressTimer);longPressTimer=null}};
+   el.onpointerdown=e=>{if(e.pointerType!=="touch")startLongPress()};
+   el.onpointerup=el.onpointercancel=el.onpointerleave=e=>{if(e.pointerType!=="touch")cancelLongPress()};
+   el.ontouchstart=e=>{const t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;startLongPress()};
+   el.ontouchmove=e=>{const t=e.touches[0];if(Math.hypot(t.clientX-touchStartX,t.clientY-touchStartY)>12)cancelLongPress()};
+   el.ontouchend=el.ontouchcancel=cancelLongPress;
+   el.oncontextmenu=e=>{e.preventDefault();if(!homeEditMode)enterHomeEdit();return false};
    el.ondragstart=e=>{if(!homeEditMode){e.preventDefault();return}el.classList.add("dragging");e.dataTransfer.setData("text/plain",key)};
    el.ondragend=()=>el.classList.remove("dragging");
    el.ondragover=e=>{if(!homeEditMode)return;e.preventDefault();el.classList.add("dragover")};
