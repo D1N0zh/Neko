@@ -2239,6 +2239,12 @@ button:active,
 <div id="manageCatMsg" class="status"></div>
 </div></div>
 
+<div id="categoryDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Elimina categoria</b><div class="kicker">Questa operazione non può essere annullata.</div></div><button id="cancelCategoryDeleteTop" class="secondary" type="button">Chiudi</button></div>
+<div class="hint" style="margin-top:14px">I movimenti della categoria <b id="categoryDeleteName"></b> verranno spostati in <b>Altro</b>.</div>
+<div class="actions" style="margin-top:14px"><button id="confirmCategoryDelete" class="danger" type="button">Elimina categoria</button><button id="cancelCategoryDelete" class="secondary" type="button">Annulla</button></div>
+</div></div>
+
 </div>
 <div id="catSubstats" style="margin-top:12px"></div>
 <div id="catMoves" style="margin-top:8px"></div>
@@ -2329,6 +2335,7 @@ let homeOrder=JSON.parse(localStorage.getItem("micio_v92_homeorder")||'["summary
 let statsCategoryOrder=JSON.parse(localStorage.getItem("micio_v93_statsorder")||"[]");
 let homeEditMode=false,statsEditMode=false,longPressTimer=null;
 let homeTouchDragKey=null,homeTouchDropKey=null,homeTouchGhost=null,homeTouchOffsetX=0,homeTouchOffsetY=0;
+let statsTouchDragCat=null,statsTouchDropCat=null,statsTouchStartX=0,statsTouchStartY=0,statsTouchTimer=null;
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
@@ -2509,13 +2516,12 @@ function render(){
    allmovesEl.querySelectorAll(".row[data-id]").forEach(x=>x.onclick=()=>edit(x.dataset.id));
  }
  const valsMap=Object.fromEntries(vals);const statsCats=[...statsCategoryOrder.filter(c=>valsMap[c]!=null),...vals.map(([k])=>k).filter(k=>!statsCategoryOrder.includes(k))];statsCategoryOrder=statsCats;
- catstats.innerHTML=statsCats.length?statsCats.map((k,i)=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.09)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span><span class="statsMoveControls"><button type="button" class="secondary statUp" data-cat="${esc(k)}" ${i===0?"disabled":""} aria-label="Sposta su">↑</button><button type="button" class="secondary statDown" data-cat="${esc(k)}" ${i===statsCats.length-1?"disabled":""} aria-label="Sposta giù">↓</button></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):'<div class="empty">Nessun dato.</div>';
+ catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.09)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):'<div class="empty">Nessun dato.</div>';
  requestAnimationFrame(()=>drawPie(vals));
  document.querySelectorAll(".catStatBtn").forEach(x=>{
    x.onclick=e=>{if(statsEditMode||e.target.closest(".statsMoveControls"))return;openCategory(x.dataset.cat)};
  });
- document.querySelectorAll(".statUp").forEach(b=>b.onclick=e=>{e.stopPropagation();moveStatsCategory(b.dataset.cat,-1)});
- document.querySelectorAll(".statDown").forEach(b=>b.onclick=e=>{e.stopPropagation();moveStatsCategory(b.dataset.cat,1)});
+ bindStatsCategoryEditing();
 }
 
 
@@ -2791,6 +2797,35 @@ function moveStatsCategory(name,dir){
  const cats=[...statsCategoryOrder];const i=cats.indexOf(name),j=i+dir;if(i<0||j<0||j>=cats.length)return;
  [cats[i],cats[j]]=[cats[j],cats[i]];statsCategoryOrder=cats;save();render();
 }
+function moveStatsCategoryTo(from,to){
+ const cats=[...statsCategoryOrder],fi=cats.indexOf(from),ti=cats.indexOf(to);if(fi<0||ti<0||fi===ti)return;
+ cats.splice(fi,1);cats.splice(ti,0,from);statsCategoryOrder=cats;save();render();
+}
+function setStatsEditMode(active){
+ statsEditMode=active;const card=document.getElementById("statsCategoriesCard"),btn=document.getElementById("toggleStatsEdit");
+ if(active)closeStatsCategoryDetail();
+ if(card)card.classList.toggle("statsEditing",active);
+ if(btn)btn.textContent="Fine";
+}
+function bindStatsCategoryEditing(){
+ document.querySelectorAll("#catstats .catStatBtn").forEach(el=>{
+  const cat=el.dataset.cat;let startX=0,startY=0,moved=false;
+  const cancel=()=>{if(statsTouchTimer){clearTimeout(statsTouchTimer);statsTouchTimer=null}};
+  const begin=(x,y)=>{statsTouchDragCat=cat;statsTouchDropCat=cat;statsTouchStartX=x;statsTouchStartY=y;el.classList.add("statsDragging")};
+  el.ontouchstart=e=>{
+   if(statsTouchDragCat||e.touches.length>1){e.preventDefault();return}
+   const t=e.touches[0];startX=t.clientX;startY=t.clientY;moved=false;cancel();
+   statsTouchTimer=setTimeout(()=>{statsTouchTimer=null;if(moved)return;if(!statsEditMode)setStatsEditMode(true);begin(startX,startY);if(navigator.vibrate)navigator.vibrate(20)},statsEditMode?180:500);
+  };
+  el.ontouchmove=e=>{
+   const t=e.touches[0];if(!statsTouchDragCat&&Math.hypot(t.clientX-startX,t.clientY-startY)>12){moved=true;cancel();return}
+   if(statsTouchDragCat===cat){e.preventDefault();el.style.transform=`translate3d(${t.clientX-statsTouchStartX}px,${t.clientY-statsTouchStartY}px,0) scale(1.015)`;document.querySelectorAll("#catstats .statsDragover").forEach(x=>x.classList.remove("statsDragover"));const target=document.elementFromPoint(t.clientX,t.clientY)?.closest("#catstats .catStatBtn");if(target){statsTouchDropCat=target.dataset.cat;target.classList.add("statsDragover")}}
+  };
+  const finish=()=>{cancel();const from=statsTouchDragCat,to=statsTouchDropCat;statsTouchDragCat=null;statsTouchDropCat=null;document.querySelectorAll("#catstats .catStatBtn").forEach(x=>{x.classList.remove("statsDragging","statsDragover");x.style.transform=""});if(from&&to&&from!==to)moveStatsCategoryTo(from,to)};
+  el.ontouchend=finish;el.ontouchcancel=finish;
+  el.oncontextmenu=e=>{e.preventDefault();if(!statsEditMode)setStatsEditMode(true);return false};
+ });
+}
 
 function openCategory(catName){
  currentStatsCategory=catName;
@@ -3016,11 +3051,7 @@ if(restoreHomeBlocksButton)restoreHomeBlocksButton.onclick=()=>{enterHomeEdit();
 const closeStatsDetailBtn=document.getElementById("closeStatsDetail");
 if(closeStatsDetailBtn)closeStatsDetailBtn.onclick=closeStatsCategoryDetail;
 document.getElementById("toggleStatsEdit").onclick=()=>{
- statsEditMode=!statsEditMode;if(statsEditMode)closeStatsCategoryDetail();
- const card=document.getElementById("statsCategoriesCard");
- if(card)card.classList.toggle("statsEditing",statsEditMode);
- document.getElementById("toggleStatsEdit").textContent=statsEditMode?"Fine":"Ordina";
- render();
+ if(statsEditMode){setStatsEditMode(false);render()}
 };
 const addBudgetButton=document.getElementById("addBudgetBtn");
 const closeBudgetButton=document.getElementById("closeBudget");
@@ -3050,6 +3081,7 @@ if(saveBudgetButton)saveBudgetButton.onclick=()=>{
  const modal=document.getElementById("budgetModal");
  if(modal)modal.style.display="none";
  render();
+ const manager=document.getElementById("budgetManager");if(manager)renderBudgets(manager,false);
 };
 
 if(deleteBudgetButton)deleteBudgetButton.onclick=()=>{
@@ -3060,25 +3092,37 @@ if(deleteBudgetButton)deleteBudgetButton.onclick=()=>{
    save();
    const modal=document.getElementById("budgetModal");
    if(modal)modal.style.display="none";
-   render();
+   render();const manager=document.getElementById("budgetManager");if(manager)renderBudgets(manager,false);
  }
 };
 
 prevMonth.onclick=()=>{ensureSelectedMonth();selectedMonth=shiftMonth(selectedMonth,-1);closeStatsCategoryDetail();save();render()};
 nextMonth.onclick=()=>{ensureSelectedMonth();selectedMonth=shiftMonth(selectedMonth,1);closeStatsCategoryDetail();save();render()};
+let pendingExportStatus=null;
+function saveTextFile(name,mime,content,statusEl){
+ pendingExportStatus=statusEl||null;
+ if(window.NekoApp&&typeof window.NekoApp.saveTextFile==="function"){window.NekoApp.saveTextFile(name,mime,content);return}
+ const blob=new Blob([content],{type:mime}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ if(statusEl){statusEl.textContent="File esportato.";statusEl.className="status ok"}
+}
+window.onNekoFileSaved=success=>{if(pendingExportStatus){pendingExportStatus.textContent=success?"File salvato correttamente.":"Salvataggio annullato.";pendingExportStatus.className=success?"status ok":"status"}pendingExportStatus=null};
 exportCsv.onclick=()=>{
  const headers=["Data","Data valuta","Tipo","Importo","Categoria","Descrizione","Nota","Escluso statistiche"];
  const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>[m.date,m.valueDate||m.date,m.amount<0?"Uscita":"Entrata",m.amount,m.category,sanitizeDescription(m.description),m.note||"",m.excludeStats?"Sì":"No"]);
  const escCsv=v=>`"${String(v??"").replace(/"/g,'""')}"`;
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="micio-finance-movimenti.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
 };
-exportBackup.onclick=()=>{const data={version:9,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="micio-finance-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);backupStatus.textContent="Backup esportato.";backupStatus.className="status ok"};
+exportBackup.onclick=()=>{const data={version:9,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder};saveTextFile("neko-backup.json","application/json",JSON.stringify(data,null,2),backupStatus)};
 importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
 closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
 saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
-categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();manageCatModal.style.display="none"};
-deleteManagedCat.onclick=()=>{if(editingCategory&&confirm(`Eliminare la categoria "${editingCategory}"? I movimenti verranno spostati in Altro.`)){removeCategory(editingCategory);save();render();manageCatModal.style.display="none"}};
+categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
+const categoryDeleteModal=document.getElementById("categoryDeleteModal"),categoryDeleteName=document.getElementById("categoryDeleteName");
+const closeCategoryDelete=()=>{if(categoryDeleteModal)categoryDeleteModal.style.display="none"};
+deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteName)categoryDeleteName.textContent=`“${editingCategory}”`;if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
+document.getElementById("cancelCategoryDelete").onclick=closeCategoryDelete;document.getElementById("cancelCategoryDeleteTop").onclick=closeCategoryDelete;
+document.getElementById("confirmCategoryDelete").onclick=()=>{if(!editingCategory)return;removeCategory(editingCategory);save();render();renderCategoryManager();manageCatModal.style.display="none";closeCategoryDelete()};
 const bulkModalCloseBtn=document.getElementById("bulkModalClose");
 const bulkConfirmBtn=document.getElementById("bulkConfirm");
 if(bulkModalCloseBtn)bulkModalCloseBtn.onclick=()=>{
@@ -3184,6 +3228,12 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 #statsCategoriesCard .catStatHead{align-items:center}
 #statsCategoriesCard.statsEditing .catStatValue{margin-left:auto}
 #statsCategoriesCard.statsEditing .catStatBtn{outline:none!important;cursor:default!important}
+#toggleStatsEdit{display:none!important}
+#statsCategoriesCard.statsEditing #toggleStatsEdit{display:block!important;position:fixed!important;right:14px!important;bottom:74px!important;z-index:19!important;box-shadow:0 8px 24px rgba(30,41,59,.14)!important}
+#statsCategoriesCard .catStatBtn{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important}
+#statsCategoriesCard.statsEditing .catStatBtn{touch-action:pan-y;border:1px solid rgba(70,87,168,.18)!important}
+#statsCategoriesCard .catStatBtn.statsDragging{position:relative!important;z-index:18!important;pointer-events:none!important;transition:none!important;box-shadow:0 16px 38px rgba(30,41,59,.20)!important}
+#statsCategoriesCard .catStatBtn.statsDragover{border-color:var(--accent)!important;transform:scale(1.008)}
 #home.home-editing > .homeBlock > .homeHeroTop,
 #home.home-editing > .homeBlock > .homeSectionHead{padding-right:42px!important}
 #home.home-editing .homeBlockControls{top:9px!important;right:9px!important}
