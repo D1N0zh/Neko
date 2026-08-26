@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -40,6 +41,7 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.addJavascriptInterface(new AppInfoBridge(), "NekoApp");
 
         webView.clearCache(true);
         webView.clearHistory();
@@ -77,10 +79,21 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-home-edit-drag-polish");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-build-info");
         } else {
             webView.restoreState(savedInstanceState);
         }
+    }
+
+    private static class AppInfoBridge {
+        @JavascriptInterface
+        public String getVersionName() { return BuildConfig.VERSION_NAME; }
+
+        @JavascriptInterface
+        public int getVersionCode() { return BuildConfig.VERSION_CODE; }
+
+        @JavascriptInterface
+        public String getBuildRevision() { return BuildConfig.BUILD_REVISION; }
     }
 
     @Override

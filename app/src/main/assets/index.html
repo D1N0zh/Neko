@@ -2026,6 +2026,17 @@ button:active,
         </span>
         <span class="settingsArrow">›</span>
       </button>
+
+      <button type="button" class="settingsItem" id="openAppInfo">
+        <span class="settingsItemLeft">
+          <span class="settingsItemIcon">ℹ️</span>
+          <span class="settingsItemText">
+            <span class="settingsItemTitle">Info</span>
+            <span class="settingsItemDesc">Versione dell'app e identificativo della build.</span>
+          </span>
+        </span>
+        <span class="settingsArrow">›</span>
+      </button>
     </div>
   </div>
 
@@ -2144,6 +2155,15 @@ button:active,
 </div>
 
 <nav class="bottom"><div class="nav"><button class="active" data-screen="home"><span>⌂</span>Home</button><button data-screen="moves"><span>≡</span>Movimenti</button><button data-screen="stats"><span>◔</span>Statistiche</button><button data-screen="settings"><span>⚙</span>Impostazioni</button></div></nav>
+
+<div id="appInfoModal" class="modal"><div class="sheet">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Info Neko</b><div class="kicker">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button">Chiudi</button></div>
+<div class="card" style="margin-top:14px">
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Versione</div><div id="appVersionText" class="settingsActionDesc">1.1.1</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">5</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Build GitHub</div><div id="appRevisionText" class="settingsActionDesc">—</div></div></div>
+</div>
+</div></div>
 
 <div id="previewModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Controlla prima di importare</b><div id="previewInfo" class="kicker"></div></div><button id="cancelImport" class="secondary">Annulla</button></div>
@@ -2863,6 +2883,26 @@ function openSettingsPage(id){
 }
 document.querySelectorAll("#settings [data-settings-page]").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage(btn.dataset.settingsPage)));
 document.querySelectorAll("#settings .settingsBack").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage("settingsMainPage")));
+const appInfoModal=document.getElementById("appInfoModal");
+const openAppInfoBtn=document.getElementById("openAppInfo");
+const closeAppInfoBtn=document.getElementById("closeAppInfo");
+function showAppInfo(){
+ let version="1.1.1",buildCode="5",revision="local";
+ try{
+   if(window.NekoApp){
+     version=String(window.NekoApp.getVersionName());
+     buildCode=String(window.NekoApp.getVersionCode());
+     revision=String(window.NekoApp.getBuildRevision());
+   }
+ }catch(e){console.warn("Info build non disponibili",e)}
+ document.getElementById("appVersionText").textContent=version;
+ document.getElementById("appBuildCodeText").textContent=buildCode;
+ document.getElementById("appRevisionText").textContent=revision;
+ appInfoModal.style.display="flex";
+}
+if(openAppInfoBtn)openAppInfoBtn.addEventListener("click",showAppInfo);
+if(closeAppInfoBtn)closeAppInfoBtn.addEventListener("click",()=>appInfoModal.style.display="none");
+if(appInfoModal)appInfoModal.addEventListener("click",e=>{if(e.target===appInfoModal)appInfoModal.style.display="none"});
 const clearRulesBtn=document.getElementById("clearRules");
 if(clearRulesBtn)clearRulesBtn.onclick=()=>{
  if(confirm("Cancellare tutte le regole automatiche apprese?")){
