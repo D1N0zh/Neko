@@ -1824,7 +1824,9 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 .monthCompareHero{padding:13px;border-radius:15px;background:var(--accent-soft)}.monthCompareHero .monthCompareSentence{font-size:14px;font-weight:820;line-height:1.4}.monthCompareHero .monthCompareMeta{font-size:11px;color:var(--muted);margin-top:4px}
 .monthCompareTotals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.monthCompareTotal{padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}.monthCompareTotal span{display:block;font-size:10.5px;color:var(--muted)}.monthCompareTotal b{display:block;margin-top:3px;font-size:15px}
 .monthCompareColumns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}.monthCompareListTitle{font-size:11px;font-weight:850;margin-bottom:6px}.monthCompareRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:11px}.monthCompareRow:last-child{border-bottom:0}.monthCompareName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.monthCompareEmpty{font-size:10.5px;color:var(--muted);padding:5px 0}
+.forecastHero{padding:14px;border-radius:15px;background:linear-gradient(135deg,var(--accent-soft),#f7f5ff)}.forecastLabel{font-size:10.5px;color:var(--muted);font-weight:750}.forecastValue{font-size:24px;font-weight:900;margin-top:3px;letter-spacing:-.4px}.forecastNote{font-size:10.5px;color:var(--muted);line-height:1.4;margin-top:4px}.forecastBreakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.forecastItem{padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff;min-width:0}.forecastItem span{display:block;font-size:9.5px;color:var(--muted);line-height:1.25}.forecastItem b{display:block;font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.forecastConfidence{margin-top:9px;font-size:10.5px;color:var(--muted)}
 @media(max-width:390px){.monthCompareColumns{grid-template-columns:1fr}.monthCompareTotals{gap:6px}}
+@media(max-width:390px){.forecastBreakdown{grid-template-columns:1fr}.forecastItem{display:flex;justify-content:space-between;align-items:center;gap:8px}.forecastItem b{margin-top:0}}
 @media(max-width:390px){.splitRow{grid-template-columns:minmax(0,1fr) 94px 36px}.splitRow input,.splitRow select{padding:9px 8px}}
 @media(max-width:370px){
   #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -2035,6 +2037,11 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
   <div class="statsSection" id="monthComparisonCard">
     <div class="statsSectionHead"><div><div class="statsSectionTitle">Confronto mensile</div><div class="statsSectionSub">Rispetto al mese precedente</div></div></div>
     <div id="monthComparison"></div>
+  </div>
+
+  <div class="statsSection" id="spendingForecastCard">
+    <div class="statsSectionHead"><div><div class="statsSectionTitle">Previsione di fine mese</div><div class="statsSectionSub">Stima indicativa basata sull’andamento attuale</div></div></div>
+    <div id="spendingForecast"></div>
   </div>
 
   <div class="statsSection statsPieSection">
@@ -2536,6 +2543,15 @@ function renderMonthComparison(){
  const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(x.category)}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):'<div class="monthCompareEmpty">Nessuna variazione rilevante</div>';
  root.innerHTML=`<div class="monthCompareHero"><div class="monthCompareSentence">${sentence}</div><div class="monthCompareMeta">${meta}</div></div><div class="monthCompareTotals"><div class="monthCompareTotal"><span>${currentName}</span><b>${euro(currentTotal)}</b></div><div class="monthCompareTotal"><span>${previousName}</span><b>${euro(previousTotal)}</b></div></div><div class="monthCompareColumns"><div><div class="monthCompareListTitle">Principali aumenti</div>${list(increases,true)}</div><div><div class="monthCompareListTitle">Principali diminuzioni</div>${list(decreases,false)}</div></div>`;
 }
+function renderSpendingForecast(){
+ const root=document.getElementById("spendingForecast");if(!root)return;const [year,month]=selectedMonth.split("-").map(Number),today=new Date(),currentKey=nowMonthKey(),daysInMonth=new Date(year,month,0).getDate(),entries=statMoves(selectedMonth).filter(m=>m.amount<0),spent=entries.reduce((s,m)=>s+Math.abs(m.amount),0);
+ if(selectedMonth>currentKey){root.innerHTML='<div class="monthCompareEmpty">La previsione sarà disponibile quando inizierà il mese selezionato.</div>';return}
+ if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Mese concluso</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">Il mese selezionato è terminato: viene mostrata la spesa effettiva, non una previsione.</div></div>`;return}
+ const elapsed=Math.max(1,Math.min(today.getDate(),daysInMonth)),remaining=Math.max(0,daysInMonth-elapsed),monthOriginal=monthMoves(selectedMonth).filter(m=>m.amount<0&&!m.excludeStats),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
+ let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>merchantKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
+ const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
+ root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
+}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
  const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:"Nessun confronto",cls:""};
@@ -2563,7 +2579,7 @@ function recurringCandidates(){
    if(months.size<2)return false;
    const vals=arr.map(m=>Math.abs(m.amount));const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
    return vals.every(v=>avg===0||Math.abs(v-avg)/avg<0.15);
- }).map(arr=>({name:shortDesc(arr[0]),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
+ }).map(arr=>({name:shortDesc(arr[0]),key:merchantKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
@@ -2663,6 +2679,7 @@ function render(){
  balance.textContent=euro(cur.saving);income.textContent=euro(inc);expense.textContent=euro(exp);saving.textContent=euro(cur.saving);
  const statsIncomeEl=document.getElementById("statsIncome"),statsExpenseEl=document.getElementById("statsExpense"),statsSavingEl=document.getElementById("statsSaving");if(statsIncomeEl)statsIncomeEl.textContent=euro(inc);if(statsExpenseEl)statsExpenseEl.textContent=euro(exp);if(statsSavingEl)statsSavingEl.textContent=euro(cur.saving);
  renderMonthComparison();
+ renderSpendingForecast();
  const ce=compareText(exp,prev.expense,true),ci=compareText(inc,prev.income,false),cs=compareText(cur.saving,prev.saving,false);
  cmpExpense.textContent=ce.main;cmpExpense.className=ce.cls;cmpExpenseTxt.textContent=ce.txt;cmpExpenseTxt.className="compare "+ce.cls;
  cmpIncome.textContent=ci.main;cmpIncome.className=ci.cls;cmpIncomeTxt.textContent=ci.txt;cmpIncomeTxt.className="compare "+ci.cls;
