@@ -199,11 +199,18 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-        } else {
+        if (webView == null) {
             super.onBackPressed();
+            return;
         }
+        webView.evaluateJavascript(
+                "window.nekoHandleAndroidBack ? window.nekoHandleAndroidBack() : 'exit'",
+                result -> {
+                    if ("\"exit\"".equals(result)) {
+                        MainActivity.super.onBackPressed();
+                    }
+                }
+        );
     }
 
     @Override
