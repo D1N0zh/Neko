@@ -3163,9 +3163,11 @@ function openManual(){
 }
 function itDate(iso){const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
 const SCREEN_ORDER=["home","moves","stats","settings"];
-function go(s,direction=0){
+let nekoScreenHistory=["home"],lastAndroidBackAt=0;
+function go(s,direction=0,recordHistory=true){
  if(!SCREEN_ORDER.includes(s))return;
  const current=document.querySelector(".screen.active"),target=document.getElementById(s);if(current===target)return;
+ if(recordHistory&&nekoScreenHistory[nekoScreenHistory.length-1]!==s)nekoScreenHistory.push(s);
  document.querySelectorAll(".screen").forEach(x=>{x.classList.remove("active","screenEnterLeft","screenEnterRight")});
  if(target){target.classList.add("active");if(direction)target.classList.add(direction>0?"screenEnterRight":"screenEnterLeft");setTimeout(()=>target.classList.remove("screenEnterLeft","screenEnterRight"),280)}
  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));
@@ -3173,6 +3175,18 @@ function go(s,direction=0){
  if(s==="stats")requestAnimationFrame(()=>render());
  requestAnimationFrame(()=>{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0});
 }
+window.nekoHandleAndroidBack=function(){
+ const visibleModals=[...document.querySelectorAll(".modal")].filter(m=>getComputedStyle(m).display!=="none");
+ if(visibleModals.length){visibleModals[visibleModals.length-1].style.display="none";return "handled"}
+ if(homeEditMode){exitHomeEdit();return "handled"}
+ if(currentStatsCategory){closeStatsCategoryDetail();return "handled"}
+ const activeSettings=document.querySelector("#settings .settingsPage.active");
+ if(document.getElementById("settings").classList.contains("active")&&activeSettings&&activeSettings.id!=="settingsMainPage"){openSettingsPage("settingsMainPage");window.scrollTo(0,0);return "handled"}
+ const current=document.querySelector(".screen.active")?.id||"home";
+ if(nekoScreenHistory.length>1){nekoScreenHistory.pop();const previous=nekoScreenHistory[nekoScreenHistory.length-1]||"home";const direction=SCREEN_ORDER.indexOf(previous)<SCREEN_ORDER.indexOf(current)?-1:1;go(previous,direction,false);return "handled"}
+ if(current!=="home"){nekoScreenHistory=["home"];go("home",-1,false);return "handled"}
+ const now=Date.now();if(now-lastAndroidBackAt<2200){lastAndroidBackAt=0;return "exit"}lastAndroidBackAt=now;showTemporaryMessage("Premi di nuovo per uscire",2200);return "handled";
+};
 
 let screenSwipeStart=null,suppressSwipeClick=false;
 document.addEventListener("touchstart",e=>{
