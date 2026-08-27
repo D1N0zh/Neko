@@ -1817,6 +1817,11 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 .undoToast.active{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .undoToast span{font-size:13px;font-weight:700;min-width:0}
 .undoToast button{min-height:34px!important;padding:6px 10px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;border-radius:10px!important;flex:none}
+.splitSummary{display:none;margin-top:10px;padding:11px 12px;border-radius:13px;background:var(--accent-soft);font-size:12px;color:var(--muted);line-height:1.4}
+.splitSummary.active{display:block}.splitSummary b{color:var(--text)}
+.splitRows{display:grid;gap:9px;margin-top:12px}.splitRow{display:grid;grid-template-columns:minmax(0,1fr) 112px 38px;gap:7px;align-items:center}.splitRow select,.splitRow input{min-width:0}.splitRemove{display:grid!important;place-items:center!important;width:38px!important;height:42px!important;min-height:42px!important;padding:0!important}
+.splitBalance{margin-top:10px;padding:10px 12px;border-radius:12px;background:#f5f6f8;font-size:12px;font-weight:750}.splitBalance.ok{background:#edf8f0;color:#17613b}.splitBalance.err{background:#fff0f0;color:#a12626}
+@media(max-width:390px){.splitRow{grid-template-columns:minmax(0,1fr) 94px 36px}.splitRow input,.splitRow select{padding:9px 8px}}
 @media(max-width:370px){
   #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
   #manageCatModal .colorGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
@@ -2307,6 +2312,8 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 <p id="editDesc" style="font-weight:800"></p><div id="editMeta" class="kicker"></div><label class="f">Nome movimento</label><input id="moveName" type="text" placeholder="Nome personalizzato"><label class="f">Categoria</label><select id="categorySelect"></select>
 <label class="f">Nota</label><textarea id="moveNote" placeholder="Es. regalo, vacanza, spesa condivisa…"></textarea>
 <div class="toggleLine"><div><b>Escludi dalle statistiche</b><div class="kicker editMoveActionsReal">Il movimento resta visibile ma non pesa su grafici e totali di spesa.</div></div><input id="excludeStats" type="checkbox"></div>
+<div id="splitSummary" class="splitSummary"></div>
+<button id="openSplitMove" class="secondary" type="button" style="width:100%;margin-top:10px">Dividi movimento</button>
 <div class="actions" style="margin-top:10px"></div>
 <div style="margin-top:12px"></div>
 <div class="editMoveFooterInside"><button id="saveCat" class="primary">Salva</button><button id="deleteMove" class="danger">Elimina movimento</button></div></div></div>
@@ -2339,6 +2346,14 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 <div id="moveDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
 <div><b>Sei sicuro di voler eliminare questo movimento?</b></div>
 <div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button">Annulla</button></div>
+</div></div>
+
+<div id="splitMoveModal" class="modal"><div class="sheet" style="max-width:540px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>Dividi movimento</b><div id="splitMoveTotal" class="kicker"></div></div><button id="closeSplitMove" class="secondary" type="button">Chiudi</button></div>
+<div id="splitRows" class="splitRows"></div>
+<button id="addSplitPart" class="secondary" type="button" style="margin-top:10px">＋ Aggiungi parte</button>
+<div id="splitBalance" class="splitBalance"></div>
+<div class="actions" style="margin-top:12px"><button id="saveSplitMove" class="primary" type="button">Salva divisione</button><button id="removeSplitMove" class="danger" type="button">Rimuovi divisione</button></div>
 </div></div>
 
 <div id="undoToast" class="undoToast" role="status" aria-live="polite"><span id="undoToastText"></span><button id="undoToastAction" type="button">Annulla</button></div>
@@ -2489,8 +2504,18 @@ function ensureSelectedMonth(){
 function monthLabelText(k){const [y,m]=k.split("-").map(Number);return new Intl.DateTimeFormat("it-IT",{month:"long",year:"numeric"}).format(new Date(y,m-1,1))}
 function shiftMonth(k,delta){let [y,m]=k.split("-").map(Number);m+=delta;while(m<1){m+=12;y--}while(m>12){m-=12;y++}return `${y}-${String(m).padStart(2,"0")}`}
 function monthMoves(k){return moves.filter(m=>monthKeyFromDateStr(m.date)===k)}
-function statMoves(k){return monthMoves(k).filter(m=>!m.excludeStats)}
-function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category}`.toLowerCase()}
+function validSplitParts(m){
+ if(!m||m.amount>=0||!Array.isArray(m.splitParts)||m.splitParts.length<2)return null;
+ const parts=m.splitParts.filter(p=>p&&CATS().includes(p.category)&&Number(p.amount)>0).map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));
+ const total=parts.reduce((s,p)=>s+Math.round(p.amount*100),0),target=Math.round(Math.abs(m.amount)*100);
+ return parts.length>=2&&total===target?parts:null;
+}
+function splitEntries(m){const parts=validSplitParts(m);return parts?parts.map((p,i)=>({...m,category:p.category,amount:-p.amount,_splitPart:true,_splitIndex:i})): [m]}
+function normalizeMovementSplit(m){if(!Array.isArray(m.splitParts))return;const grouped={};m.splitParts.forEach(p=>{if(p&&p.category&&Number(p.amount)>0)grouped[p.category]=(grouped[p.category]||0)+Number(p.amount)});m.splitParts=Object.entries(grouped).map(([category,amount])=>({category,amount:Math.round(amount*100)/100}));if(m.splitParts.length<2){if(m.splitParts[0])m.category=m.splitParts[0].category;delete m.splitParts}}
+function statMoves(k){return monthMoves(k).filter(m=>!m.excludeStats).flatMap(splitEntries)}
+function categoryViewMoves(k,cat){return monthMoves(k).flatMap(m=>splitEntries(m).filter(x=>x.category===cat))}
+function movementMatchesCategory(m,cat){return splitEntries(m).some(x=>x.category===cat)}
+function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category} ${(validSplitParts(m)||[]).map(p=>p.category).join(" ")}`.toLowerCase()}
 function monthTotals(k){const mm=monthMoves(k),income=mm.filter(x=>x.amount>0).reduce((s,x)=>s+x.amount,0),expense=mm.filter(x=>x.amount<0).reduce((s,x)=>s+Math.abs(x.amount),0);return {moves:mm,income,expense,saving:income-expense}}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
@@ -2551,7 +2576,7 @@ function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}${(m._splitPart||validSplitParts(m))?'<span class="noteBadge">diviso</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
 async function extract(file){
  if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile.");
  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),disableWorker:true}).promise;let text="";
@@ -2624,16 +2649,16 @@ function render(){
  cmpSaving.textContent=cs.main;cmpSaving.className=cs.cls;cmpSavingTxt.textContent=cs.txt;cmpSavingTxt.className="compare "+cs.cls;
  renderBudgets(homeBudget,true);
  const sorted=[...cur.moves].sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));latest.innerHTML=sorted.length?sorted.slice(0,5).map(row).join(""):'<div class="empty">Nessun movimento in questo mese.</div>';
- const totals={};cur.moves.filter(m=>!m.excludeStats).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});const vals=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=vals[0]?.[1]||1;
+ const totals={};statMoves(selectedMonth).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});const vals=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=vals[0]?.[1]||1;
  topcats.innerHTML=vals.length?vals.slice(0,4).map(([k,v])=>`<button type="button" class="homeTopCatRow" data-home-cat="${esc(k)}"><span class="homeTopCatMain"><span class="catSwatch" style="background:${colorFor(k)}"></span><span class="homeTopCatName">${iconFor(k)} ${esc(k)}</span></span><span class="homeTopCatValue"><b>${euro(v)}</b><span class="homeTopCatArrow">›</span></span><span class="homeTopCatBar"><span class="catBar"><span class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></span></span></span></button>`).join(""):'<div class="empty">Nessuna spesa.</div>';
  const filterCatsEl=document.getElementById("filterCats"),filtersSummaryEl=document.getElementById("filtersSummary"),allmovesEl=document.getElementById("allmoves");
- const avail=["Tutte",...CATS().filter(c=>cur.moves.some(m=>m.category===c))];
+ const avail=["Tutte",...CATS().filter(c=>cur.moves.some(m=>movementMatchesCategory(m,c)))];
  if(filterCatsEl){
    filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
    filterCatsEl.querySelectorAll(".filterCatBtn").forEach(x=>x.onclick=()=>{filter=x.dataset.cat;bulkSelected.clear();bulkMode=false;render()});
  }
  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?"Nessun filtro categoria":`Categoria: ${filter}`;
- let visible=(filter==="Tutte"?sorted:sorted.filter(m=>m.category===filter));
+ let visible=(filter==="Tutte"?sorted:sorted.flatMap(m=>splitEntries(m).filter(x=>x.category===filter)));
  if(searchText)visible=visible.filter(m=>searchable(m).includes(searchText));
  if(filterTypeValue==="expense")visible=visible.filter(m=>m.amount<0);else if(filterTypeValue==="income")visible=visible.filter(m=>m.amount>0);
  if(filterStatsValue==="included")visible=visible.filter(m=>!m.excludeStats);else if(filterStatsValue==="excluded")visible=visible.filter(m=>m.excludeStats);
@@ -2689,7 +2714,7 @@ function applyStatsBulkCategory(){
  const sel=document.getElementById("bulkCategorySelect");if(!sel||!statsSelected.size)return;
  const category=sel.value;
  const undoState=captureMovementState();
- moves.forEach(m=>{if(statsSelected.has(m.id)){m.category=category;const k=merchantKey(m.description);if(k)rules[k]=category}});
+ moves.forEach(m=>{if(statsSelected.has(m.id)){const parts=validSplitParts(m);if(parts){const part=m.splitParts.find(p=>p.category===currentStatsCategory),existing=m.splitParts.find(p=>p.category===category&&p!==part);if(part&&existing){existing.amount=Math.round((Number(existing.amount)+Number(part.amount))*100)/100;m.splitParts=m.splitParts.filter(p=>p!==part)}else if(part)part.category=category;if(m.splitParts.length<2){delete m.splitParts;m.category=category}}else{m.category=category;const k=merchantKey(m.description);if(k)rules[k]=category}}});
  save();statsSelected.clear();statsSelectMode=false;
  const modal=document.getElementById("bulkModal");if(modal){modal.style.display="none";delete modal.dataset.source}
  render();
@@ -2913,13 +2938,13 @@ function openCategoryManager(name=null){
 }
 function renameCategory(oldName,newName){
  const oldCanon=canonicalCat(oldName);
- moves.forEach(m=>{if(m.category===oldName)m.category=newName});
+ moves.forEach(m=>{if(m.category===oldName)m.category=newName;if(Array.isArray(m.splitParts)){m.splitParts.forEach(p=>{if(p.category===oldName)p.category=newName});normalizeMovementSplit(m)}});
  Object.keys(rules).forEach(k=>{if(rules[k]===oldName)rules[k]=newName});
  if(budgets[oldName]){budgets[newName]=budgets[oldName];delete budgets[oldName]} if(customCats.includes(oldName)){customCats=customCats.filter(c=>c!==oldName);customCats.push(newName)}
  else renamedCats[oldCanon]=newName;
 }
 function removeCategory(name){
- const fallback="Da classificare"; moves.forEach(m=>{if(m.category===name)m.category=fallback});Object.keys(rules).forEach(k=>{if(rules[k]===name)rules[k]=fallback});
+ const fallback="Da classificare"; moves.forEach(m=>{if(m.category===name)m.category=fallback;if(Array.isArray(m.splitParts)){m.splitParts.forEach(p=>{if(p.category===name)p.category=fallback});normalizeMovementSplit(m)}});Object.keys(rules).forEach(k=>{if(rules[k]===name)rules[k]=fallback});
  if(budgets[name])delete budgets[name]; if(categoryStyles[name])delete categoryStyles[name]; if(customCats.includes(name))customCats=customCats.filter(c=>c!==name);else{const canon=canonicalCat(name);deletedCats.push(canon);delete renamedCats[canon]}
 }
 
@@ -2961,7 +2986,7 @@ function openCategory(catName){
  currentStatsCategory=catName;
  statsSelected.clear();
  statsSelectMode=false;
- const list=[...monthMoves(selectedMonth)].filter(m=>m.category===catName).sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));
+ const list=[...categoryViewMoves(selectedMonth,catName)].sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));
  const included=list.filter(m=>!m.excludeStats && m.amount<0);
  const total=included.reduce((s,m)=>s+Math.abs(m.amount),0);
  const panel=document.getElementById("statsCategoryDetail"),title=document.getElementById("statsDetailTitle"),summary=document.getElementById("statsDetailSummary");
@@ -2976,8 +3001,7 @@ function renderStatsCategoryMoves(){
  const movesEl=document.getElementById("statsDetailMoves"),bar=document.getElementById("statsBulkBar"),count=document.getElementById("statsBulkCount");
  if(!movesEl||!currentStatsCategory)return;
 
- const list=[...monthMoves(selectedMonth)]
-   .filter(m=>m.category===currentStatsCategory)
+ const list=[...categoryViewMoves(selectedMonth,currentStatsCategory)]
    .sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));
 
  movesEl.innerHTML=list.length
@@ -3045,7 +3069,7 @@ function renderStatsCategoryMoves(){
 }
 
 function statsSelectAll(){
- const list=monthMoves(selectedMonth).filter(m=>m.category===currentStatsCategory);
+ const list=categoryViewMoves(selectedMonth,currentStatsCategory);
  list.forEach(m=>statsSelected.add(m.id));
  statsSelectMode=true;
  renderStatsCategoryMoves();
@@ -3054,6 +3078,28 @@ function closeStatsCategoryDetail(){
  statsSelectMode=false;statsSelected.clear();currentStatsCategory=null;
  const panel=document.getElementById("statsCategoryDetail");if(panel)panel.style.display="none";
 }
+let editingSplitParts=[];
+function splitTargetCents(){const m=moves.find(x=>x.id===selected);return m?Math.round(Math.abs(m.amount)*100):0}
+function updateSplitBalance(){
+ const el=document.getElementById("splitBalance"),target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),diff=target-sum;if(!el)return;
+ if(diff===0&&editingSplitParts.length>=2){el.textContent="Totale corretto: "+euro(target/100);el.className="splitBalance ok"}
+ else{el.textContent=diff>0?`Mancano ${euro(diff/100)}`:`Eccedono ${euro(Math.abs(diff)/100)}`;el.className="splitBalance err"}
+}
+function renderSplitRows(){
+ const root=document.getElementById("splitRows");if(!root)return;
+ root.innerHTML=editingSplitParts.map((p,i)=>`<div class="splitRow" data-i="${i}"><select aria-label="Categoria parte ${i+1}">${CATS().map(c=>`<option ${c===p.category?"selected":""}>${esc(c)}</option>`).join("")}</select><input type="number" min="0.01" step="0.01" inputmode="decimal" value="${p.amount||""}" placeholder="0,00" aria-label="Importo parte ${i+1}"><button type="button" class="danger splitRemove" aria-label="Rimuovi parte">×</button></div>`).join("");
+ root.querySelectorAll(".splitRow").forEach(rowEl=>{const i=Number(rowEl.dataset.i),sel=rowEl.querySelector("select"),input=rowEl.querySelector("input"),remove=rowEl.querySelector("button");sel.onchange=()=>{editingSplitParts[i].category=sel.value;updateSplitBalance()};input.oninput=()=>{editingSplitParts[i].amount=Number(String(input.value).replace(",","."))||0;updateSplitBalance()};remove.onclick=()=>{if(editingSplitParts.length<=2)return;editingSplitParts.splice(i,1);renderSplitRows()}});
+ updateSplitBalance();
+}
+function openSplitEditor(){
+ const m=moves.find(x=>x.id===selected);if(!m||m.amount>=0)return;const existing=validSplitParts(m),target=splitTargetCents(),first=Math.floor(target/2),second=target-first;
+ editingSplitParts=existing?existing.map(p=>({...p})):[{category:m.category,amount:first/100},{category:CATS().find(c=>c!==m.category)||"Da classificare",amount:second/100}];
+ document.getElementById("splitMoveTotal").textContent=`Importo da suddividere: ${euro(target/100)}`;document.getElementById("removeSplitMove").style.display=existing?"inline-block":"none";renderSplitRows();document.getElementById("splitMoveModal").style.display="flex";
+}
+function updateSplitSummary(m){
+ const summary=document.getElementById("splitSummary"),button=document.getElementById("openSplitMove");if(!summary||!button)return;const parts=validSplitParts(m);
+ button.style.display=m.amount<0?"block":"none";button.textContent=parts?"Modifica divisione":"Dividi movimento";summary.classList.toggle("active",!!parts);summary.innerHTML=parts?`<b>Movimento diviso</b><br>${parts.map(p=>`${iconFor(p.category)} ${esc(p.category)} · ${euro(p.amount)}`).join("<br>")}`:"";
+}
 function edit(mid){
  selected=mid;
  const m=moves.find(x=>x.id===mid);if(!m)return;
@@ -3061,9 +3107,10 @@ function edit(mid){
  if(descEl)descEl.textContent=shortDesc(m);
  if(metaEl)metaEl.textContent=`${m.date} · ${euro(m.amount)}\n${sanitizeDescription(m.description)}`;
  if(nameEl)nameEl.value=m.customName||shortDesc(m);
- if(catEl)catEl.innerHTML=CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("");
+ if(catEl){catEl.innerHTML=CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("");catEl.disabled=!!validSplitParts(m)}
  if(noteEl)noteEl.value=m.note||"";
  if(excludeEl)excludeEl.checked=!!m.excludeStats;
+ updateSplitSummary(m);
  if(modalEl)modalEl.style.display="flex";
 }
 function openManual(){
@@ -3205,7 +3252,7 @@ function offerMovementUndo(message,state,duration=6000){
 function restoreLastMovementAction(){
  if(!pendingUndo)return;const state=pendingUndo;clearTimeout(undoTimer);pendingUndo=null;
  moves=state.moves;rules=state.rules;save();render();applyHomePrefs();
- if(currentStatsCategory)openCategory(currentStatsCategory);
+ if(currentStatsCategory)openCategory(currentStatsCategory);const selectedMove=moves.find(x=>x.id===selected);if(selectedMove)updateSplitSummary(selectedMove);
  const el=document.getElementById("undoToast");if(el)el.classList.remove("active");showTemporaryMessage("Modifica annullata");
 }
 const undoToastAction=document.getElementById("undoToastAction");if(undoToastAction)undoToastAction.onclick=restoreLastMovementAction;
@@ -3282,7 +3329,7 @@ function saveTextFile(name,mime,content,statusEl){
 window.onNekoFileSaved=success=>{if(pendingExportStatus){if(success){const el=pendingExportStatus;el.textContent="File salvato correttamente.";el.className="status ok";setTimeout(()=>{if(el.textContent==="File salvato correttamente.")el.textContent=""},3500)}else pendingExportStatus.textContent=""}pendingExportStatus=null};
 exportCsv.onclick=()=>{
  const headers=["Data","Data valuta","Tipo","Importo","Categoria","Descrizione","Nota","Escluso statistiche"];
- const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>[m.date,m.valueDate||m.date,m.amount<0?"Uscita":"Entrata",m.amount,m.category,sanitizeDescription(m.description),m.note||"",m.excludeStats?"Sì":"No"]);
+ const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>{const parts=validSplitParts(m),category=parts?parts.map(p=>`${p.category}: ${p.amount.toFixed(2)} €`).join(" | "):m.category;return[m.date,m.valueDate||m.date,m.amount<0?"Uscita":"Entrata",m.amount,category,sanitizeDescription(m.description),m.note||"",m.excludeStats?"Sì":"No"]});
  const escCsv=v=>`"${String(v??"").replace(/"/g,'""')}"`;
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
  saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
@@ -3324,6 +3371,16 @@ if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
 
 const closeEditBtn=document.getElementById("closeEdit");
 if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none"};
+const openSplitMoveBtn=document.getElementById("openSplitMove"),splitMoveModal=document.getElementById("splitMoveModal");
+if(openSplitMoveBtn)openSplitMoveBtn.onclick=openSplitEditor;
+document.getElementById("closeSplitMove").onclick=()=>splitMoveModal.style.display="none";
+document.getElementById("addSplitPart").onclick=()=>{const used=new Set(editingSplitParts.map(p=>p.category)),category=CATS().find(c=>!used.has(c))||CATS()[0];editingSplitParts.push({category,amount:0});renderSplitRows()};
+document.getElementById("saveSplitMove").onclick=()=>{
+ const m=moves.find(x=>x.id===selected);if(!m)return;const target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),cats=editingSplitParts.map(p=>p.category);
+ if(editingSplitParts.length<2||editingSplitParts.some(p=>!p.category||Number(p.amount)<=0)||new Set(cats).size!==cats.length||sum!==target){const el=document.getElementById("splitBalance");if(el){el.textContent=new Set(cats).size!==cats.length?"Scegli categorie diverse per ogni parte.":"Controlla gli importi: la somma deve coincidere esattamente.";el.className="splitBalance err"}return}
+ const undoState=captureMovementState();m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Movimento diviso",undoState);
+};
+document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
 saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
