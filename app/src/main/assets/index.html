@@ -1744,6 +1744,67 @@ button:active,
     animation:none!important;
   }
 }
+
+/* Category settings — self-contained layout */
+#settingsCategoriesPage>.card{
+  padding:0!important;
+  border:1px solid var(--line)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+#settingsCategoriesPage .categoryManagerHead{
+  min-height:64px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+}
+#settingsCategoriesPage .categoryManagerTitle{
+  display:flex;flex-direction:column;gap:2px;min-width:0;
+}
+#settingsCategoriesPage .categoryManagerTitle b{font-size:14px;line-height:1.2}
+#settingsCategoriesPage .categoryManagerTitle span{font-size:10.5px;color:var(--muted)}
+#settingsCategoriesPage #newCategory{
+  display:grid!important;place-items:center!important;
+  width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;
+  padding:0!important;border-radius:12px!important;font-size:22px!important;
+  color:var(--accent)!important;background:var(--accent-soft)!important;
+}
+#settingsCategoriesPage #categoryManager{
+  margin:0!important;border:0!important;border-radius:0!important;overflow:visible!important;
+}
+#settingsCategoriesPage .catManageRow{
+  display:flex!important;align-items:center!important;gap:11px!important;
+  width:100%!important;min-height:62px!important;margin:0!important;padding:10px 12px!important;
+  border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;
+  background:#fff!important;text-align:left!important;overflow:hidden!important;
+}
+#settingsCategoriesPage .catManageRow:last-child{border-bottom:0!important}
+#settingsCategoriesPage .catManageRow:active{background:#f7f8fa!important}
+#settingsCategoriesPage .catManageIcon{
+  display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+  border-radius:14px;font-size:20px;line-height:1;
+}
+#settingsCategoriesPage .catManageText{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+#settingsCategoriesPage .catName{
+  display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:14px;font-weight:820;line-height:1.2;
+}
+#settingsCategoriesPage .catManageMeta{font-size:10.5px;color:var(--muted);line-height:1.2}
+#settingsCategoriesPage .catManageChevron{flex:none;color:var(--muted);font-size:22px;line-height:1}
+#manageCatModal .iconGrid{
+  grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;
+  max-height:190px;overflow-y:auto;padding:3px 3px 3px 0;
+}
+#manageCatModal .iconChoice{
+  display:grid;place-items:center;aspect-ratio:1;min-width:0;min-height:0;padding:0;
+  border-radius:12px;font-size:20px;
+}
+#manageCatModal .colorGrid{grid-template-columns:repeat(8,minmax(0,1fr));gap:9px}
+#manageCatModal .colorChoice{width:100%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+@media(max-width:370px){
+  #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+  #manageCatModal .colorGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
+}
 </style>
 </head>
 <body class="home-loading">
@@ -2076,10 +2137,10 @@ button:active,
     </div>
     <div class="card">
       <div class="categoryManagerHead">
-        <div class="kicker">Categorie disponibili</div>
-        <button id="newCategory" class="secondary" type="button">＋ Categoria</button>
+        <div class="categoryManagerTitle"><b>Le tue categorie</b><span>Tocca una voce per personalizzarla</span></div>
+        <button id="newCategory" class="secondary" type="button" aria-label="Nuova categoria" title="Nuova categoria">＋</button>
       </div>
-      <div id="categoryManager" style="margin-top:10px"><div class="empty">Caricamento categorie…</div></div>
+      <div id="categoryManager"><div class="empty">Caricamento categorie…</div></div>
     </div>
   </div>
 
@@ -2662,8 +2723,8 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<div class="catManageRow"><div class="ico" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</div><div class="catName">${esc(c)}</div><button type="button" class="secondary editCategoryBtn" data-cat="${esc(c)}" aria-label="Modifica ${esc(c)}" title="Modifica">✎</button></div>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
- el.querySelectorAll(".editCategoryBtn").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
+ el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span><span class="catManageMeta">Icona e colore</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
+ el.querySelectorAll(".catManageRow").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
 function openBudget(cat=null){
@@ -2672,7 +2733,7 @@ function openBudget(cat=null){
  budgetCat.disabled=!!cat;budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
 }
 
-const CATEGORY_ICONS=["•","🛒","🏠","🏡","💡","🚗","🚌","🍴","🛍️","🎮","✚","↻","🏧","€","💼","↑","⇄","§","🐾","🎁","✈️","🎓","🧾","💻","👶","👕","👟","📱","🛠️","🌱","🎵","🎬","⚽","📚","💇","🦷","☕","🍕","🐱","🐶","❤️"];
+const CATEGORY_ICONS=["•","?","🛒","🥬","🍎","🥖","🏠","🏡","🛋️","💡","💧","🔥","🚗","⛽","🚌","🚆","🚕","🚲","🍴","☕","🍕","🍔","🛍️","👕","👟","💄","🎮","🎵","🎬","🎭","⚽","🏋️","✚","💊","🩺","🦷","↻","🏧","€","💳","💰","💼","↑","⇄","§","🧾","🐾","🐱","🐶","🎁","✈️","🏖️","🏨","🎓","📚","💻","📱","🌐","👶","🧸","🛠️","🌱","💇","❤️","⭐","📦","🔧","🛡️","🎯","📌","🗓️","🔔"];
 const CATEGORY_COLORS=["#55a870","#7a8fc7","#d6a84b","#4f8fb8","#62a6a0","#d67c65","#c56fa6","#8c73bd","#d26176","#6985c8","#9b7f72","#8c929c","#43a376","#5e91a8","#b9895f","#94a3b8"];
 let pickedIcon=null,pickedColor=null;
 function renderStylePickers(name,reset=false){
