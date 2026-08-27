@@ -3599,4 +3599,54 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 #home.home-editing .homeBlock a,
 #home.home-editing .homeBlock input,
 #home.home-editing .homeBlock select{pointer-events:none!important}
+
+/* Dark mode specificity fixes for redesigned screens */
+[data-theme="dark"] #home .homeHero{
+  background:linear-gradient(145deg,#1b2130 0%,var(--accent-soft) 100%)!important;
+  border-color:#30395d!important;
+}
+[data-theme="dark"] #home .homeMetric{
+  background:#222938!important;
+  border-color:#313a49!important;
+}
+[data-theme="dark"] #homeCompare,
+[data-theme="dark"] #homeBudgetCard,
+[data-theme="dark"] #homeTopCats,
+[data-theme="dark"] #homeLatest{
+  background:var(--card)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #moves .movesSearchBar,
+[data-theme="dark"] #moves .movesQuickFilters select,
+[data-theme="dark"] #moves .movesFiltersPanel{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #stats .statsMetric,
+[data-theme="dark"] #stats .statsDetailSheet{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #settings .settingsList,
+[data-theme="dark"] #settings #categoryManager,
+[data-theme="dark"] #settings #budgetManager,
+[data-theme="dark"] #settings #rulesList,
+[data-theme="dark"] #settings #managedRecurring,
+[data-theme="dark"] #settings #recurringList,
+[data-theme="dark"] #settingsDataPage>.card:first-of-type{
+  background:var(--card)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #settings .settingsItem,
+[data-theme="dark"] #settings #categoryManager .row,
+[data-theme="dark"] #settings #budgetManager .row,
+[data-theme="dark"] #settings #rulesList .row,
+[data-theme="dark"] #settings #managedRecurring .row,
+[data-theme="dark"] #settings #recurringList .row{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
 </style>
