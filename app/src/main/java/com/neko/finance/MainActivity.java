@@ -2,9 +2,11 @@ package com.neko.finance;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
@@ -130,6 +132,25 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getBuildRevision() { return BuildConfig.BUILD_REVISION; }
+
+        @JavascriptInterface
+        @SuppressWarnings("deprecation")
+        public void setDarkMode(boolean dark) {
+            runOnUiThread(() -> {
+                int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
+                getWindow().setStatusBarColor(background);
+                getWindow().setNavigationBarColor(background);
+                View decor = getWindow().getDecorView();
+                int flags = decor.getSystemUiVisibility();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+                decor.setSystemUiVisibility(flags);
+            });
+        }
 
         @JavascriptInterface
         public void saveTextFile(String fileName, String mimeType, String content) {

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7f9"><title>Neko V10.8.29</title>
+<script>try{if(localStorage.getItem("neko_theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
 <style>
 :root{--bg:#f5f7fb;--card:#ffffff;--text:#1e293b;--muted:#7b8494;--line:#e6eaf0;--green:#2f855a;--red:#c95b67;--soft:#eef2f7;--amber:#b7791f;--accent:#4657a8;--accent-soft:#eef0ff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
@@ -1848,6 +1849,49 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
   #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
   #manageCatModal .colorGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
 }
+
+/* Dark mode */
+html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActionRow,.catManageRow{transition:background-color .22s ease,color .22s ease,border-color .22s ease}
+.settingsHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.settingsHeaderText{min-width:0}
+.themeToggle{display:grid!important;place-items:center!important;flex:0 0 42px;width:42px!important;height:42px!important;min-height:42px!important;padding:0!important;border-radius:14px!important;background:var(--soft)!important;color:var(--text)!important;font-size:19px!important}
+.themeToggle .themeSun,.themeToggle .themeMoon{grid-area:1/1;transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.3,1)}
+.themeToggle .themeMoon{opacity:0;transform:rotate(-35deg) scale(.65)}
+[data-theme="dark"]{color-scheme:dark;--bg:#11141b;--card:#1a1f29;--text:#eef1f7;--muted:#98a2b3;--line:#2b3240;--green:#63c98b;--red:#f0808b;--soft:#252c38;--amber:#e7b75c;--accent:#93a2ff;--accent-soft:#252d51}
+[data-theme="dark"] body{background:#11141b}
+[data-theme="dark"] .card,
+[data-theme="dark"] .sheet,
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .settingsCardBtn,
+[data-theme="dark"] .settingsTile,
+[data-theme="dark"] .settingsItem,
+[data-theme="dark"] .settingsActionRow,
+[data-theme="dark"] .recurringCard,
+[data-theme="dark"] .filtersPanel,
+[data-theme="dark"] .addHomePanel,
+[data-theme="dark"] .monthCompareTotal,
+[data-theme="dark"] .forecastItem{background:#1a1f29!important;color:var(--text)!important}
+[data-theme="dark"] .compactHead .monthControl{background:#202631;border-color:var(--line)}
+[data-theme="dark"] .compactHead .monthCenter:active{background:#2a3140!important}
+[data-theme="dark"] .bottom{background:rgba(20,24,32,.96)!important;border-color:var(--line)!important}
+[data-theme="dark"] .modal{background:rgba(3,5,9,.72)}
+[data-theme="dark"] #editModal .editMoveFooterInside{background:var(--card)}
+[data-theme="dark"] #settingsCategoriesPage>.card,
+[data-theme="dark"] #settingsCategoriesPage .catManageRow{background:var(--card)!important}
+[data-theme="dark"] #settingsCategoriesPage .catManageRow:active{background:#252c38!important}
+[data-theme="dark"] #settings .dangerZone,[data-theme="dark"] .settingsDanger{background:#2a1c22!important;border-color:#54303a!important}
+[data-theme="dark"] .danger{background:#3a232a!important;color:#ff9aa5!important}
+[data-theme="dark"] .hint,[data-theme="dark"] .splitBalance{background:#222833}
+[data-theme="dark"] .forecastHero,[data-theme="dark"] .settingsHero{background:linear-gradient(135deg,var(--accent-soft),#1d2230);border-color:#313a62}
+[data-theme="dark"] .badge{background:#29313d;color:#cbd2dd}
+[data-theme="dark"] .badge.auto{background:#183527;color:#78d39a}
+[data-theme="dark"] .badge.warn{background:#3b321a;color:#efc96e}
+[data-theme="dark"] .badge.learn{background:#183044;color:#7ec7ef}
+[data-theme="dark"] .bar,[data-theme="dark"] .budgetBar{background:#2a303b}
+[data-theme="dark"] .themeToggle .themeSun{opacity:0;transform:rotate(35deg) scale(.65)}
+[data-theme="dark"] .themeToggle .themeMoon{opacity:1;transform:rotate(0) scale(1)}
 </style>
 </head>
 <body class="home-loading">
@@ -2111,8 +2155,8 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 <div id="settingsRoot">
   <div id="settingsMainPage" class="settingsPage active">
     <div class="settingsHeader">
-      <h3>Impostazioni</h3>
-      <div class="kicker">Gestisci organizzazione, automazioni e dati dell'app.</div>
+      <div class="settingsHeaderText"><h3>Impostazioni</h3><div class="kicker">Gestisci organizzazione, automazioni e dati dell'app.</div></div>
+      <button id="themeToggle" class="themeToggle" type="button" aria-label="Attiva modalità scura" title="Cambia tema"><span class="themeSun">☀</span><span class="themeMoon">☾</span></button>
     </div>
 
     <div class="settingsList">
@@ -2481,6 +2525,15 @@ let statsTouchDragCat=null,statsTouchDropCat=null,statsTouchStartX=0,statsTouchS
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
+let darkMode=document.documentElement.dataset.theme==="dark";
+function applyTheme(dark,savePreference=true){
+ darkMode=!!dark;
+ if(darkMode)document.documentElement.dataset.theme="dark";else delete document.documentElement.dataset.theme;
+ if(savePreference)localStorage.setItem("neko_theme",darkMode?"dark":"light");
+ const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=darkMode?"#11141b":"#f6f7f9";
+ const toggle=document.getElementById("themeToggle");if(toggle){toggle.setAttribute("aria-label",darkMode?"Attiva modalità chiara":"Attiva modalità scura");toggle.setAttribute("aria-pressed",String(darkMode))}
+ try{if(window.NekoApp&&NekoApp.setDarkMode)NekoApp.setDarkMode(darkMode)}catch(e){}
+}
 const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(n), esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])), uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
 const sanitizeDescription=s=>String(s)
  .replace(/\bBONGIORNO\s+CALOGERO\s+IVAN\b/gi,"")
@@ -3483,10 +3536,12 @@ manualForm.onsubmit=e=>{e.preventDefault();const n=Number(mamount.value);if(!n||
 clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");
+const themeToggleBtn=document.getElementById("themeToggle");
 const closeMonthPickerBtn=document.getElementById("closeMonthPicker");
 const monthPickerPrevYearBtn=document.getElementById("monthPickerPrevYear");
 const monthPickerNextYearBtn=document.getElementById("monthPickerNextYear");
 if(monthPickerBtn)monthPickerBtn.onclick=openMonthPicker;
+if(themeToggleBtn)themeToggleBtn.onclick=()=>applyTheme(!darkMode);
 if(closeMonthPickerBtn)closeMonthPickerBtn.onclick=()=>{const m=document.getElementById("monthPickerModal");if(m)m.style.display="none"};
 if(monthPickerPrevYearBtn)monthPickerPrevYearBtn.onclick=()=>{monthPickerYearValue--;renderMonthPicker()};
 if(monthPickerNextYearBtn)monthPickerNextYearBtn.onclick=()=>{monthPickerYearValue++;renderMonthPicker()};
@@ -3507,7 +3562,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));applyTheme(darkMode,false);render();applyHomePrefs();
 </script>
 </body></html>
 <style>
