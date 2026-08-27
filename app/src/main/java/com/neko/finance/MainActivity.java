@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-swipe-category-polish");
+            webView.loadUrl("file:///android_asset/index.html?v=signed111-ui-icon-polish");
         } else {
             webView.restoreState(savedInstanceState);
         }

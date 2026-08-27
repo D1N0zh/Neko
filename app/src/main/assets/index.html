@@ -14,12 +14,12 @@ input[type=file]{display:none}.actions{display:flex;gap:8px;flex-wrap:wrap}.stat
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}.rleft{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.ico{width:40px;height:40px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:19px;flex:none}.txt{min-width:0}.desc{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{font-size:12px;color:var(--muted);margin-top:2px}.amt{font-weight:850;white-space:nowrap}
 .bar{height:8px;border-radius:99px;background:#eee;overflow:hidden;margin-top:7px}.fill{height:100%;background:var(--accent)}.chips{display:flex;gap:7px;overflow:auto;margin-bottom:7px}.chip{white-space:nowrap;background:var(--soft);padding:8px 11px;border-radius:99px}.chip.active{background:var(--accent);color:white}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex;justify-content:center;padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:20}.nav{width:min(800px,100%);display:grid;grid-template-columns:repeat(4,1fr)}.nav button{background:transparent;color:var(--muted);padding:6px;font-size:11px}.nav span{display:block;font-size:20px;margin-bottom:2px}.nav button.active{color:var(--text);font-weight:850}
-.screen{display:none}.screen.active{display:block}.empty{text-align:center;color:var(--muted);padding:28px 8px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;align-items:flex-end;justify-content:center;padding:8px}.sheet{background:#fff;width:100%;max-width:800px;border-radius:25px 25px 12px 12px;padding:18px;max-height:90vh;overflow:auto}
+.screen{display:none}.screen.active{display:block}.screen.screenEnterRight{animation:screenEnterRight .24s cubic-bezier(.22,.8,.32,1)}.screen.screenEnterLeft{animation:screenEnterLeft .24s cubic-bezier(.22,.8,.32,1)}@keyframes screenEnterRight{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes screenEnterLeft{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}.empty{text-align:center;color:var(--muted);padding:28px 8px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;align-items:flex-end;justify-content:center;padding:8px}.sheet{background:#fff;width:100%;max-width:800px;border-radius:25px 25px 12px 12px;padding:18px;max-height:90vh;overflow:auto}
 label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-size:16px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .preview{max-height:55vh;overflow:auto}.previewItem{padding:12px;border:1px solid var(--line);border-radius:15px;margin-bottom:8px}.previewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.previewSelect{margin-top:9px}
 .badge{font-size:11px;padding:4px 7px;border-radius:99px;background:#edf1f4;color:#555}.badge.auto{background:#edf8f0;color:#17613b}.badge.warn{background:#fff4d6;color:#765800}.badge.learn{background:#e9f6ff;color:#185c86}
 .hint{padding:10px 12px;background:#f7f7fa;border-radius:13px;font-size:12px;color:var(--muted)}
-.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.catManageRow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line)}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;margin:0!important;line-height:1}.catName{min-width:0;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{align-self:center;min-width:74px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
+.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.categoryManagerHead{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}.categoryManagerHead .kicker{min-width:0}.categoryManagerHead button{flex:none}.catManageRow{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:center;width:100%;max-width:100%;box-sizing:border-box;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line);overflow:hidden}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;width:36px!important;height:36px!important;margin:0!important;line-height:1}.catName{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{display:grid;place-items:center;width:36px;min-width:36px;height:36px;min-height:36px;padding:0!important;border-radius:11px;align-self:center;font-size:17px}.customColorRow{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fafbfc}.customColorInput{width:50px!important;height:50px!important;min-height:50px;padding:3px!important;border-radius:12px;cursor:pointer}.customColorHex{font-size:12px;color:var(--muted);margin-top:3px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
 
 .catStatBtn{border-radius:14px!important;padding:10px!important;transition:background .15s ease}
 .catStatBtn:active{transform:scale(.995)}
@@ -2075,7 +2075,7 @@ button:active,
       <div><h3 class="settingsSectionTitle">Categorie</h3><div class="kicker">Personalizza l'organizzazione dei movimenti.</div></div>
     </div>
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div class="categoryManagerHead">
         <div class="kicker">Categorie disponibili</div>
         <button id="newCategory" class="secondary" type="button">＋ Categoria</button>
       </div>
@@ -2250,7 +2250,7 @@ button:active,
 <label class="f">Nome categoria</label><input id="manageCatName" type="text" maxlength="30" placeholder="es. Animali">
 <label class="f">Icona</label><div id="iconPicker" class="iconGrid"></div>
 <label class="f">Colore</label><div id="colorPicker" class="colorGrid"></div>
-<label class="f" for="customCategoryColor">Colore personalizzato</label><input id="customCategoryColor" type="color" style="height:44px;padding:5px;width:100%">
+<label class="f" for="customCategoryColor">Colore personalizzato</label><div class="customColorRow"><input id="customCategoryColor" class="customColorInput" type="color"><div><b>Scegli una tonalità</b><div id="customCategoryColorHex" class="customColorHex"></div></div></div>
 <div class="actions" style="margin-top:12px"><button id="saveManagedCat" class="primary">Salva</button><button id="deleteManagedCat" class="danger" style="display:none">Elimina</button></div>
 <div id="manageCatMsg" class="status"></div>
 </div></div>
@@ -2258,6 +2258,11 @@ button:active,
 <div id="categoryDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
 <div><b id="categoryDeleteQuestion">Sei sicuro di voler eliminare questa categoria?</b></div>
 <div class="actions" style="margin-top:14px"><button id="confirmCategoryDelete" class="danger" type="button">Elimina categoria</button><button id="cancelCategoryDelete" class="secondary" type="button">Annulla</button></div>
+</div></div>
+
+<div id="moveDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
+<div><b>Sei sicuro di voler eliminare questo movimento?</b></div>
+<div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button">Annulla</button></div>
 </div></div>
 
 </div>
@@ -2657,7 +2662,7 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<div class="catManageRow"><div class="ico" style="width:34px;height:34px;background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</div><div class="catName">${esc(c)}</div><button type="button" class="secondary tiny editCategoryBtn" data-cat="${esc(c)}">Modifica</button></div>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
+ el.innerHTML=cats.length?cats.map(c=>`<div class="catManageRow"><div class="ico" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</div><div class="catName">${esc(c)}</div><button type="button" class="secondary editCategoryBtn" data-cat="${esc(c)}" aria-label="Modifica ${esc(c)}" title="Modifica">✎</button></div>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
  el.querySelectorAll(".editCategoryBtn").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
@@ -2677,7 +2682,7 @@ function renderStylePickers(name,reset=false){
  colorPicker.innerHTML=CATEGORY_COLORS.map(c=>`<button type="button" class="colorChoice ${c===pickedColor?"active":""}" data-color="${c}" style="background:${c}"></button>`).join("");
  iconPicker.querySelectorAll(".iconChoice").forEach(b=>b.onclick=()=>{pickedIcon=b.dataset.icon;renderStylePickers(name)});
  colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.onclick=()=>{pickedColor=b.dataset.color;renderStylePickers(name)});
- const custom=document.getElementById("customCategoryColor");if(custom){custom.value=pickedColor;custom.oninput=()=>{pickedColor=custom.value;renderStylePickers(name)}}
+ const custom=document.getElementById("customCategoryColor"),hex=document.getElementById("customCategoryColorHex");if(custom){custom.value=pickedColor;if(hex)hex.textContent=pickedColor.toUpperCase();custom.oninput=()=>{pickedColor=custom.value;if(hex)hex.textContent=pickedColor.toUpperCase();colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.classList.toggle("active",b.dataset.color===pickedColor))}}
 }
 
 
@@ -2993,9 +2998,11 @@ function openManual(){
 }
 function itDate(iso){const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
 const SCREEN_ORDER=["home","moves","stats","settings"];
-function go(s){
+function go(s,direction=0){
  if(!SCREEN_ORDER.includes(s))return;
- document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("active",x.id===s));
+ const current=document.querySelector(".screen.active"),target=document.getElementById(s);if(current===target)return;
+ document.querySelectorAll(".screen").forEach(x=>{x.classList.remove("active","screenEnterLeft","screenEnterRight")});
+ if(target){target.classList.add("active");if(direction)target.classList.add(direction>0?"screenEnterRight":"screenEnterLeft");setTimeout(()=>target.classList.remove("screenEnterLeft","screenEnterRight"),280)}
  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));
  if(s==="settings")openSettingsPage("settingsMainPage");
  if(s==="stats")requestAnimationFrame(()=>render());
@@ -3016,7 +3023,7 @@ document.addEventListener("touchend",e=>{
  screenSwipeStart=null;
  if(elapsed>700||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.35)return;
  const current=document.querySelector(".screen.active"),index=SCREEN_ORDER.indexOf(current&&current.id);
- const next=index+(dx<0?1:-1);if(next>=0&&next<SCREEN_ORDER.length){suppressSwipeClick=true;go(SCREEN_ORDER[next]);setTimeout(()=>suppressSwipeClick=false,350)}
+ const direction=dx<0?1:-1,next=index+direction;if(next>=0&&next<SCREEN_ORDER.length){suppressSwipeClick=true;go(SCREEN_ORDER[next],direction);setTimeout(()=>suppressSwipeClick=false,350)}
 },{passive:true});
 document.addEventListener("click",e=>{if(suppressSwipeClick){e.preventDefault();e.stopPropagation();suppressSwipeClick=false}},true);
 
@@ -3222,7 +3229,10 @@ if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
 const closeEditBtn=document.getElementById("closeEdit");
 if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none"};
 saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render()}editModal.style.display="none"};
-deleteMove.onclick=()=>{if(confirm("Eliminare questo movimento?")){moves=moves.filter(x=>x.id!==selected);save();render();editModal.style.display="none"}};
+const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
+deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
+document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;moves=moves.filter(x=>x.id!==selected);selected=null;save();render();editModal.style.display="none";closeMoveDelete()};
 const homeBudgetList=document.getElementById("homeBudget");
 if(homeBudgetList){
  homeBudgetList.addEventListener("click",e=>{
