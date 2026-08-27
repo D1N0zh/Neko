@@ -3507,7 +3507,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));maybeCreateAutoBackup();updateAutoBackupUi();render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));render();applyHomePrefs();
 </script>
 </body></html>
 <style>
