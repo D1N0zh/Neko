@@ -19,7 +19,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 .preview{max-height:55vh;overflow:auto}.previewItem{padding:12px;border:1px solid var(--line);border-radius:15px;margin-bottom:8px}.previewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.previewSelect{margin-top:9px}
 .badge{font-size:11px;padding:4px 7px;border-radius:99px;background:#edf1f4;color:#555}.badge.auto{background:#edf8f0;color:#17613b}.badge.warn{background:#fff4d6;color:#765800}.badge.learn{background:#e9f6ff;color:#185c86}
 .hint{padding:10px 12px;background:#f7f7fa;border-radius:13px;font-size:12px;color:var(--muted)}
-.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.categoryManagerHead{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}.categoryManagerHead .kicker{min-width:0}.categoryManagerHead button{flex:none}.catManageRow{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:center;width:100%;max-width:100%;box-sizing:border-box;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line);overflow:hidden}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;width:36px!important;height:36px!important;margin:0!important;line-height:1}.catName{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{display:grid;place-items:center;width:36px;min-width:36px;height:36px;min-height:36px;padding:0!important;border-radius:11px;align-self:center;font-size:17px}.customColorRow{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fafbfc}.customColorInput{width:50px!important;height:50px!important;min-height:50px;padding:3px!important;border-radius:12px;cursor:pointer}.customColorHex{font-size:12px;color:var(--muted);margin-top:3px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
+.pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.categoryManagerHead{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}.categoryManagerHead .kicker{min-width:0}.categoryManagerHead button{flex:none}.catManageRow{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:center;width:100%;max-width:100%;box-sizing:border-box;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line);overflow:hidden}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;width:36px!important;height:36px!important;margin:0!important;line-height:1}.catName{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{display:grid;place-items:center;width:36px;min-width:36px;height:36px;min-height:36px;padding:0!important;border-radius:11px;align-self:center;font-size:17px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
 
 .catStatBtn{border-radius:14px!important;padding:10px!important;transition:background .15s ease}
 .catStatBtn:active{transform:scale(.995)}
@@ -1784,12 +1784,11 @@ button:active,
   display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
   border-radius:14px;font-size:20px;line-height:1;
 }
-#settingsCategoriesPage .catManageText{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+#settingsCategoriesPage .catManageText{display:flex;align-items:center;min-width:0;flex:1;align-self:stretch}
 #settingsCategoriesPage .catName{
   display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font-size:14px;font-weight:820;line-height:1.2;
 }
-#settingsCategoriesPage .catManageMeta{font-size:10.5px;color:var(--muted);line-height:1.2}
 #settingsCategoriesPage .catManageChevron{flex:none;color:var(--muted);font-size:22px;line-height:1}
 #manageCatModal .iconGrid{
   grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;
@@ -1801,6 +1800,16 @@ button:active,
 }
 #manageCatModal .colorGrid{grid-template-columns:repeat(8,minmax(0,1fr));gap:9px}
 #manageCatModal .colorChoice{width:100%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.undoToast{
+  position:fixed;left:50%;bottom:82px;transform:translate(-50%,18px);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  width:min(430px,calc(100% - 28px));padding:10px 11px 10px 14px;
+  border-radius:14px;background:#26304a;color:#fff;box-shadow:0 12px 32px rgba(30,41,59,.24);
+  z-index:61;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+}
+.undoToast.active{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.undoToast span{font-size:13px;font-weight:700;min-width:0}
+.undoToast button{min-height:34px!important;padding:6px 10px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;border-radius:10px!important;flex:none}
 @media(max-width:370px){
   #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
   #manageCatModal .colorGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
@@ -2311,7 +2320,6 @@ button:active,
 <label class="f">Nome categoria</label><input id="manageCatName" type="text" maxlength="30" placeholder="es. Animali">
 <label class="f">Icona</label><div id="iconPicker" class="iconGrid"></div>
 <label class="f">Colore</label><div id="colorPicker" class="colorGrid"></div>
-<label class="f" for="customCategoryColor">Colore personalizzato</label><div class="customColorRow"><input id="customCategoryColor" class="customColorInput" type="color"><div><b>Scegli una tonalità</b><div id="customCategoryColorHex" class="customColorHex"></div></div></div>
 <div class="actions" style="margin-top:12px"><button id="saveManagedCat" class="primary">Salva</button><button id="deleteManagedCat" class="danger" style="display:none">Elimina</button></div>
 <div id="manageCatMsg" class="status"></div>
 </div></div>
@@ -2325,6 +2333,8 @@ button:active,
 <div><b>Sei sicuro di voler eliminare questo movimento?</b></div>
 <div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button">Annulla</button></div>
 </div></div>
+
+<div id="undoToast" class="undoToast" role="status" aria-live="polite"><span id="undoToastText"></span><button id="undoToastAction" type="button">Annulla</button></div>
 
 </div>
 <div id="catSubstats" style="margin-top:12px"></div>
@@ -2671,15 +2681,18 @@ function openStatsBulkAssign(){
 function applyStatsBulkCategory(){
  const sel=document.getElementById("bulkCategorySelect");if(!sel||!statsSelected.size)return;
  const category=sel.value;
+ const undoState=captureMovementState();
  moves.forEach(m=>{if(statsSelected.has(m.id)){m.category=category;const k=merchantKey(m.description);if(k)rules[k]=category}});
  save();statsSelected.clear();statsSelectMode=false;
  const modal=document.getElementById("bulkModal");if(modal){modal.style.display="none";delete modal.dataset.source}
  render();
  if(currentStatsCategory)openCategory(currentStatsCategory);
+ offerMovementUndo("Categorie aggiornate",undoState);
 }
 function applyBulkCategory(){
  const sel=document.getElementById("bulkCategorySelect");if(!sel||!bulkSelected.size)return;
  const category=sel.value;
+ const undoState=captureMovementState();
  moves.forEach(m=>{
    if(bulkSelected.has(m.id)){
      m.category=category;
@@ -2690,6 +2703,7 @@ function applyBulkCategory(){
  const modal=document.getElementById("bulkModal");if(modal)modal.style.display="none";
  render();
  applyHomePrefs();
+ offerMovementUndo("Categorie aggiornate",undoState);
  
  
 
@@ -2723,7 +2737,7 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span><span class="catManageMeta">Icona e colore</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
+ el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
  el.querySelectorAll(".catManageRow").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
@@ -2743,7 +2757,6 @@ function renderStylePickers(name,reset=false){
  colorPicker.innerHTML=CATEGORY_COLORS.map(c=>`<button type="button" class="colorChoice ${c===pickedColor?"active":""}" data-color="${c}" style="background:${c}"></button>`).join("");
  iconPicker.querySelectorAll(".iconChoice").forEach(b=>b.onclick=()=>{pickedIcon=b.dataset.icon;renderStylePickers(name)});
  colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.onclick=()=>{pickedColor=b.dataset.color;renderStylePickers(name)});
- const custom=document.getElementById("customCategoryColor"),hex=document.getElementById("customCategoryColorHex");if(custom){custom.value=pickedColor;if(hex)hex.textContent=pickedColor.toUpperCase();custom.oninput=()=>{pickedColor=custom.value;if(hex)hex.textContent=pickedColor.toUpperCase();colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.classList.toggle("active",b.dataset.color===pickedColor))}}
 }
 
 
@@ -3174,6 +3187,21 @@ if(pdfInput2){pdfInput2.addEventListener("change",onPdfSelected);pdfInput2.addEv
 let importSummaryTimer=null;
 function showTemporaryMessage(message,duration=4500){const el=document.getElementById("importSummaryToast");if(!el)return;el.textContent=message;el.classList.add("active");clearTimeout(importSummaryTimer);importSummaryTimer=setTimeout(()=>el.classList.remove("active"),duration)}
 function showImportSummary(imported,ignored,ambiguous){showTemporaryMessage(`${imported} movimenti importati · ${ignored} già presenti ignorati · ${ambiguous} da controllare`,6500)}
+let pendingUndo=null,undoTimer=null;
+function captureMovementState(){return{moves:JSON.parse(JSON.stringify(moves)),rules:JSON.parse(JSON.stringify(rules))}}
+function dismissUndo(){const el=document.getElementById("undoToast");if(el)el.classList.remove("active");clearTimeout(undoTimer);pendingUndo=null}
+function offerMovementUndo(message,state,duration=6000){
+ const el=document.getElementById("undoToast"),text=document.getElementById("undoToastText");if(!el||!text)return;
+ clearTimeout(undoTimer);pendingUndo=state;text.textContent=message;el.classList.add("active");
+ undoTimer=setTimeout(dismissUndo,duration);
+}
+function restoreLastMovementAction(){
+ if(!pendingUndo)return;const state=pendingUndo;clearTimeout(undoTimer);pendingUndo=null;
+ moves=state.moves;rules=state.rules;save();render();applyHomePrefs();
+ if(currentStatsCategory)openCategory(currentStatsCategory);
+ const el=document.getElementById("undoToast");if(el)el.classList.remove("active");showTemporaryMessage("Modifica annullata");
+}
+const undoToastAction=document.getElementById("undoToastAction");if(undoToastAction)undoToastAction.onclick=restoreLastMovementAction;
 confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}pending=[];pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
 
 
@@ -3289,11 +3317,11 @@ if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
 
 const closeEditBtn=document.getElementById("closeEdit");
 if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none"};
-saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render()}editModal.style.display="none"};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
 document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
-document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;moves=moves.filter(x=>x.id!==selected);selected=null;save();render();editModal.style.display="none";closeMoveDelete()};
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();editModal.style.display="none";closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
 const homeBudgetList=document.getElementById("homeBudget");
 if(homeBudgetList){
  homeBudgetList.addEventListener("click",e=>{
