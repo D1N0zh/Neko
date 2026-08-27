@@ -709,33 +709,49 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 }
 .compactHead .monthControl{
   display:grid;
-  grid-template-columns:38px minmax(0,1fr) 38px;
+  grid-template-columns:34px minmax(0,1fr) 34px;
   align-items:center;
-  gap:5px;
+  gap:2px;
   flex:1;
   min-width:0;
+  min-height:42px;
+  padding:3px;
+  background:#f3f4f7;
+  border:1px solid rgba(34,39,51,.08);
+  border-radius:15px;
 }
 .compactHead .monthArrow{
-  width:38px;
-  min-width:38px;
-  height:38px;
-  min-height:38px;
+  width:34px;
+  min-width:34px;
+  height:34px;
+  min-height:34px;
   padding:0;
-  border-radius:12px;
-  font-size:20px;
+  border:0!important;
+  border-radius:11px;
+  background:transparent!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+  font-size:21px;
+  line-height:1;
 }
+.compactHead .monthArrow:active{background:rgba(76,92,180,.1)!important;color:var(--accent)!important;transform:scale(.92)}
 .compactHead .monthCenter{
-  border:1px solid var(--line);
-  background:#fff;
-  min-height:38px;
-  border-radius:12px;
-  padding:6px 10px;
+  border:0!important;
+  background:transparent!important;
+  min-height:34px;
+  border-radius:11px;
+  padding:5px 7px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:5px;
+  gap:7px;
   min-width:0;
+  box-shadow:none!important;
 }
+.compactHead .monthCenter:active{background:#fff!important;transform:scale(.98)}
+.monthCalendarIcon{position:relative;width:14px;height:13px;flex:0 0 14px;border:1.7px solid var(--accent);border-radius:4px;opacity:.82}
+.monthCalendarIcon:before{content:"";position:absolute;left:-1.7px;right:-1.7px;top:3px;border-top:1.7px solid var(--accent)}
+.monthCalendarIcon:after{content:"";position:absolute;left:2px;right:2px;top:-3px;height:4px;border-left:1.7px solid var(--accent);border-right:1.7px solid var(--accent)}
 .compactHead .monthLabel{
   border:0!important;
   background:transparent!important;
@@ -834,9 +850,9 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 }
 @media(max-width:430px){
   .compactHead{gap:7px!important}
-  .compactHead .monthControl{grid-template-columns:34px minmax(0,1fr) 34px}
-  .compactHead .monthArrow{width:34px;min-width:34px;height:36px;min-height:36px}
-  .compactHead .monthCenter{min-height:36px;padding:5px 7px}
+  .compactHead .monthControl{grid-template-columns:31px minmax(0,1fr) 31px}
+  .compactHead .monthArrow{width:31px;min-width:31px;height:34px;min-height:34px}
+  .compactHead .monthCenter{min-height:34px;padding:5px 4px}
   .compactHead .compactAddMove{
     width:38px;
     min-width:38px;
@@ -1841,6 +1857,7 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
   <div class="monthControl">
     <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente">‹</button>
     <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese">
+      <span class="monthCalendarIcon" aria-hidden="true"></span>
       <span id="monthLabel" class="monthLabel"></span>
     </button>
     <button id="nextMonth" class="monthArrow secondary" type="button" aria-label="Mese successivo">›</button>
@@ -2257,19 +2274,6 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Backup automatico</div>
-          <div id="autoBackupDesc" class="settingsActionDesc">Crea una copia interna all'app. Non sostituisce il file di backup esportato.</div>
-        </div>
-        <select id="autoBackupFrequency" aria-label="Frequenza backup automatico" style="width:auto;min-width:126px">
-          <option value="off">Disattivato</option>
-          <option value="daily">Giornaliero</option>
-          <option value="weekly">Settimanale</option>
-          <option value="monthly">Mensile</option>
-        </select>
-      </div>
-
-      <div class="settingsActionRow">
-        <div class="settingsActionText">
           <div class="settingsActionTitle">Ripristina backup</div>
           <div class="settingsActionDesc">Carica un backup JSON precedente.</div>
         </div>
@@ -2477,7 +2481,6 @@ let statsTouchDragCat=null,statsTouchDropCat=null,statsTouchStartX=0,statsTouchS
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
 let editingBudget=null;
-let autoBackupFrequency=localStorage.getItem("micio_v94_autobackup_frequency")||"off";
 const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(n), esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])), uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
 const sanitizeDescription=s=>String(s)
  .replace(/\bBONGIORNO\s+CALOGERO\s+IVAN\b/gi,"")
@@ -2514,7 +2517,7 @@ function detectImportedDuplicates(candidates,existing){
  });
  return{accepted,ignored,ambiguous};
 }
-const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth);maybeCreateAutoBackup()};
+const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth)};
 
 
 function parseItDate(s){const [d,m,y]=s.split("/").map(Number);return new Date(y,m-1,d)}
@@ -3398,22 +3401,9 @@ exportCsv.onclick=()=>{
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
  saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
 };
-function backupData(){return{version:10,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder,autoBackupFrequency}}
-function maybeCreateAutoBackup(force=false){
- if(autoBackupFrequency==="off")return;
- const intervals={daily:86400000,weekly:604800000,monthly:2592000000},last=Number(localStorage.getItem("micio_v94_autobackup_at")||0);
- if(!force&&Date.now()-last<(intervals[autoBackupFrequency]||Infinity))return;
- localStorage.setItem("micio_v94_autobackup",JSON.stringify(backupData()));localStorage.setItem("micio_v94_autobackup_at",String(Date.now()));updateAutoBackupUi();
-}
-function updateAutoBackupUi(){
- const select=document.getElementById("autoBackupFrequency"),desc=document.getElementById("autoBackupDesc"),last=Number(localStorage.getItem("micio_v94_autobackup_at")||0);
- if(select)select.value=autoBackupFrequency;
- if(desc)desc.textContent=autoBackupFrequency==="off"?"Crea una copia interna all'app. Per sicurezza esporta anche un file di backup.":last?`Ultima copia interna: ${new Date(last).toLocaleString("it-IT")}. Non sostituisce il file esportato.`:`La prima copia interna verrà creata automaticamente. Non sostituisce il file esportato.`;
-}
-const autoBackupSelect=document.getElementById("autoBackupFrequency");
-if(autoBackupSelect)autoBackupSelect.onchange=()=>{autoBackupFrequency=autoBackupSelect.value;localStorage.setItem("micio_v94_autobackup_frequency",autoBackupFrequency);if(autoBackupFrequency!=="off")maybeCreateAutoBackup(true);else updateAutoBackupUi()};
+function backupData(){return{version:10,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder}}
 exportBackup.onclick=()=>saveTextFile("neko-backup.json","application/json",JSON.stringify(backupData(),null,2),backupStatus);
-importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];if(["off","daily","weekly","monthly"].includes(d.autoBackupFrequency)){autoBackupFrequency=d.autoBackupFrequency;localStorage.setItem("micio_v94_autobackup_frequency",autoBackupFrequency)}save();updateAutoBackupUi();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
+importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
 closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
 saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
 categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
