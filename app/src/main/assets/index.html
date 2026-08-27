@@ -2258,7 +2258,7 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
       <div class="settingsActionRow">
         <div class="settingsActionText">
           <div class="settingsActionTitle">Backup automatico</div>
-          <div id="autoBackupDesc" class="settingsActionDesc">Crea periodicamente una copia locale dei dati.</div>
+          <div id="autoBackupDesc" class="settingsActionDesc">Crea una copia interna all'app. Non sostituisce il file di backup esportato.</div>
         </div>
         <select id="autoBackupFrequency" aria-label="Frequenza backup automatico" style="width:auto;min-width:126px">
           <option value="off">Disattivato</option>
@@ -2364,6 +2364,11 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 <div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button">Annulla</button></div>
 </div></div>
 
+<div id="nekoConfirmModal" class="modal"><div class="sheet" style="max-width:430px">
+<div><b id="nekoConfirmTitle">Conferma operazione</b><div id="nekoConfirmMessage" class="kicker" style="margin-top:6px"></div></div>
+<div class="actions" style="margin-top:14px"><button id="nekoConfirmAction" class="danger" type="button">Conferma</button><button id="nekoConfirmCancel" class="secondary" type="button">Annulla</button></div>
+</div></div>
+
 <div id="splitMoveModal" class="modal"><div class="sheet" style="max-width:540px">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>Dividi movimento</b><div id="splitMoveTotal" class="kicker"></div></div><button id="closeSplitMove" class="secondary" type="button">Chiudi</button></div>
 <div id="splitRows" class="splitRows"></div>
@@ -2389,6 +2394,10 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 
 <script src="pdf.min.js"></script>
 <script>
+
+if(window.pdfjsLib){
+ pdfjsLib.GlobalWorkerOptions.workerSrc="pdf.worker.min.js";
+}
 
 window.addEventListener("error",function(ev){
  const s=document.getElementById("status");
@@ -3241,11 +3250,15 @@ function showAppInfo(){
 if(openAppInfoBtn)openAppInfoBtn.addEventListener("click",showAppInfo);
 if(closeAppInfoBtn)closeAppInfoBtn.addEventListener("click",()=>appInfoModal.style.display="none");
 if(appInfoModal)appInfoModal.addEventListener("click",e=>{if(e.target===appInfoModal)appInfoModal.style.display="none"});
+const nekoConfirmModal=document.getElementById("nekoConfirmModal"),nekoConfirmTitle=document.getElementById("nekoConfirmTitle"),nekoConfirmMessage=document.getElementById("nekoConfirmMessage"),nekoConfirmAction=document.getElementById("nekoConfirmAction");
+let pendingConfirmAction=null;
+function closeNekoConfirm(){pendingConfirmAction=null;if(nekoConfirmModal)nekoConfirmModal.style.display="none"}
+function openNekoConfirm(title,message,confirmLabel,action){if(!nekoConfirmModal)return;nekoConfirmTitle.textContent=title;nekoConfirmMessage.textContent=message;nekoConfirmAction.textContent=confirmLabel||"Conferma";pendingConfirmAction=action;nekoConfirmModal.style.display="flex"}
+document.getElementById("nekoConfirmCancel").onclick=closeNekoConfirm;
+nekoConfirmAction.onclick=()=>{const action=pendingConfirmAction;closeNekoConfirm();if(action)action()};
 const clearRulesBtn=document.getElementById("clearRules");
 if(clearRulesBtn)clearRulesBtn.onclick=()=>{
- if(confirm("Cancellare tutte le regole automatiche apprese?")){
-   rules={};save();renderRulesManager();
- }
+ openNekoConfirm("Cancellare le regole automatiche?","Le categorie e i movimenti non verranno modificati.","Cancella regole",()=>{rules={};save();renderRulesManager()});
 };
 const searchMovesEl=document.getElementById("searchMoves"),filterTypeEl=document.getElementById("filterType"),filterStatsEl=document.getElementById("filterStats");
 if(searchMovesEl)searchMovesEl.addEventListener("input",()=>{searchText=searchMovesEl.value.trim().toLowerCase();render()});
@@ -3264,7 +3277,7 @@ async function choose(file){
  if(statusEl){statusEl.className="status";statusEl.textContent=`File selezionato: ${file.name}
 Analisi PDF…`}
  try{
-   if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile. Riapri l'app con una connessione Internet.");
+   if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile. Chiudi e riapri l'app.");
    const detection=detectImportedDuplicates(await extract(file),moves);pending=detection.accepted;pendingImportSummary={ignored:detection.ignored,ambiguous:detection.ambiguous};
    const unknown=pending.filter(m=>m.category==="Da classificare"&&!m.duplicateReview).length,review=unknown+detection.ambiguous;
    if(previewInfoEl)previewInfoEl.textContent=`${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`;
@@ -3358,14 +3371,14 @@ if(saveBudgetButton)saveBudgetButton.onclick=()=>{
 
 if(deleteBudgetButton)deleteBudgetButton.onclick=()=>{
  if(!editingBudget)return;
- if(confirm(`Eliminare il budget di "${editingBudget}"?`)){
+ openNekoConfirm("Eliminare questo budget?",`Il budget di “${editingBudget}” verrà rimosso.`,"Elimina budget",()=>{
    delete budgets[editingBudget];
    editingBudget=null;
    save();
    const modal=document.getElementById("budgetModal");
    if(modal)modal.style.display="none";
    render();const manager=document.getElementById("budgetManager");if(manager)renderBudgets(manager,false);
- }
+ });
 };
 
 prevMonth.onclick=()=>{ensureSelectedMonth();selectedMonth=shiftMonth(selectedMonth,-1);closeStatsCategoryDetail();save();render()};
@@ -3395,7 +3408,7 @@ function maybeCreateAutoBackup(force=false){
 function updateAutoBackupUi(){
  const select=document.getElementById("autoBackupFrequency"),desc=document.getElementById("autoBackupDesc"),last=Number(localStorage.getItem("micio_v94_autobackup_at")||0);
  if(select)select.value=autoBackupFrequency;
- if(desc)desc.textContent=autoBackupFrequency==="off"?"Crea periodicamente una copia locale dei dati.":last?`Ultima copia locale: ${new Date(last).toLocaleString("it-IT")}.`:`La prima copia verrà creata automaticamente.`;
+ if(desc)desc.textContent=autoBackupFrequency==="off"?"Crea una copia interna all'app. Per sicurezza esporta anche un file di backup.":last?`Ultima copia interna: ${new Date(last).toLocaleString("it-IT")}. Non sostituisce il file esportato.`:`La prima copia interna verrà creata automaticamente. Non sostituisce il file esportato.`;
 }
 const autoBackupSelect=document.getElementById("autoBackupFrequency");
 if(autoBackupSelect)autoBackupSelect.onchange=()=>{autoBackupFrequency=autoBackupSelect.value;localStorage.setItem("micio_v94_autobackup_frequency",autoBackupFrequency);if(autoBackupFrequency!=="off")maybeCreateAutoBackup(true);else updateAutoBackupUi()};
@@ -3477,7 +3490,7 @@ if(addTopBtn)addTopBtn.addEventListener("click",openManual);
 if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
 closeManual.onclick=()=>manualModal.style.display="none";
 manualForm.onsubmit=e=>{e.preventDefault();const n=Number(mamount.value);if(!n||n<=0)return;const amount=mtype.value==="expense"?-n:n,desc=sanitizeDescription(mdesc.value.trim()),cl=classify(desc,amount),chosen=mcat.value==="Da classificare"?cl.cat:mcat.value;moves.push({id:uid(),date:itDate(mdate.value),valueDate:itDate(mdate.value),amount,description:desc,category:chosen,why:"manual",source:"manual",note:"",excludeStats:false});save();render();manualModal.style.display="none";go("moves")};
-clear.onclick=()=>{if(confirm("Cancellare movimenti, regole personali e categorie personalizzate?")){moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];selectedMonth=nowMonthKey();save();render()}};
+clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");
 const closeMonthPickerBtn=document.getElementById("closeMonthPicker");
