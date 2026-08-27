@@ -1552,6 +1552,9 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
+html,body,*{
+  -webkit-tap-highlight-color:transparent;
+}
 .app{
   padding-left:14px!important;
   padding-right:14px!important;
@@ -1571,12 +1574,16 @@ textarea{
 }
 button,
 .filebtn{
-  transition:transform .08s ease,background .12s ease,border-color .12s ease,opacity .12s ease;
+  -webkit-user-select:none;user-select:none;
+  transition:transform .14s cubic-bezier(.2,.8,.3,1),background .16s ease,border-color .16s ease,box-shadow .16s ease,filter .16s ease,opacity .16s ease;
 }
 button:active,
 .filebtn:active{
-  transform:scale(.985);
+  transform:translateY(1px) scale(.975);
+  filter:saturate(1.08);
 }
+button:focus:not(:focus-visible),.filebtn:focus:not(:focus-visible){outline:none}
+button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4);outline-offset:2px}
 .primary,
 .secondary,
 .danger{
@@ -2544,7 +2551,7 @@ function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.16)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
 async function extract(file){
  if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile.");
  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),disableWorker:true}).promise;let text="";
@@ -2635,7 +2642,7 @@ function render(){
    allmovesEl.querySelectorAll(".row[data-id]").forEach(x=>x.onclick=()=>edit(x.dataset.id));
  }
  const valsMap=Object.fromEntries(vals);const statsCats=[...statsCategoryOrder.filter(c=>valsMap[c]!=null),...vals.map(([k])=>k).filter(k=>!statsCategoryOrder.includes(k))];statsCategoryOrder=statsCats;
- catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.09)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):'<div class="empty">Nessun dato.</div>';
+ catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.15)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):'<div class="empty">Nessun dato.</div>';
  requestAnimationFrame(()=>drawPie(vals));
  document.querySelectorAll(".catStatBtn").forEach(x=>{
    x.onclick=e=>{if(statsEditMode||e.target.closest(".statsMoveControls"))return;openCategory(x.dataset.cat)};
@@ -2737,7 +2744,7 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.16)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
+ el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
  el.querySelectorAll(".catManageRow").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
@@ -3317,11 +3324,11 @@ if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
 
 const closeEditBtn=document.getElementById("closeEdit");
 if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none"};
-saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
 document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
-document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();editModal.style.display="none";closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
 const homeBudgetList=document.getElementById("homeBudget");
 if(homeBudgetList){
  homeBudgetList.addEventListener("click",e=>{
