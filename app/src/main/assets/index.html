@@ -1821,6 +1821,10 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
 .splitSummary.active{display:block}.splitSummary b{color:var(--text)}
 .splitRows{display:grid;gap:9px;margin-top:12px}.splitRow{display:grid;grid-template-columns:minmax(0,1fr) 112px 38px;gap:7px;align-items:center}.splitRow select,.splitRow input{min-width:0}.splitRemove{display:grid!important;place-items:center!important;width:38px!important;height:42px!important;min-height:42px!important;padding:0!important}
 .splitBalance{margin-top:10px;padding:10px 12px;border-radius:12px;background:#f5f6f8;font-size:12px;font-weight:750}.splitBalance.ok{background:#edf8f0;color:#17613b}.splitBalance.err{background:#fff0f0;color:#a12626}
+.monthCompareHero{padding:13px;border-radius:15px;background:var(--accent-soft)}.monthCompareHero .monthCompareSentence{font-size:14px;font-weight:820;line-height:1.4}.monthCompareHero .monthCompareMeta{font-size:11px;color:var(--muted);margin-top:4px}
+.monthCompareTotals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.monthCompareTotal{padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}.monthCompareTotal span{display:block;font-size:10.5px;color:var(--muted)}.monthCompareTotal b{display:block;margin-top:3px;font-size:15px}
+.monthCompareColumns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}.monthCompareListTitle{font-size:11px;font-weight:850;margin-bottom:6px}.monthCompareRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:11px}.monthCompareRow:last-child{border-bottom:0}.monthCompareName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.monthCompareEmpty{font-size:10.5px;color:var(--muted);padding:5px 0}
+@media(max-width:390px){.monthCompareColumns{grid-template-columns:1fr}.monthCompareTotals{gap:6px}}
 @media(max-width:390px){.splitRow{grid-template-columns:minmax(0,1fr) 94px 36px}.splitRow input,.splitRow select{padding:9px 8px}}
 @media(max-width:370px){
   #manageCatModal .iconGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -2026,6 +2030,11 @@ button:focus-visible,.filebtn:focus-visible{outline:2px solid rgba(70,87,168,.4)
       <span>Risparmio</span>
       <b id="statsSaving">€ 0</b>
     </div>
+  </div>
+
+  <div class="statsSection" id="monthComparisonCard">
+    <div class="statsSectionHead"><div><div class="statsSectionTitle">Confronto mensile</div><div class="statsSectionSub">Rispetto al mese precedente</div></div></div>
+    <div id="monthComparison"></div>
   </div>
 
   <div class="statsSection statsPieSection">
@@ -2517,6 +2526,16 @@ function categoryViewMoves(k,cat){return monthMoves(k).flatMap(m=>splitEntries(m
 function movementMatchesCategory(m,cat){return splitEntries(m).some(x=>x.category===cat)}
 function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category} ${(validSplitParts(m)||[]).map(p=>p.category).join(" ")}`.toLowerCase()}
 function monthTotals(k){const mm=monthMoves(k),income=mm.filter(x=>x.amount>0).reduce((s,x)=>s+x.amount,0),expense=mm.filter(x=>x.amount<0).reduce((s,x)=>s+Math.abs(x.amount),0);return {moves:mm,income,expense,saving:income-expense}}
+function expenseCategoriesForMonth(k){const totals={};statMoves(k).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});return totals}
+function renderMonthComparison(){
+ const root=document.getElementById("monthComparison");if(!root)return;const previousKey=shiftMonth(selectedMonth,-1),current=expenseCategoriesForMonth(selectedMonth),previous=expenseCategoriesForMonth(previousKey),currentTotal=Object.values(current).reduce((s,v)=>s+v,0),previousTotal=Object.values(previous).reduce((s,v)=>s+v,0),diff=currentTotal-previousTotal;
+ const currentName=monthLabelText(selectedMonth),previousName=monthLabelText(previousKey),all=[...new Set([...Object.keys(current),...Object.keys(previous)])],changes=all.map(category=>({category,diff:(current[category]||0)-(previous[category]||0)}));
+ const increases=changes.filter(x=>x.diff>0.004).sort((a,b)=>b.diff-a.diff).slice(0,3),decreases=changes.filter(x=>x.diff<-.004).sort((a,b)=>a.diff-b.diff).slice(0,3);
+ let sentence,meta="";if(previousTotal<=0){sentence="Non ci sono ancora dati sufficienti per il confronto.";meta=`${currentName}: ${euro(currentTotal)} · ${previousName}: nessuna spesa`}
+ else{const pct=Math.abs(diff/previousTotal*100),direction=diff>0?"in più":diff<0?"in meno":"come",amount=Math.abs(diff);sentence=diff===0?`A ${currentName} hai speso quanto nel mese precedente.`:`A ${currentName} hai speso ${euro(amount)} ${direction} rispetto a ${previousName} (${diff>0?"+":"−"}${pct.toLocaleString("it-IT",{maximumFractionDigits:1})}%).`;meta=`Differenza complessiva: ${diff>0?"+":diff<0?"−":""}${euro(amount)}`}
+ const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(x.category)}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):'<div class="monthCompareEmpty">Nessuna variazione rilevante</div>';
+ root.innerHTML=`<div class="monthCompareHero"><div class="monthCompareSentence">${sentence}</div><div class="monthCompareMeta">${meta}</div></div><div class="monthCompareTotals"><div class="monthCompareTotal"><span>${currentName}</span><b>${euro(currentTotal)}</b></div><div class="monthCompareTotal"><span>${previousName}</span><b>${euro(previousTotal)}</b></div></div><div class="monthCompareColumns"><div><div class="monthCompareListTitle">Principali aumenti</div>${list(increases,true)}</div><div><div class="monthCompareListTitle">Principali diminuzioni</div>${list(decreases,false)}</div></div>`;
+}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
  const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:"Nessun confronto",cls:""};
@@ -2643,6 +2662,7 @@ function render(){
  const cur=monthTotals(selectedMonth),prev=monthTotals(shiftMonth(selectedMonth,-1));const inc=cur.income,exp=cur.expense;
  balance.textContent=euro(cur.saving);income.textContent=euro(inc);expense.textContent=euro(exp);saving.textContent=euro(cur.saving);
  const statsIncomeEl=document.getElementById("statsIncome"),statsExpenseEl=document.getElementById("statsExpense"),statsSavingEl=document.getElementById("statsSaving");if(statsIncomeEl)statsIncomeEl.textContent=euro(inc);if(statsExpenseEl)statsExpenseEl.textContent=euro(exp);if(statsSavingEl)statsSavingEl.textContent=euro(cur.saving);
+ renderMonthComparison();
  const ce=compareText(exp,prev.expense,true),ci=compareText(inc,prev.income,false),cs=compareText(cur.saving,prev.saving,false);
  cmpExpense.textContent=ce.main;cmpExpense.className=ce.cls;cmpExpenseTxt.textContent=ce.txt;cmpExpenseTxt.className="compare "+ce.cls;
  cmpIncome.textContent=ci.main;cmpIncome.className=ci.cls;cmpIncomeTxt.textContent=ci.txt;cmpIncomeTxt.className="compare "+ci.cls;
@@ -3378,7 +3398,7 @@ document.getElementById("addSplitPart").onclick=()=>{const used=new Set(editingS
 document.getElementById("saveSplitMove").onclick=()=>{
  const m=moves.find(x=>x.id===selected);if(!m)return;const target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),cats=editingSplitParts.map(p=>p.category);
  if(editingSplitParts.length<2||editingSplitParts.some(p=>!p.category||Number(p.amount)<=0)||new Set(cats).size!==cats.length||sum!==target){const el=document.getElementById("splitBalance");if(el){el.textContent=new Set(cats).size!==cats.length?"Scegli categorie diverse per ogni parte.":"Controlla gli importi: la somma deve coincidere esattamente.";el.className="splitBalance err"}return}
- const undoState=captureMovementState();m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Movimento diviso",undoState);
+ m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";
 };
 document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
 saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
