@@ -2284,10 +2284,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div><h3 class="settingsSectionTitle">Ricorrenze</h3><div class="kicker">Conferma o ignora quelle rilevate.</div></div>
     </div>
     <div class="card">
+      <div class="recurringIntro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
+      <div class="recurringGroupLabel">Le tue scelte</div>
       <div id="managedRecurring"></div>
-      <div style="height:12px"></div>
-      <div class="kicker">Rilevamento automatico</div>
-      <div id="recurringList" style="margin-top:8px"></div>
+      <div class="recurringGroupLabel recurringDetectedLabel">Da controllare</div>
+      <div id="recurringList"></div>
     </div>
   </div>
 
@@ -2677,6 +2678,14 @@ function recurringCandidates(){
    return vals.every(v=>avg===0||Math.abs(v-avg)/avg<0.15);
  }).map(arr=>({name:shortDesc(arr[0]),key:merchantKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
+}
+function renderRecurringManager(){
+ const managedRoot=document.getElementById("managedRecurring"),detectedRoot=document.getElementById("recurringList");if(!managedRoot||!detectedRoot)return;
+ const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"||recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
+ const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",automatic=!confirmed&&!ignored&&c.count>=3,label=confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=ignored?"ignored":confirmed||automatic?"included":"pending",actions=ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
+ managedRoot.innerHTML=managed.length?managed.map(c=>row(c,recurringPrefs[c.key]===false?"ignored":recurringPrefs[c.key])).join(""):'<div class="recurringEmpty">Non hai ancora confermato o ignorato ricorrenze.</div>';
+ detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):'<div class="recurringEmpty">Nessuna nuova ricorrenza da controllare.</div>';
+ [managedRoot,detectedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
  let s=desc.toUpperCase().replace(/OPERAZIONE POS EUROZONA/gi," ").replace(/PAGAMENTI PAGOBANCOMAT/gi," ").replace(/PAGAMENTO TRAMITE POS/gi," ").replace(/CARTA \*?\d+/gi," ").replace(/\bDEL \d{2}\.\d{2}\.\d{2}\b/gi," ").replace(/\b\d{2}:\d{2}\b/g," ").replace(/\bITA\b/g," ").replace(/[^A-ZÀ-ÖØ-Ý0-9 ]/g," ").replace(/\s+/g," ").trim();
@@ -3312,10 +3321,11 @@ function openSettingsPage(id){
  document.querySelectorAll("#settings .settingsPage").forEach(p=>p.classList.toggle("active",p.id===id));
  if(id==="settingsCategoriesPage")renderCategoryManager();
  if(id==="settingsRulesPage")renderRulesManager();
- if(id==="settingsBudgetPage"){
+  if(id==="settingsBudgetPage"){
    const el=document.getElementById("budgetManager");
-   if(el)renderBudgets(el,false);
- }
+    if(el)renderBudgets(el,false);
+  }
+  if(id==="settingsRecurringPage")renderRecurringManager();
 }
 document.querySelectorAll("#settings [data-settings-page]").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage(btn.dataset.settingsPage)));
 document.querySelectorAll("#settings .settingsBack").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage("settingsMainPage")));
