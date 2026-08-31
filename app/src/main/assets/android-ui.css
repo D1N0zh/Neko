@@ -195,6 +195,61 @@ input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line)
 body.edit-modal-open{overflow:hidden!important}
 body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:contain}
 
+/* Statistics — Android-first dashboard */
+#stats{padding-top:0!important}
+#stats .statsHeader{margin:2px 0 14px!important}
+#stats .statsTitle{font-size:24px!important;line-height:1.1!important;letter-spacing:-.55px!important}
+#stats .statsSubtitle{font-size:11px!important;line-height:1.35!important;margin-top:4px!important}
+#stats .statsOverview{gap:8px!important;margin-bottom:11px!important}
+#stats .statsMetric{display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:72px!important;padding:11px!important;border:1px solid var(--line)!important;border-radius:17px!important;background:var(--android-surface-raised)!important;box-shadow:0 4px 14px rgba(30,41,59,.035)!important}
+#stats .statsMetric span{font-size:10px!important;margin-bottom:5px!important}
+#stats .statsMetric b{font-size:14px!important;line-height:1.2!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stats .statsMetric:has(.in){background:color-mix(in srgb,var(--green) 8%,var(--android-surface-raised))!important}
+#stats .statsMetric:has(.out){background:color-mix(in srgb,var(--red) 7%,var(--android-surface-raised))!important}
+
+#stats .statsSection{margin:10px 0 0!important;padding:14px!important;border:1px solid var(--line)!important;border-radius:19px!important;background:var(--android-surface-raised)!important;box-shadow:0 4px 16px rgba(30,41,59,.035)!important}
+#stats .statsSection:first-of-type{margin-top:0!important;padding:14px!important;border:1px solid var(--line)!important}
+#stats .statsSectionHead{margin-bottom:11px!important}
+#stats .statsSectionTitle{font-size:15px!important;line-height:1.25!important}
+#stats .statsSectionSub{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
+#stats .monthCompareHero,#stats .forecastHero{border-radius:15px!important;padding:13px!important}
+#stats .monthCompareTotal,#stats .forecastItem{border-radius:14px!important;background:var(--android-surface-raised)!important}
+
+#stats .statsPieWrap{grid-template-columns:minmax(150px,190px) minmax(0,1fr)!important;gap:14px!important}
+#stats .pieBox,#stats #pieChart{width:190px!important;height:190px!important;min-width:190px!important}
+#stats .pieLegend{gap:5px!important}
+#stats .legendRow{min-height:36px;padding:7px 9px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:var(--android-surface-muted)!important}
+
+#stats .statsCategoryList{display:grid!important;gap:7px!important}
+#stats .catStatBtn{padding:9px!important;border:1px solid var(--line)!important;border-radius:14px!important;background:var(--android-surface-muted)!important}
+#stats .catStatBtn:last-child{border-bottom:1px solid var(--line)!important}
+#stats .catStatBtn:active{padding:9px!important;border-radius:14px!important;background:var(--accent-soft)!important}
+#stats .catStatHead{min-height:38px!important}
+#stats .catBar{height:6px!important}
+#stats .statsDetailSheet{border-radius:19px!important;background:var(--android-surface-raised)!important}
+
+[data-theme="dark"] #stats .statsMetric,
+[data-theme="dark"] #stats .statsSection,
+[data-theme="dark"] #stats .monthCompareTotal,
+[data-theme="dark"] #stats .forecastItem,
+[data-theme="dark"] #stats .statsDetailSheet{background:var(--card)!important}
+[data-theme="dark"] #stats .statsMetric:has(.in){background:color-mix(in srgb,var(--green) 9%,var(--card))!important}
+[data-theme="dark"] #stats .statsMetric:has(.out){background:color-mix(in srgb,var(--red) 8%,var(--card))!important}
+
+@media(max-width:520px){
+  #stats .statsPieWrap{grid-template-columns:minmax(0,1fr)!important;justify-items:center!important}
+  #stats .pieLegend{width:100%!important}
+}
+
+@media(max-width:390px){
+  #stats .statsTitle{font-size:22px!important}
+  #stats .statsOverview{grid-template-columns:minmax(0,1fr)!important}
+  #stats .statsMetric{min-height:54px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important}
+  #stats .statsMetric span{margin:0!important}
+  #stats .statsSection{padding:12px!important}
+  #stats .monthCompareTotals{grid-template-columns:minmax(0,1fr)!important}
+}
+
 @media(max-width:370px){
   #moves .movesHeader{gap:8px!important}
   #moves .movesSubtitle{display:none}
