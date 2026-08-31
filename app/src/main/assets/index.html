@@ -2032,7 +2032,6 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div class="movesSubtitle">Tieni premuto per selezionare più operazioni</div>
     </div>
     <div class="movesActions">
-      <button id="addMove" class="secondary movesIconBtn" type="button" title="Movimento manuale">＋</button>
       <button id="pickPdf" class="primary movesPdfBtn" type="button">Carica Documento</button>
     </div>
   </div>
@@ -2229,15 +2228,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
 
   <div id="settingsCategoriesPage" class="settingsPage">
-    <div class="settingsBackRow">
+    <div class="settingsBackRow categorySettingsHeader">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div><h3 class="settingsSectionTitle">Categorie</h3><div class="kicker">Personalizza l'organizzazione dei movimenti.</div></div>
+      <div class="categorySettingsHeading"><div class="categorySettingsTitleLine"><h3 class="settingsSectionTitle">Categorie</h3><button id="newCategory" class="secondary categoryEditButton" type="button" aria-label="Modifica categorie" title="Modifica categorie">✎</button></div><div class="kicker">Tocca una categoria per personalizzarla.</div></div>
     </div>
     <div class="card">
-      <div class="categoryManagerHead">
-        <div class="categoryManagerTitle"><b>Le tue categorie</b><span>Tocca una voce per personalizzarla</span></div>
-        <button id="newCategory" class="secondary" type="button" aria-label="Nuova categoria" title="Nuova categoria">＋</button>
-      </div>
       <div id="categoryManager"><div class="empty">Caricamento categorie…</div></div>
     </div>
   </div>
@@ -2629,8 +2624,8 @@ function renderBudgets(container,compact=false){
  if(!container)return;
  const entries=Object.entries(budgets).filter(([c,v])=>Number(v)>0);
  if(!entries.length){container.innerHTML='<div class="empty">Nessun budget impostato.</div>';return}
- container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;return `<div class="budgetRow"><div class="budgetTop"><div><b>${esc(cat)}</b><div class="kicker">${euro(spent)} di ${euro(Number(limit))}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?"Superato di "+euro(Math.abs(rem)):"Restano "+euro(rem)}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div>${compact?"":`<div style="margin-top:8px"><button type="button" class="secondary tiny editBudget" data-cat="${esc(cat)}">Modifica</button></div>`}</div>`}).join("");
- if(!compact)container.querySelectorAll(".editBudget").forEach(b=>b.onclick=()=>openBudget(b.dataset.cat));
+ container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;if(compact)return `<div class="budgetRow"><div class="budgetTop"><div><b>${esc(cat)}</b><div class="kicker">${euro(spent)} di ${euro(Number(limit))}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?"Superato di "+euro(Math.abs(rem)):"Restano "+euro(rem)}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div></div>`;return `<button type="button" class="budgetManageRow" data-cat="${esc(cat)}" aria-label="Modifica budget ${esc(cat)}"><span class="budgetManageIcon" style="background:${softColor(colorFor(cat),.24)};color:${colorFor(cat)}">${iconFor(cat)}</span><span class="budgetManageText"><span class="budgetManageTop"><b>${esc(cat)}</b><span class="${rem<0?"out":"in"}">${rem<0?"− "+euro(Math.abs(rem)):euro(rem)}</span></span><span class="budgetManageMeta">${euro(spent)} di ${euro(Number(limit))}</span><span class="budgetBar"><span class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></span></span></span><span class="budgetManageChevron" aria-hidden="true">›</span></button>`}).join("");
+ if(!compact)container.querySelectorAll(".budgetManageRow").forEach(b=>b.onclick=()=>openBudget(b.dataset.cat));
 }
 function recurringCandidates(){
  const groups={};
@@ -3213,7 +3208,7 @@ function edit(mid){
  if(noteEl)noteEl.value=m.note||"";
  if(excludeEl)excludeEl.checked=!!m.excludeStats;
  updateSplitSummary(m);
- if(modalEl)modalEl.style.display="flex";
+ if(modalEl){modalEl.style.display="flex";document.body.classList.add("edit-modal-open")}
 }
 function openManual(){
  const form=document.getElementById("manualForm");
@@ -3242,7 +3237,7 @@ function go(s,direction=0,recordHistory=true){
 }
 window.nekoHandleAndroidBack=function(){
  const visibleModals=[...document.querySelectorAll(".modal")].filter(m=>getComputedStyle(m).display!=="none");
- if(visibleModals.length){visibleModals[visibleModals.length-1].style.display="none";return "handled"}
+ if(visibleModals.length){const closing=visibleModals[visibleModals.length-1];closing.style.display="none";if(closing.id==="editModal")document.body.classList.remove("edit-modal-open");return "handled"}
  if(homeEditMode){exitHomeEdit();return "handled"}
  if(currentStatsCategory){closeStatsCategoryDetail();return "handled"}
  const activeSettings=document.querySelector("#settings .settingsPage.active");
@@ -3477,7 +3472,7 @@ if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
 };
 
 const closeEditBtn=document.getElementById("closeEdit");
-if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none"};
+if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none";document.body.classList.remove("edit-modal-open")};
 const openSplitMoveBtn=document.getElementById("openSplitMove"),splitMoveModal=document.getElementById("splitMoveModal");
 if(openSplitMoveBtn)openSplitMoveBtn.onclick=openSplitEditor;
 document.getElementById("closeSplitMove").onclick=()=>splitMoveModal.style.display="none";
@@ -3488,11 +3483,11 @@ document.getElementById("saveSplitMove").onclick=()=>{
  m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";
 };
 document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
-saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none"};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
 document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
-document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";document.body.classList.remove("edit-modal-open");closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
 const homeBudgetList=document.getElementById("homeBudget");
 if(homeBudgetList){
  homeBudgetList.addEventListener("click",e=>{

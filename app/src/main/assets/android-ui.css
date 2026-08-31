@@ -140,6 +140,43 @@ input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line)
 #editModal input,#editModal select,#editModal textarea{width:100%!important;min-width:0!important;max-width:100%!important}
 #editModal #excludeStats{width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;max-width:22px!important;max-height:22px!important;padding:0!important;margin:0!important;flex:0 0 22px!important;accent-color:var(--accent)}
 
+/* Search focus stays consistent with Neko instead of using WebView's white ring. */
+#moves .movesSearchBar input:focus{outline:none!important;box-shadow:none!important}
+#moves .movesSearchBar:focus-within{outline:none!important;border-color:var(--accent)!important;box-shadow:none!important}
+
+/* Category customization */
+#settingsCategoriesPage .categorySettingsHeader{align-items:flex-start!important}
+#settingsCategoriesPage .categorySettingsHeading{flex:1;min-width:0}
+#settingsCategoriesPage .categorySettingsTitleLine{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#settingsCategoriesPage .categoryEditButton{display:grid!important;place-items:center!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;padding:0!important;border-radius:13px!important;font-size:18px!important;color:var(--accent)!important;background:var(--accent-soft)!important}
+#settingsCategoriesPage>.card{border-radius:24px!important;overflow:hidden!important}
+#settingsCategoriesPage #categoryManager{border-radius:24px!important;overflow:hidden!important}
+
+/* Learned rules use a quieter text scale. */
+#settingsRulesPage .ruleRow{gap:9px!important;padding:9px 10px!important}
+#settingsRulesPage .ruleMerchant{font-size:11.5px!important;line-height:1.3!important;font-weight:760!important}
+#settingsRulesPage .ruleCategory{font-size:10px!important;line-height:1.3!important;margin-top:2px!important}
+#settingsRulesPage .deleteRuleBtn{min-height:32px!important;padding:5px 8px!important;font-size:10px!important}
+
+/* Budget manager mirrors the category list. */
+#settingsBudgetPage #budgetManager{border-radius:20px!important;overflow:hidden!important}
+#settingsBudgetPage .budgetManageRow{display:flex!important;align-items:center!important;gap:11px!important;width:100%!important;min-height:70px!important;margin:0!important;padding:10px 12px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:var(--android-surface-raised)!important;color:var(--text)!important;text-align:left!important}
+#settingsBudgetPage .budgetManageRow:last-child{border-bottom:0!important}
+#settingsBudgetPage .budgetManageRow:active{background:var(--accent-soft)!important}
+#settingsBudgetPage .budgetManageIcon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:14px;font-size:20px}
+#settingsBudgetPage .budgetManageText{display:flex;flex-direction:column;min-width:0;flex:1}
+#settingsBudgetPage .budgetManageTop{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+#settingsBudgetPage .budgetManageTop>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#settingsBudgetPage .budgetManageTop>span{font-size:11px;font-weight:850;white-space:nowrap}
+#settingsBudgetPage .budgetManageMeta{font-size:10px;color:var(--muted);margin-top:2px}
+#settingsBudgetPage .budgetBar{height:6px;margin-top:6px}
+#settingsBudgetPage .budgetManageChevron{flex:none;color:var(--muted);font-size:22px;line-height:1}
+[data-theme="dark"] #settingsBudgetPage .budgetManageRow{background:var(--card)!important}
+
+/* Keep the movement list fixed behind its open detail sheet. */
+body.edit-modal-open{overflow:hidden!important}
+body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:contain}
+
 @media(max-width:370px){
   #moves .movesHeader{gap:8px!important}
   #moves .movesSubtitle{display:none}
