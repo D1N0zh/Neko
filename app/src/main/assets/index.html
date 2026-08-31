@@ -2053,16 +2053,12 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
 
   <div class="movesQuickFilters">
-    <select id="filterType">
-      <option value="all">Tutti i movimenti</option>
-      <option value="expense">Uscite</option>
-      <option value="income">Entrate</option>
-    </select>
-    <select id="filterStats">
-      <option value="all">Tutti</option>
-      <option value="included">Nelle statistiche</option>
-      <option value="excluded">Fuori statistiche</option>
-    </select>
+    <button id="filterType" class="movementFilterSelect" type="button" aria-haspopup="dialog">
+      <span class="movementFilterIcon">↕</span><span class="movementFilterCopy"><small>Tipo</small><b id="filterTypeLabel">Tutti i movimenti</b></span><span class="movementFilterChevron">⌄</span>
+    </button>
+    <button id="filterStats" class="movementFilterSelect" type="button" aria-haspopup="dialog">
+      <span class="movementFilterIcon">◉</span><span class="movementFilterCopy"><small>Statistiche</small><b id="filterStatsLabel">Tutti</b></span><span class="movementFilterChevron">⌄</span>
+    </button>
   </div>
 
   <div id="filtersSummary" class="filtersSummary movesFilterSummary">Nessun filtro categoria</div>
@@ -2380,6 +2376,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div class="monthPickerHead"><div><b>Seleziona mese</b><div class="kicker">Vai rapidamente a un altro periodo.</div></div><button id="closeMonthPicker" class="secondary" type="button">Chiudi</button></div>
 <div class="monthPickerNav"><button id="monthPickerPrevYear" class="secondary" type="button">‹</button><b id="monthPickerYear"></b><button id="monthPickerNextYear" class="secondary" type="button">›</button></div>
 <div id="monthPickerGrid" class="monthPickerGrid"></div>
+</div></div>
+<div id="movementFilterModal" class="modal"><div class="sheet movementFilterSheet">
+  <div class="movementFilterSheetHead"><div><b id="movementFilterTitle">Filtra movimenti</b><div id="movementFilterSubtitle" class="kicker"></div></div><button id="closeMovementFilter" class="secondary" type="button">Chiudi</button></div>
+  <div id="movementFilterOptions" class="movementFilterOptions"></div>
 </div></div>
 <div id="editModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center"><b>Dettaglio movimento</b><button id="closeEdit" class="secondary">Chiudi</button></div>
@@ -2824,7 +2824,8 @@ function render(){
    filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
    filterCatsEl.querySelectorAll(".filterCatBtn").forEach(x=>x.onclick=()=>{filter=x.dataset.cat;bulkSelected.clear();bulkMode=false;render()});
  }
- if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?"Nessun filtro categoria":`Categoria: ${filter}`;
+  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?"Nessun filtro categoria":`Categoria: ${filter}`;
+  updateMovementFilterButtons();
  let visible=(filter==="Tutte"?sorted:sorted.flatMap(m=>splitEntries(m).filter(x=>x.category===filter)));
  if(searchText)visible=visible.filter(m=>searchable(m).includes(searchText));
  if(filterTypeValue==="expense")visible=visible.filter(m=>m.amount<0);else if(filterTypeValue==="income")visible=visible.filter(m=>m.amount>0);
@@ -3384,10 +3385,18 @@ const clearRulesBtn=document.getElementById("clearRules");
 if(clearRulesBtn)clearRulesBtn.onclick=()=>{
  openNekoConfirm("Cancellare le regole automatiche?","Le categorie e i movimenti non verranno modificati.","Cancella regole",()=>{rules={};save();renderRulesManager()});
 };
-const searchMovesEl=document.getElementById("searchMoves"),filterTypeEl=document.getElementById("filterType"),filterStatsEl=document.getElementById("filterStats");
+const MOVEMENT_FILTER_OPTIONS={type:[{value:"all",label:"Tutti i movimenti",description:"Entrate e uscite"},{value:"expense",label:"Solo uscite",description:"Pagamenti e spese"},{value:"income",label:"Solo entrate",description:"Accrediti e incassi"}],stats:[{value:"all",label:"Tutti",description:"Senza filtro statistiche"},{value:"included",label:"Nelle statistiche",description:"Movimenti inclusi nei calcoli"},{value:"excluded",label:"Fuori statistiche",description:"Movimenti esclusi dai calcoli"}]};
+function updateMovementFilterButtons(){
+ const typeLabel=document.getElementById("filterTypeLabel"),statsLabel=document.getElementById("filterStatsLabel"),typeButton=document.getElementById("filterType"),statsButton=document.getElementById("filterStats"),typeOption=MOVEMENT_FILTER_OPTIONS.type.find(x=>x.value===filterTypeValue),statsOption=MOVEMENT_FILTER_OPTIONS.stats.find(x=>x.value===filterStatsValue);if(typeLabel)typeLabel.textContent=typeOption?.label||"Tutti i movimenti";if(statsLabel)statsLabel.textContent=statsOption?.label||"Tutti";if(typeButton)typeButton.classList.toggle("active",filterTypeValue!=="all");if(statsButton)statsButton.classList.toggle("active",filterStatsValue!=="all");
+}
+function openMovementFilter(kind){
+ const modal=document.getElementById("movementFilterModal"),title=document.getElementById("movementFilterTitle"),subtitle=document.getElementById("movementFilterSubtitle"),root=document.getElementById("movementFilterOptions"),options=MOVEMENT_FILTER_OPTIONS[kind]||[],current=kind==="type"?filterTypeValue:filterStatsValue;if(!modal||!root)return;title.textContent=kind==="type"?"Tipo di movimento":"Presenza nelle statistiche";subtitle.textContent=kind==="type"?"Scegli quali operazioni mostrare.":"Mostra o nascondi i movimenti esclusi.";root.innerHTML=options.map(option=>`<button type="button" class="movementFilterOption ${option.value===current?"active":""}" data-value="${option.value}"><span class="movementFilterOptionMark">${option.value===current?"✓":""}</span><span><b>${option.label}</b><small>${option.description}</small></span></button>`).join("");root.querySelectorAll(".movementFilterOption").forEach(button=>button.onclick=()=>{if(kind==="type")filterTypeValue=button.dataset.value;else filterStatsValue=button.dataset.value;modal.style.display="none";render()});modal.style.display="flex";
+}
+const searchMovesEl=document.getElementById("searchMoves"),filterTypeEl=document.getElementById("filterType"),filterStatsEl=document.getElementById("filterStats"),closeMovementFilterBtn=document.getElementById("closeMovementFilter");
 if(searchMovesEl)searchMovesEl.addEventListener("input",()=>{searchText=searchMovesEl.value.trim().toLowerCase();render()});
-if(filterTypeEl)filterTypeEl.addEventListener("change",()=>{filterTypeValue=filterTypeEl.value;render()});
-if(filterStatsEl)filterStatsEl.addEventListener("change",()=>{filterStatsValue=filterStatsEl.value;render()});
+if(filterTypeEl)filterTypeEl.addEventListener("click",()=>openMovementFilter("type"));
+if(filterStatsEl)filterStatsEl.addEventListener("click",()=>openMovementFilter("stats"));
+if(closeMovementFilterBtn)closeMovementFilterBtn.addEventListener("click",()=>{const modal=document.getElementById("movementFilterModal");if(modal)modal.style.display="none"});
 const pdfInput=document.getElementById("pdf"),pdfInput2=document.getElementById("pdf2");
 const pickPdfBtn=document.getElementById("pickPdf"),pickPdfBtn2=document.getElementById("pickPdf2");
 if(pickPdfBtn&&pdfInput)pickPdfBtn.addEventListener("click",()=>pdfInput.click());
