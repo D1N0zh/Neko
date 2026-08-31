@@ -1950,6 +1950,13 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <b id="saving">€ 0</b>
     </button>
   </div>
+  <button id="homeAvailableEstimate" class="homeAvailableEstimate" type="button" data-home-go="stats">
+    <span class="homeAvailableCopy">
+      <span id="homeAvailableLabel" class="homeAvailableLabel">Disponibile stimato del mese</span>
+      <span id="homeAvailableMeta" class="homeAvailableMeta">Calcolo in corso…</span>
+    </span>
+    <span class="homeAvailableValue"><b id="homeAvailableAmount">€ 0</b><span aria-hidden="true">›</span></span>
+  </button>
 </div>
 
 <div id="homeCompare" class="homeBlock homeSection" data-homekey="compare">
@@ -2092,6 +2099,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <span>Risparmio</span>
       <b id="statsSaving">€ 0</b>
     </div>
+  </div>
+
+  <div class="statsSection" id="availableEstimateCard">
+    <div class="statsSectionHead"><div><div class="statsSectionTitle">Disponibile stimato</div><div class="statsSectionSub">Una stima prudente, non il saldo del conto</div></div></div>
+    <div id="availableEstimateDetail"></div>
   </div>
 
   <div class="statsSection" id="monthComparisonCard">
@@ -2612,6 +2624,30 @@ function renderSpendingForecast(){
  const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
  root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
 }
+function availableEstimateForMonth(k){
+ const totals=monthTotals(k),currentKey=nowMonthKey();
+ if(k<currentKey)return{mode:"closed",amount:totals.saving,base:totals.saving,remaining:0,pending:[]};
+ if(k>currentKey)return{mode:"future",amount:null,base:0,remaining:0,pending:[]};
+ const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>merchantKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
+ return{mode:"current",amount:totals.saving-remaining,base:totals.saving,remaining,pending};
+}
+function renderAvailableEstimate(){
+ const result=availableEstimateForMonth(selectedMonth),homeLabel=document.getElementById("homeAvailableLabel"),homeMeta=document.getElementById("homeAvailableMeta"),homeAmount=document.getElementById("homeAvailableAmount"),detail=document.getElementById("availableEstimateDetail"),homeCard=document.getElementById("homeAvailableEstimate");
+ if(!homeLabel||!homeMeta||!homeAmount||!detail||!homeCard)return;
+ homeCard.classList.remove("negative","unavailable");
+ if(result.mode==="future"){
+  homeLabel.textContent="Disponibile stimato del mese";homeAmount.textContent="—";homeMeta.textContent="Disponibile quando inizierà il mese";homeCard.classList.add("unavailable");
+  detail.innerHTML='<div class="availableEmpty">La stima sarà disponibile quando inizierà il mese selezionato.</div>';return;
+ }
+ const negative=result.amount<0;homeCard.classList.toggle("negative",negative);homeAmount.textContent=euro(result.amount);
+ if(result.mode==="closed"){
+  homeLabel.textContent="Risultato finale del mese";homeMeta.textContent="Mese concluso · entrate meno uscite";
+  detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Risultato finale del mese</span><b>${euro(result.amount)}</b><small>Il mese è concluso: non vengono sottratte altre spese previste.</small></div>`;return;
+ }
+ homeLabel.textContent="Disponibile stimato del mese";homeMeta.textContent=result.remaining>0?`${result.pending.length} ricorrenz${result.pending.length===1?"a":"e"} ancora attes${result.pending.length===1?"a":"e"}`:"Nessuna ricorrenza ancora da sottrarre";
+ const pendingNames=result.pending.slice(0,3).map(c=>esc(c.name)).join(" · ");
+ detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Stima disponibile</span><b>${euro(result.amount)}</b><small>${negative?"Le uscite e le ricorrenze attese superano le entrate registrate.":"Quanto resterebbe dopo le ricorrenze ancora attese."}</small></div><div class="availableBreakdown"><div><span>Saldo del mese finora</span><b>${euro(result.base)}</b></div><div><span>Ricorrenze ancora attese</span><b>${result.remaining?"− "+euro(result.remaining):euro(0)}</b></div></div>${pendingNames?`<div class="availablePending">Incluse nella stima: ${pendingNames}${result.pending.length>3?` · +${result.pending.length-3}`:""}</div>`:""}<div class="availableDisclaimer">Non è il saldo bancario: considera solo i movimenti presenti in Neko e le ricorrenze rilevate.</div>`;
+}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
  const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:"Nessun confronto",cls:""};
@@ -2737,8 +2773,9 @@ function render(){
  ensureSelectedMonth();monthLabel.textContent=monthLabelText(selectedMonth);
  const cur=monthTotals(selectedMonth),prev=monthTotals(shiftMonth(selectedMonth,-1));const inc=cur.income,exp=cur.expense;
  balance.textContent=euro(cur.saving);income.textContent=euro(inc);expense.textContent=euro(exp);saving.textContent=euro(cur.saving);
- const statsIncomeEl=document.getElementById("statsIncome"),statsExpenseEl=document.getElementById("statsExpense"),statsSavingEl=document.getElementById("statsSaving");if(statsIncomeEl)statsIncomeEl.textContent=euro(inc);if(statsExpenseEl)statsExpenseEl.textContent=euro(exp);if(statsSavingEl)statsSavingEl.textContent=euro(cur.saving);
- renderMonthComparison();
+  const statsIncomeEl=document.getElementById("statsIncome"),statsExpenseEl=document.getElementById("statsExpense"),statsSavingEl=document.getElementById("statsSaving");if(statsIncomeEl)statsIncomeEl.textContent=euro(inc);if(statsExpenseEl)statsExpenseEl.textContent=euro(exp);if(statsSavingEl)statsSavingEl.textContent=euro(cur.saving);
+  renderAvailableEstimate();
+  renderMonthComparison();
  renderSpendingForecast();
  const ce=compareText(exp,prev.expense,true),ci=compareText(inc,prev.income,false),cs=compareText(cur.saving,prev.saving,false);
  cmpExpense.textContent=ce.main;cmpExpense.className=ce.cls;cmpExpenseTxt.textContent=ce.txt;cmpExpenseTxt.className="compare "+ce.cls;

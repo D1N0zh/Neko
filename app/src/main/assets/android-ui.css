@@ -289,6 +289,25 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 [data-theme="dark"] #stats .statsMetric:has(.in){background:color-mix(in srgb,var(--green) 9%,var(--card))!important}
 [data-theme="dark"] #stats .statsMetric:has(.out){background:color-mix(in srgb,var(--red) 8%,var(--card))!important}
 
+/* Estimated monthly availability */
+.homeAvailableEstimate{width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-top:10px!important;padding:11px 12px!important;border:1px solid color-mix(in srgb,var(--green) 22%,var(--line))!important;border-radius:15px!important;background:color-mix(in srgb,var(--green) 7%,var(--android-surface-raised))!important;color:var(--text)!important;text-align:left!important;box-shadow:none!important}
+.homeAvailableEstimate:active{transform:scale(.985)!important;background:color-mix(in srgb,var(--green) 12%,var(--android-surface-raised))!important}
+.homeAvailableCopy{display:flex;min-width:0;flex-direction:column;gap:3px}
+.homeAvailableLabel{font-size:11px;font-weight:800;line-height:1.25}
+.homeAvailableMeta{overflow:hidden;color:var(--muted);font-size:9.5px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+.homeAvailableValue{display:flex;flex:none;align-items:center;gap:7px}.homeAvailableValue b{font-size:15px;letter-spacing:-.25px}.homeAvailableValue>span{color:var(--muted);font-size:19px}
+.homeAvailableEstimate.negative{border-color:color-mix(in srgb,var(--red) 24%,var(--line))!important;background:color-mix(in srgb,var(--red) 7%,var(--android-surface-raised))!important}.homeAvailableEstimate.negative .homeAvailableValue b{color:var(--red)}
+.homeAvailableEstimate.unavailable{border-color:var(--line)!important;background:var(--android-surface-muted)!important}.homeAvailableEstimate.unavailable .homeAvailableValue b{color:var(--muted)}
+.availableHero{display:flex;flex-direction:column;gap:5px;padding:14px;border-radius:15px;background:color-mix(in srgb,var(--green) 9%,var(--android-surface-muted))}.availableHero>span{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.availableHero>b{font-size:25px;line-height:1.05;letter-spacing:-.6px}.availableHero>small{color:var(--muted);font-size:10.5px;line-height:1.4}.availableHero.negative{background:color-mix(in srgb,var(--red) 8%,var(--android-surface-muted))}.availableHero.negative>b{color:var(--red)}
+.availableBreakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}.availableBreakdown>div{display:flex;min-width:0;flex-direction:column;gap:5px;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--android-surface-muted)}.availableBreakdown span{color:var(--muted);font-size:9.5px;line-height:1.3}.availableBreakdown b{font-size:12.5px;line-height:1.25}
+.availablePending,.availableDisclaimer,.availableEmpty{color:var(--muted);font-size:10px;line-height:1.45}.availablePending{margin-top:9px}.availableDisclaimer{margin-top:5px}.availableEmpty{padding:13px;border-radius:14px;background:var(--android-surface-muted)}
+[data-theme="dark"] .homeAvailableEstimate{background:color-mix(in srgb,var(--green) 9%,var(--card))!important}[data-theme="dark"] .homeAvailableEstimate.negative{background:color-mix(in srgb,var(--red) 9%,var(--card))!important}[data-theme="dark"] .homeAvailableEstimate.unavailable,[data-theme="dark"] .availableHero,[data-theme="dark"] .availableBreakdown>div,[data-theme="dark"] .availableEmpty{background:var(--android-surface-muted)!important}
+
+/* Home edit floating controls in dark mode */
+[data-theme="dark"] #home #homeEditBar{border-color:var(--line)!important;background:rgba(26,31,41,.96)!important;box-shadow:0 9px 26px rgba(0,0,0,.34)!important}
+[data-theme="dark"] #home #addHomeBlockBtn{background:var(--soft)!important;color:var(--text)!important}
+[data-theme="dark"] #home #doneHomeEdit{background:var(--accent)!important;color:#fff!important}
+
 @media(max-width:520px){
   #stats .statsPieWrap{grid-template-columns:minmax(0,1fr)!important;justify-items:center!important}
   #stats .pieLegend{width:100%!important}
