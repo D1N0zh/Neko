@@ -273,12 +273,26 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 [data-theme="dark"] #settings #recurringList .row,
 [data-theme="dark"] #settingsDataPage .settingsActionRow{background:var(--card)!important}
 
+/* Recurring expenses — review and correct forecast inputs */
+#settingsRecurringPage>.card{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.recurringIntro{padding:2px;color:var(--muted);font-size:10.5px;line-height:1.45}
+.recurringGroupLabel{margin:16px 2px 7px;color:var(--muted);font-size:10px;font-weight:850;letter-spacing:.45px;text-transform:uppercase}.recurringDetectedLabel{margin-top:18px}
+#settings #managedRecurring,#settings #ignoredRecurring,#settings #recurringList{display:grid!important;gap:8px!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
+#settings #ignoredRecurring[hidden]{display:none!important}
+.recurringManageRow{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:9px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:16px;background:var(--android-surface-raised);box-shadow:0 3px 13px rgba(30,41,59,.035)}
+.recurringIcon{display:grid;width:42px;height:42px;place-items:center;border-radius:14px;font-size:19px}.recurringCopy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:3px}.recurringCopy>b{max-width:100%;overflow:hidden;font-size:13px;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}.recurringCopy>small{color:var(--muted);font-size:9.5px;line-height:1.35}
+.recurringBadge{padding:3px 6px;border-radius:7px;background:var(--android-surface-muted);color:var(--muted);font-size:8.5px;font-weight:850;line-height:1.2}.recurringBadge.included{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}.recurringBadge.ignored{background:color-mix(in srgb,var(--red) 11%,transparent);color:var(--red)}.recurringBadge.pending{background:color-mix(in srgb,var(--amber) 15%,transparent);color:#9a690a}
+.recurringAmount{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12.5px;font-weight:850;white-space:nowrap}.recurringAmount small{color:var(--muted);font-size:8.5px;font-weight:650}.recurringActions{display:flex;grid-column:2/-1;justify-content:flex-end;gap:6px}.recurringActions button{min-height:34px!important;padding:6px 9px!important;border-radius:10px!important;font-size:10px!important}.recurringIgnore{background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)!important}.recurringEmpty{padding:13px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:10.5px;line-height:1.4;text-align:center}
+.recurringIgnoredToggle{display:flex;width:100%;justify-content:center;margin-top:8px;padding:7px!important;border:0!important;background:transparent!important;color:var(--muted)!important;font-size:10px!important;min-height:32px!important}.recurringIgnoredToggle:active{background:var(--android-surface-muted)!important}
+[data-theme="dark"] .recurringManageRow{background:var(--card)!important}
+
 @media(max-width:390px){
   #settings .settingsHeader h3{font-size:22px!important}
   #settings .settingsItem{min-height:64px!important;padding:10px!important}
   #settings .settingsItemDesc{max-width:none!important}
   #settingsDataPage .settingsActionRow{align-items:flex-start!important;flex-wrap:wrap!important}
   #settingsDataPage .settingsActionText{flex:1 1 190px!important}
+  .recurringManageRow{grid-template-columns:38px minmax(0,1fr) auto;padding:9px}.recurringIcon{width:38px;height:38px;border-radius:12px}.recurringCopy>b{font-size:12px}.recurringAmount{font-size:11.5px}
 }
 
 [data-theme="dark"] #stats .statsMetric,
@@ -288,6 +302,25 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 [data-theme="dark"] #stats .statsDetailSheet{background:var(--card)!important}
 [data-theme="dark"] #stats .statsMetric:has(.in){background:color-mix(in srgb,var(--green) 9%,var(--card))!important}
 [data-theme="dark"] #stats .statsMetric:has(.out){background:color-mix(in srgb,var(--red) 8%,var(--card))!important}
+
+/* Estimated monthly availability */
+.homeAvailableEstimate{width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-top:10px!important;padding:11px 12px!important;border:1px solid color-mix(in srgb,var(--green) 22%,var(--line))!important;border-radius:15px!important;background:color-mix(in srgb,var(--green) 7%,var(--android-surface-raised))!important;color:var(--text)!important;text-align:left!important;box-shadow:none!important}
+.homeAvailableEstimate:active{transform:scale(.985)!important;background:color-mix(in srgb,var(--green) 12%,var(--android-surface-raised))!important}
+.homeAvailableCopy{display:flex;min-width:0;flex-direction:column;gap:3px}
+.homeAvailableLabel{font-size:11px;font-weight:800;line-height:1.25}
+.homeAvailableMeta{overflow:hidden;color:var(--muted);font-size:9.5px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+.homeAvailableValue{display:flex;flex:none;align-items:center;gap:7px}.homeAvailableValue b{font-size:15px;letter-spacing:-.25px}.homeAvailableValue>span{color:var(--muted);font-size:19px}
+.homeAvailableEstimate.negative{border-color:color-mix(in srgb,var(--red) 24%,var(--line))!important;background:color-mix(in srgb,var(--red) 7%,var(--android-surface-raised))!important}.homeAvailableEstimate.negative .homeAvailableValue b{color:var(--red)}
+.homeAvailableEstimate.unavailable{border-color:var(--line)!important;background:var(--android-surface-muted)!important}.homeAvailableEstimate.unavailable .homeAvailableValue b{color:var(--muted)}
+.availableHero{display:flex;flex-direction:column;gap:5px;padding:14px;border-radius:15px;background:color-mix(in srgb,var(--green) 9%,var(--android-surface-muted))}.availableHero>span{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}.availableHero>b{font-size:25px;line-height:1.05;letter-spacing:-.6px}.availableHero>small{color:var(--muted);font-size:10.5px;line-height:1.4}.availableHero.negative{background:color-mix(in srgb,var(--red) 8%,var(--android-surface-muted))}.availableHero.negative>b{color:var(--red)}
+.availableBreakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}.availableBreakdown>div{display:flex;min-width:0;flex-direction:column;gap:5px;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--android-surface-muted)}.availableBreakdown span{color:var(--muted);font-size:9.5px;line-height:1.3}.availableBreakdown b{font-size:12.5px;line-height:1.25}
+.availablePending,.availableDisclaimer,.availableEmpty{color:var(--muted);font-size:10px;line-height:1.45}.availablePending{margin-top:9px}.availableDisclaimer{margin-top:5px}.availableEmpty{padding:13px;border-radius:14px;background:var(--android-surface-muted)}
+[data-theme="dark"] .homeAvailableEstimate{background:color-mix(in srgb,var(--green) 9%,var(--card))!important}[data-theme="dark"] .homeAvailableEstimate.negative{background:color-mix(in srgb,var(--red) 9%,var(--card))!important}[data-theme="dark"] .homeAvailableEstimate.unavailable,[data-theme="dark"] .availableHero,[data-theme="dark"] .availableBreakdown>div,[data-theme="dark"] .availableEmpty{background:var(--android-surface-muted)!important}
+
+/* Home edit floating controls in dark mode */
+[data-theme="dark"] #home #homeEditBar{border-color:var(--line)!important;background:rgba(26,31,41,.96)!important;box-shadow:0 9px 26px rgba(0,0,0,.34)!important}
+[data-theme="dark"] #home #addHomeBlockBtn{background:var(--soft)!important;color:var(--text)!important}
+[data-theme="dark"] #home #doneHomeEdit{background:var(--accent)!important;color:#fff!important}
 
 @media(max-width:520px){
   #stats .statsPieWrap{grid-template-columns:minmax(0,1fr)!important;justify-items:center!important}
