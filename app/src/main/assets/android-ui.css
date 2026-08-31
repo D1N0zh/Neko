@@ -75,3 +75,81 @@ input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line)
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
 }
+
+/* Movements — Android-first list and controls */
+#moves{padding-top:0!important}
+#moves .movesHeader{align-items:flex-start!important;margin:2px 0 15px!important}
+#moves .movesTitle{font-size:24px!important;line-height:1.1!important;letter-spacing:-.55px!important}
+#moves .movesSubtitle{font-size:11px!important;line-height:1.35!important;margin-top:4px!important}
+#moves .movesActions{gap:8px!important}
+#moves .movesIconBtn,
+#moves .movesPdfBtn{height:42px!important;min-height:42px!important;border-radius:14px!important}
+#moves .movesIconBtn{width:42px!important;min-width:42px!important;font-size:21px!important}
+#moves .movesPdfBtn{padding:8px 14px!important;font-size:12px!important;box-shadow:0 5px 14px rgba(70,87,168,.18)!important}
+
+#moves .movesSearchBar{
+  min-height:52px!important;
+  grid-template-columns:28px minmax(0,1fr) auto!important;
+  padding:4px 5px 4px 13px!important;
+  margin-bottom:10px!important;
+  border-radius:17px!important;
+  background:var(--android-surface-raised)!important;
+  border-color:var(--line)!important;
+  box-shadow:0 5px 18px rgba(30,41,59,.045)!important;
+}
+#moves .movesSearchIcon{font-size:21px!important}
+#moves .movesSearchBar input{height:42px!important;font-size:15px!important;padding:8px 5px!important}
+#moves .movesFilterBtn{height:40px!important;min-height:40px!important;padding:7px 12px!important;border-radius:12px!important}
+
+#moves .movesQuickFilters{gap:8px!important;margin-bottom:8px!important}
+#moves .movesQuickFilters select{
+  height:42px!important;
+  min-height:42px!important;
+  padding:7px 30px 7px 11px!important;
+  border-radius:13px!important;
+  background-color:var(--android-surface-raised)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  font-size:12px!important;
+}
+#moves .movesFilterSummary{min-height:22px;padding:1px 3px 8px!important}
+#moves .movesFiltersPanel{padding:13px!important;border-radius:16px!important;background:var(--android-surface-raised)!important;box-shadow:0 4px 15px rgba(30,41,59,.035)!important}
+#moves .filterCatBtn{min-height:36px!important;padding:7px 11px!important}
+
+#moves .movesListHead{padding:12px 3px 8px!important;border-top:0!important;font-size:13px!important}
+#moves .movesListHint{font-size:10px!important}
+#moves #allmoves{display:grid!important;gap:8px!important}
+#moves #allmoves .row[data-id]{
+  min-height:68px!important;
+  margin:0!important;
+  padding:11px!important;
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  background:var(--android-surface-raised)!important;
+  box-shadow:0 3px 13px rgba(30,41,59,.035)!important;
+  transition:transform .14s cubic-bezier(.2,.8,.3,1),background .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+}
+#moves #allmoves .row[data-id]:active{transform:scale(.985)!important;background:var(--accent-soft)!important;border-color:color-mix(in srgb,var(--accent) 32%,var(--line))!important;padding:11px!important}
+#moves #allmoves .row[data-id].selected{background:var(--accent-soft)!important;border-color:var(--accent)!important;padding:11px!important;box-shadow:0 0 0 1px var(--accent)!important}
+#moves #allmoves .rleft{gap:11px!important}
+#moves #allmoves .ico{width:43px!important;height:43px!important;min-width:43px!important;border-radius:14px!important;font-size:19px!important}
+#moves #allmoves .desc{font-size:13.5px!important;line-height:1.3!important}
+#moves #allmoves .meta{font-size:10.5px!important;margin-top:4px!important}
+#moves #allmoves .amt{min-width:82px!important;font-size:13.5px!important;letter-spacing:-.15px!important}
+#moves #allmoves .multiCheck{width:21px!important;height:21px!important;margin:0!important;accent-color:var(--accent)}
+
+[data-theme="dark"] #moves .movesSearchBar,
+[data-theme="dark"] #moves .movesQuickFilters select,
+[data-theme="dark"] #moves .movesFiltersPanel,
+[data-theme="dark"] #moves #allmoves .row[data-id]{background:var(--card)!important}
+
+@media(max-width:430px){
+  #moves .movesTitle{font-size:22px!important}
+  #moves .movesSubtitle{max-width:210px!important}
+  #moves .movesPdfBtn{width:42px!important;min-width:42px!important;padding:0!important}
+  #moves #allmoves .row[data-id]{min-height:64px!important;padding:10px!important}
+  #moves #allmoves .row[data-id]:active,
+  #moves #allmoves .row[data-id].selected{padding:10px!important}
+  #moves #allmoves .ico{width:40px!important;height:40px!important;min-width:40px!important}
+  #moves #allmoves .amt{min-width:76px!important;font-size:13px!important}
+}
