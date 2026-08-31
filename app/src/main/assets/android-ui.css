@@ -194,7 +194,7 @@ input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line)
 /* Keep the movement list fixed behind its open detail sheet. */
 body.edit-modal-open{overflow:hidden!important}
 body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:contain}
-#editModal .editMoveFooterInside{position:sticky!important;bottom:-18px!important;z-index:6!important;width:calc(100% + 36px)!important;margin:18px -18px -18px!important;padding:14px 18px calc(18px + env(safe-area-inset-bottom))!important;border-top:1px solid var(--line)!important;background:var(--android-surface-raised)!important;box-shadow:0 -10px 22px rgba(30,41,59,.08)!important}
+#editModal .editMoveFooterInside{position:sticky!important;bottom:-18px!important;z-index:6!important;width:auto!important;max-width:none!important;box-sizing:border-box!important;margin:18px -18px -18px!important;padding:14px 18px calc(18px + env(safe-area-inset-bottom))!important;border-top:1px solid var(--line)!important;background:var(--android-surface-raised)!important;box-shadow:0 -10px 22px rgba(30,41,59,.08)!important}
 [data-theme="dark"] #editModal .editMoveFooterInside{background:var(--card)!important;box-shadow:0 -10px 22px rgba(0,0,0,.24)!important}
 
 /* Movement attachments */
