@@ -2230,7 +2230,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div id="settingsCategoriesPage" class="settingsPage">
     <div class="settingsBackRow categorySettingsHeader">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div class="categorySettingsHeading"><div class="categorySettingsTitleLine"><h3 class="settingsSectionTitle">Categorie</h3><button id="newCategory" class="secondary categoryEditButton" type="button" aria-label="Modifica categorie" title="Modifica categorie">✎</button></div><div class="kicker">Tocca una categoria per personalizzarla.</div></div>
+      <div class="categorySettingsHeading"><div class="categorySettingsTitleLine"><h3 class="settingsSectionTitle">Categorie</h3><button id="newCategory" class="secondary categoryEditButton" type="button" aria-label="Aggiungi categoria">＋ Aggiungi</button></div><div class="kicker">Tocca una categoria per personalizzarla.</div></div>
     </div>
     <div class="card">
       <div id="categoryManager"><div class="empty">Caricamento categorie…</div></div>
@@ -2260,7 +2260,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
         <div class="kicker">Budget mensili</div>
-        <button id="addBudgetBtn" class="secondary" type="button">＋ Budget</button>
+        <button id="addBudgetBtn" class="secondary" type="button">Aggiungi Budget</button>
       </div>
       <div id="budgetManager" style="margin-top:10px"></div>
     </div>
@@ -2382,7 +2382,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 
 <div id="budgetModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center"><b id="budgetModalTitle">Nuovo budget</b><button id="closeBudget" class="secondary">Chiudi</button></div>
-<label class="f">Categoria</label><select id="budgetCat"></select>
+<label class="f">Categoria</label><input id="budgetCat" type="hidden"><div id="budgetCategoryPicker" class="budgetCategoryPicker"></div>
 <label class="f">Importo mensile (€)</label><input id="budgetAmount" type="number" min="0.01" step="0.01" inputmode="decimal">
 <div class="actions" style="margin-top:12px"><button id="saveBudgetBtn" class="primary">Salva</button><button id="deleteBudgetBtn" class="danger" style="display:none">Elimina</button></div>
 <div id="budgetMsg" class="status"></div>
@@ -2872,8 +2872,9 @@ function renderCategoryManager(){
 
 function openBudget(cat=null){
  editingBudget=cat;budgetMsg.textContent="";budgetModalTitle.textContent=cat?"Modifica budget":"Nuovo budget";
- budgetCat.innerHTML=CATS().map(c=>`<option ${c===cat?"selected":""}>${c}</option>`).join("");
- budgetCat.disabled=!!cat;budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
+ const picker=document.getElementById("budgetCategoryPicker"),cats=cat?[cat]:CATS(),initial=cat||cats[0]||"";budgetCat.value=initial;
+ if(picker){picker.classList.toggle("locked",!!cat);picker.innerHTML=cats.map(c=>`<button type="button" class="budgetCategoryOption ${c===initial?"active":""}" data-cat="${esc(c)}"><span class="budgetCategoryOptionIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span>${esc(c)}</span><span class="budgetCategoryCheck">✓</span></button>`).join("");if(!cat)picker.querySelectorAll(".budgetCategoryOption").forEach(b=>b.onclick=()=>{budgetCat.value=b.dataset.cat;picker.querySelectorAll(".budgetCategoryOption").forEach(x=>x.classList.toggle("active",x===b))})}
+ budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
 }
 
 const CATEGORY_ICONS=["•","?","🛒","🥬","🍎","🥖","🏠","🏡","🛋️","💡","💧","🔥","🚗","⛽","🚌","🚆","🚕","🚲","🍴","☕","🍕","🍔","🛍️","👕","👟","💄","🎮","🎵","🎬","🎭","⚽","🏋️","✚","💊","🩺","🦷","↻","🏧","€","💳","💰","💼","↑","⇄","§","🧾","🐾","🐱","🐶","🎁","✈️","🏖️","🏨","🎓","📚","💻","📱","🌐","👶","🧸","🛠️","🌱","💇","❤️","⭐","📦","🔧","🛡️","🎯","📌","🗓️","🔔"];
