@@ -2320,8 +2320,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Backup completo</div>
-          <div class="settingsActionDesc">Salva movimenti, categorie, regole e budget.</div>
+          <div class="settingsActionTitle">Backup dati</div>
+          <div class="settingsActionDesc">Salva movimenti, categorie, regole e budget. Gli allegati restano sul dispositivo.</div>
         </div>
         <button id="exportBackup" class="secondary" type="button">Esporta</button>
       </div>
@@ -2388,8 +2388,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div class="toggleLine"><div><b>Escludi dalle statistiche</b><div class="kicker editMoveActionsReal">Il movimento resta visibile ma non pesa su grafici e totali di spesa.</div></div><input id="excludeStats" type="checkbox"></div>
 <div id="splitSummary" class="splitSummary"></div>
 <button id="openSplitMove" class="secondary" type="button" style="width:100%;margin-top:10px">Dividi movimento</button>
-<div class="actions" style="margin-top:10px"></div>
-<div style="margin-top:12px"></div>
+<div class="movementAttachments">
+  <div class="movementAttachmentsHead"><div><b>Allegati</b><div class="kicker">Foto, ricevute, scontrini o PDF</div></div><button id="addMovementAttachment" class="secondary" type="button">＋ Aggiungi</button></div>
+  <div id="movementAttachmentsList"></div>
+  <div class="attachmentBackupNote">Massimo 20 MB per file. Gli allegati restano sul dispositivo e non sono ancora inclusi nel backup JSON.</div>
+</div>
 <div class="editMoveFooterInside"><button id="saveCat" class="primary">Salva</button><button id="deleteMove" class="danger">Elimina movimento</button></div></div></div>
 
 
@@ -2519,7 +2522,7 @@ const MERCHANT_RULES=[
  ["CAFFE","Ristorazione"],["CAFE","Ristorazione"],["RISTORANTE","Ristorazione"],["PIZZERIA","Ristorazione"],["PANIFICIO","Ristorazione"],["BAR ","Ristorazione"],["FOOD","Ristorazione"]
 ];
 
-let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],pendingImportSummary={ignored:0,ambiguous:0},selected=null,filter="Tutte";
+let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],pendingImportSummary={ignored:0,ambiguous:0},selected=null,filter="Tutte",attachmentCounts={};
 let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
@@ -2722,7 +2725,22 @@ function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}${(m._splitPart||validSplitParts(m))?'<span class="noteBadge">diviso</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}${(m._splitPart||validSplitParts(m))?'<span class="noteBadge">diviso</span>':""}${attachmentCounts[m.id]?`<span class="noteBadge attachmentCountBadge">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+function refreshAttachmentCounts(){
+ attachmentCounts={};
+ try{if(window.NekoApp&&typeof window.NekoApp.getAttachmentCounts==="function")attachmentCounts=JSON.parse(String(window.NekoApp.getAttachmentCounts())||"{}")}catch(e){console.warn("Conteggio allegati non disponibile",e)}
+}
+function attachmentSize(bytes){const n=Number(bytes)||0;if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toLocaleString("it-IT",{maximumFractionDigits:1})} KB`;return`${(n/1024/1024).toLocaleString("it-IT",{maximumFractionDigits:1})} MB`}
+function renderMovementAttachments(movementId){
+ const root=document.getElementById("movementAttachmentsList"),add=document.getElementById("addMovementAttachment");if(!root||!add)return;
+ const nativeAvailable=window.NekoApp&&typeof window.NekoApp.listAttachments==="function"&&typeof window.NekoApp.chooseAttachments==="function";add.disabled=!nativeAvailable;
+ if(!nativeAvailable){root.innerHTML='<div class="attachmentEmpty">Gli allegati sono disponibili nella build Android.</div>';return}
+ let items=[];try{items=JSON.parse(String(window.NekoApp.listAttachments(movementId))||"[]")}catch(e){items=[]}
+ root.innerHTML=items.length?items.map(item=>`<div class="attachmentRow" data-attachment-id="${esc(item.id)}"><button type="button" class="attachmentOpen"><span class="attachmentFileIcon">${String(item.mime||"").startsWith("image/")?"▧":"PDF"}</span><span class="attachmentFileCopy"><b>${esc(item.name)}</b><small>${attachmentSize(item.size)}</small></span><span class="attachmentChevron">›</span></button><button type="button" class="attachmentRemove danger" aria-label="Rimuovi ${esc(item.name)}">×</button></div>`).join(""):'<div class="attachmentEmpty">Nessun allegato per questo movimento.</div>';
+ root.querySelectorAll(".attachmentRow").forEach(rowEl=>{const id=rowEl.dataset.attachmentId;rowEl.querySelector(".attachmentOpen").onclick=()=>window.NekoApp.openAttachment(movementId,id);rowEl.querySelector(".attachmentRemove").onclick=()=>openNekoConfirm("Rimuovere questo allegato?","Il file verrà eliminato definitivamente dal dispositivo.","Rimuovi",()=>{if(window.NekoApp.removeAttachment(movementId,id)){refreshAttachmentCounts();render();renderMovementAttachments(movementId);showTemporaryMessage("Allegato rimosso")}else showTemporaryMessage("Non è stato possibile rimuovere l’allegato")})});
+}
+window.onNekoAttachmentsChanged=function(movementId,added,failed){refreshAttachmentCounts();render();if(selected===movementId)renderMovementAttachments(movementId);if(added>0)showTemporaryMessage(`${added} allegat${added===1?"o aggiunto":"i aggiunti"}`);else if(failed>0)showTemporaryMessage("Allegato non aggiunto: formato o dimensione non supportati")};
+window.onNekoAttachmentOpenFailed=function(){showTemporaryMessage("Nessuna app disponibile per aprire questo allegato")};
 async function extract(file){
  if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile.");
  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),disableWorker:true}).promise;let text="";
@@ -3260,8 +3278,9 @@ function edit(mid){
  if(catEl){catEl.innerHTML=CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("");catEl.disabled=!!validSplitParts(m)}
  if(noteEl)noteEl.value=m.note||"";
  if(excludeEl)excludeEl.checked=!!m.excludeStats;
- updateSplitSummary(m);
- if(modalEl){modalEl.style.display="flex";document.body.classList.add("edit-modal-open")}
+  updateSplitSummary(m);
+  renderMovementAttachments(mid);
+  if(modalEl){modalEl.style.display="flex";document.body.classList.add("edit-modal-open")}
 }
 function openManual(){
  const form=document.getElementById("manualForm");
@@ -3447,6 +3466,8 @@ const addBudgetButton=document.getElementById("addBudgetBtn");
 const closeBudgetButton=document.getElementById("closeBudget");
 const saveBudgetButton=document.getElementById("saveBudgetBtn");
 const deleteBudgetButton=document.getElementById("deleteBudgetBtn");
+const addMovementAttachmentButton=document.getElementById("addMovementAttachment");
+if(addMovementAttachmentButton)addMovementAttachmentButton.onclick=()=>{if(selected&&window.NekoApp&&typeof window.NekoApp.chooseAttachments==="function")window.NekoApp.chooseAttachments(selected)};
 
 if(addBudgetButton)addBudgetButton.onclick=()=>openBudget();
 
@@ -3582,7 +3603,7 @@ if(addTopBtn)addTopBtn.addEventListener("click",openManual);
 if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
 closeManual.onclick=()=>manualModal.style.display="none";
 manualForm.onsubmit=e=>{e.preventDefault();const n=Number(mamount.value);if(!n||n<=0)return;const amount=mtype.value==="expense"?-n:n,desc=sanitizeDescription(mdesc.value.trim()),cl=classify(desc,amount),chosen=mcat.value==="Da classificare"?cl.cat:mcat.value;moves.push({id:uid(),date:itDate(mdate.value),valueDate:itDate(mdate.value),amount,description:desc,category:chosen,why:"manual",source:"manual",note:"",excludeStats:false});save();render();manualModal.style.display="none";go("moves")};
-clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];selectedMonth=nowMonthKey();save();render()});
+clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");
 const themeToggleBtn=document.getElementById("themeToggle");
@@ -3611,7 +3632,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));applyTheme(darkMode,false);render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();
 </script>
 </body></html>
 <style>
