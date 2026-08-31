@@ -214,6 +214,8 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 #stats .statsSectionSub{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
 #stats .monthCompareHero,#stats .forecastHero{border-radius:15px!important;padding:13px!important}
 #stats .monthCompareTotal,#stats .forecastItem{border-radius:14px!important;background:var(--android-surface-raised)!important}
+#stats .monthCompareColumns{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#stats .monthCompareColumns>div+div{padding-left:12px;border-left:1px solid var(--line)}
 
 #stats .statsPieWrap{grid-template-columns:minmax(150px,190px) minmax(0,1fr)!important;gap:14px!important}
 #stats .pieBox,#stats #pieChart{width:190px!important;height:190px!important;min-width:190px!important}
@@ -227,6 +229,57 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 #stats .catStatHead{min-height:38px!important}
 #stats .catBar{height:6px!important}
 #stats .statsDetailSheet{border-radius:19px!important;background:var(--android-surface-raised)!important}
+#stats #statsCategoriesCard{display:none!important}
+
+/* Settings — Android-first navigation and inner pages */
+#settings{padding-top:0!important}
+#settings .settingsHeader{align-items:center!important;margin:2px 0 14px!important}
+#settings .settingsHeader h3{font-size:24px!important;line-height:1.1!important;letter-spacing:-.55px!important}
+#settings .settingsHeader .kicker{font-size:11px!important;line-height:1.35!important;margin-top:4px!important}
+#settings .themeToggle{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:14px!important}
+
+#settings .settingsList{display:grid!important;gap:8px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important}
+[data-theme="dark"] #settings .settingsList{background:transparent!important;border:0!important;box-shadow:none!important}
+#settings .settingsItem{min-height:68px!important;padding:11px 12px!important;border:1px solid var(--line)!important;border-radius:17px!important;background:var(--android-surface-raised)!important;box-shadow:0 3px 13px rgba(30,41,59,.035)!important}
+#settings .settingsItem:last-child{border:1px solid var(--line)!important}
+#settings .settingsItem:active{background:var(--accent-soft)!important;transform:scale(.985)!important}
+#settings .settingsItemIcon{width:42px!important;height:42px!important;min-width:42px!important;border-radius:14px!important;font-size:19px!important}
+#settings .settingsItemTitle{font-size:14px!important;line-height:1.25!important}
+#settings .settingsItemDesc{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
+
+#settings .settingsBackRow{min-height:46px!important;margin:2px 0 14px!important}
+#settings .settingsBack{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:14px!important}
+#settings .settingsSectionTitle{font-size:21px!important;letter-spacing:-.4px!important}
+#settings .settingsBackRow .kicker{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
+#settings .settingsPage>.card{padding-top:0!important;border-top:0!important}
+
+/* Rules and recurrences share one modern list language. */
+#settingsRulesPage .hint{padding:12px!important;border:1px solid var(--line)!important;border-radius:15px!important;background:var(--android-surface-muted)!important}
+#settings #rulesList,#settings #managedRecurring,#settings #recurringList{display:grid!important;gap:7px!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
+#settings #rulesList .ruleRow,#settings #managedRecurring .row,#settings #recurringList .row{padding:10px 11px!important;border:1px solid var(--line)!important;border-radius:15px!important;background:var(--android-surface-raised)!important}
+#settings #rulesList .ruleRow:last-child,#settings #managedRecurring .row:last-child,#settings #recurringList .row:last-child{border:1px solid var(--line)!important}
+
+/* Data actions become distinct touch-friendly cards. */
+#settingsDataPage>.card:first-of-type{display:grid!important;gap:8px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
+#settingsDataPage .settingsActionRow{min-height:66px!important;padding:11px 12px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--android-surface-raised)!important}
+#settingsDataPage .settingsActionRow:last-of-type{border:1px solid var(--line)!important}
+#settingsDataPage .settingsActionTitle{font-size:13.5px!important}
+#settingsDataPage .settingsActionDesc{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
+#settingsDataPage .settingsActionRow button,#settingsDataPage .settingsActionRow .filebtn{min-height:38px!important;padding:7px 10px!important;border-radius:12px!important;font-size:11px!important}
+
+[data-theme="dark"] #settings .settingsItem,
+[data-theme="dark"] #settings #rulesList .ruleRow,
+[data-theme="dark"] #settings #managedRecurring .row,
+[data-theme="dark"] #settings #recurringList .row,
+[data-theme="dark"] #settingsDataPage .settingsActionRow{background:var(--card)!important}
+
+@media(max-width:390px){
+  #settings .settingsHeader h3{font-size:22px!important}
+  #settings .settingsItem{min-height:64px!important;padding:10px!important}
+  #settings .settingsItemDesc{max-width:none!important}
+  #settingsDataPage .settingsActionRow{align-items:flex-start!important;flex-wrap:wrap!important}
+  #settingsDataPage .settingsActionText{flex:1 1 190px!important}
+}
 
 [data-theme="dark"] #stats .statsMetric,
 [data-theme="dark"] #stats .statsSection,
