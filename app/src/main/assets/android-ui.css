@@ -148,13 +148,15 @@ input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line)
 #settingsCategoriesPage .categorySettingsHeader{align-items:flex-start!important}
 #settingsCategoriesPage .categorySettingsHeading{flex:1;min-width:0}
 #settingsCategoriesPage .categorySettingsTitleLine{display:flex;align-items:center;justify-content:space-between;gap:10px}
-#settingsCategoriesPage .categoryEditButton{display:flex!important;align-items:center!important;justify-content:center!important;width:auto!important;height:38px!important;min-width:0!important;min-height:38px!important;padding:6px 11px!important;border-radius:13px!important;font-size:11px!important;color:var(--accent)!important;background:var(--accent-soft)!important;white-space:nowrap}
+#settingsCategoriesPage .categoryEditButton{display:flex!important;align-items:center!important;justify-content:center!important;width:auto!important;height:32px!important;min-width:0!important;min-height:32px!important;padding:4px 8px!important;border-radius:10px!important;font-size:9.5px!important;line-height:1!important;color:var(--accent)!important;background:var(--accent-soft)!important;white-space:nowrap}
 #settingsCategoriesPage>.card{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
 #settingsCategoriesPage #categoryManager{display:grid!important;gap:8px!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
 #settingsCategoriesPage .catManageRow{min-height:62px!important;padding:9px 11px!important;border:1px solid var(--line)!important;border-radius:18px!important;background:var(--android-surface-raised)!important;box-shadow:0 3px 12px rgba(30,41,59,.035)!important}
 #settingsCategoriesPage .catManageRow:last-child{border:1px solid var(--line)!important}
 #settingsCategoriesPage .catManageRow:active{background:var(--accent-soft)!important}
 [data-theme="dark"] #settingsCategoriesPage .catManageRow{background:var(--card)!important}
+[data-theme="dark"] #settings #settingsCategoriesPage>.card,
+[data-theme="dark"] #settings #settingsCategoriesPage #categoryManager{background:transparent!important;border:0!important;box-shadow:none!important}
 
 /* Learned rules use a quieter text scale. */
 #settingsRulesPage .ruleRow{gap:9px!important;padding:9px 10px!important}
