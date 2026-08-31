@@ -2287,6 +2287,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div class="recurringIntro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
       <div class="recurringGroupLabel">Le tue scelte</div>
       <div id="managedRecurring"></div>
+      <button id="toggleIgnoredRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
+      <div id="ignoredRecurring" hidden></div>
       <div class="recurringGroupLabel recurringDetectedLabel">Da controllare</div>
       <div id="recurringList"></div>
     </div>
@@ -2521,6 +2523,7 @@ let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.pa
 let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
+let ignoredRecurringOpen=false;
 let searchText="",filterTypeValue="all",filterStatsValue="all";
 let filtersPanelOpen=false;
 let bulkMode=false,bulkSelected=new Set(),selectMode=false,moveLongPressTimer=null,statsLongPressTimer=null,statsSelectMode=false,statsSelected=new Set(),currentStatsCategory=null;
@@ -2680,12 +2683,15 @@ function recurringCandidates(){
  .sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
- const managedRoot=document.getElementById("managedRecurring"),detectedRoot=document.getElementById("recurringList");if(!managedRoot||!detectedRoot)return;
- const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"||recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
+ const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot)return;
+ const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
  const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",automatic=!confirmed&&!ignored&&c.count>=3,label=confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=ignored?"ignored":confirmed||automatic?"included":"pending",actions=ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
- managedRoot.innerHTML=managed.length?managed.map(c=>row(c,recurringPrefs[c.key]===false?"ignored":recurringPrefs[c.key])).join(""):'<div class="recurringEmpty">Non hai ancora confermato o ignorato ricorrenze.</div>';
+ managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
+ ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
+ ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=`${ignoredRecurringOpen?"Nascondi":"Mostra"} ignorate (${ignored.length})`;
+ ignoredToggle.onclick=()=>{ignoredRecurringOpen=!ignoredRecurringOpen;renderRecurringManager()};
  detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):'<div class="recurringEmpty">Nessuna nuova ricorrenza da controllare.</div>';
- [managedRoot,detectedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
+ [managedRoot,ignoredRoot,detectedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
  let s=desc.toUpperCase().replace(/OPERAZIONE POS EUROZONA/gi," ").replace(/PAGAMENTI PAGOBANCOMAT/gi," ").replace(/PAGAMENTO TRAMITE POS/gi," ").replace(/CARTA \*?\d+/gi," ").replace(/\bDEL \d{2}\.\d{2}\.\d{2}\b/gi," ").replace(/\b\d{2}:\d{2}\b/g," ").replace(/\bITA\b/g," ").replace(/[^A-ZÀ-ÖØ-Ý0-9 ]/g," ").replace(/\s+/g," ").trim();
