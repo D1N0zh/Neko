@@ -1,0 +1,77 @@
+/* Neko Android UI foundation — loaded last to keep presentation predictable. */
+:root{
+  --android-surface:var(--card);
+  --android-surface-raised:#fff;
+  --android-surface-muted:var(--soft);
+  --android-radius-xl:22px;
+  --android-radius-lg:18px;
+  --android-radius-md:14px;
+  --android-touch:48px;
+  --android-shadow:0 8px 28px rgba(30,41,59,.065);
+}
+
+html{background:var(--bg);overscroll-behavior:none}
+body{min-height:100dvh;overscroll-behavior-y:none}
+.app{width:min(100%,800px);padding-top:12px!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+.screen{padding-bottom:16px!important}
+
+button,.filebtn{min-height:var(--android-touch)}
+input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line);background:var(--android-surface-raised)}
+
+/* App bar */
+.compactHead{
+  min-height:52px;
+  gap:8px!important;
+  margin-bottom:14px!important;
+  padding:0!important;
+}
+.compactHead .compactBrandMark{width:42px!important;height:42px!important;min-width:42px!important;border-radius:14px!important}
+.compactHead .monthControl{min-height:42px;border-radius:14px}
+.compactHead .compactAddMove{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;padding:0!important;justify-content:center!important;border-radius:14px!important}
+.compactHead .compactAddMove span:last-child{display:none!important}
+
+/* Home */
+#home .homeBlock{margin-bottom:12px!important}
+#home .homeHero{border-radius:var(--android-radius-xl)!important;padding:17px!important;box-shadow:var(--android-shadow)!important}
+#home .homeMetric{min-height:58px;display:flex;flex-direction:column;justify-content:center;border-radius:var(--android-radius-md)!important}
+#homeCompare,#homeBudgetCard,#homeTopCats,#homeLatest{
+  border-radius:var(--android-radius-lg)!important;
+  padding:14px!important;
+  background:var(--android-surface)!important;
+  box-shadow:0 3px 14px rgba(30,41,59,.035)!important;
+}
+#home .homeSection + .homeSection{border-top:1px solid var(--line)!important}
+#home .homeQuickAction,#home .homeMiniBtn{min-height:38px}
+
+/* Bottom navigation */
+.bottom{
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;
+  background:color-mix(in srgb,var(--android-surface-raised) 94%,transparent)!important;
+  border-top:1px solid var(--line)!important;
+}
+.bottom .nav{gap:4px!important}
+.bottom .nav button{
+  min-height:54px!important;
+  border-radius:16px!important;
+  padding:6px 5px!important;
+  font-size:10.5px!important;
+}
+.bottom .nav button span:first-child{font-size:20px!important;margin-bottom:1px!important}
+.bottom .nav button.active{background:var(--accent-soft)!important;color:var(--accent)!important}
+
+/* Dark surfaces */
+[data-theme="dark"]{--android-surface-raised:#1a1f29;--android-shadow:0 10px 30px rgba(0,0,0,.22)}
+[data-theme="dark"] #homeCompare,
+[data-theme="dark"] #homeBudgetCard,
+[data-theme="dark"] #homeTopCats,
+[data-theme="dark"] #homeLatest{background:var(--card)!important}
+
+@media(max-width:430px){
+  .app{padding-top:9px!important}
+  #home .homeHero{padding:15px!important}
+  #homeCompare,#homeBudgetCard,#homeTopCats,#homeLatest{padding:12px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+}
