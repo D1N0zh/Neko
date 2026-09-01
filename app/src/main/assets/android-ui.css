@@ -306,7 +306,11 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 .recurringBadge{padding:3px 6px;border-radius:7px;background:var(--android-surface-muted);color:var(--muted);font-size:8.5px;font-weight:850;line-height:1.2}.recurringBadge.included{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}.recurringBadge.ignored{background:color-mix(in srgb,var(--red) 11%,transparent);color:var(--red)}.recurringBadge.pending{background:color-mix(in srgb,var(--amber) 15%,transparent);color:#9a690a}
 .recurringAmount{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12.5px;font-weight:850;white-space:nowrap}.recurringAmount small{color:var(--muted);font-size:8.5px;font-weight:650}.recurringActions{display:flex;grid-column:2/-1;justify-content:flex-end;gap:6px}.recurringActions button{min-height:34px!important;padding:6px 9px!important;border-radius:10px!important;font-size:10px!important}.recurringIgnore{background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)!important}.recurringEmpty{padding:13px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:10.5px;line-height:1.4;text-align:center}
 .recurringIgnoredToggle{display:flex;width:100%;justify-content:center;margin-top:8px;padding:7px!important;border:0!important;background:transparent!important;color:var(--muted)!important;font-size:10px!important;min-height:32px!important}.recurringIgnoredToggle:active{background:var(--android-surface-muted)!important}
-[data-theme="dark"] .recurringManageRow{background:transparent!important;box-shadow:none!important}
+[data-theme="dark"] #settings #managedRecurring,
+[data-theme="dark"] #settings #ignoredRecurring,
+[data-theme="dark"] #settings #recurringList,
+[data-theme="dark"] #settings .recurringManageRow{background:transparent!important;box-shadow:none!important}
+[data-theme="dark"] .recurringCard{background:transparent!important;box-shadow:none!important}
 
 @media(max-width:390px){
   #settings .settingsHeader h3{font-size:22px!important}
