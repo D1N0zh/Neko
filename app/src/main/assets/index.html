@@ -2580,18 +2580,27 @@ function movementDescriptionSimilarity(a,b){
  const left=new Set(normalizedMovementDescription(a).split(" ").filter(Boolean)),right=new Set(normalizedMovementDescription(b).split(" ").filter(Boolean));
  if(!left.size||!right.size)return 0;let common=0;left.forEach(token=>{if(right.has(token))common++});return common/Math.max(left.size,right.size);
 }
+function movementDatesAreClose(a,b){
+ const left=[a.date,a.valueDate].filter(Boolean).map(parseItDate),right=[b.date,b.valueDate].filter(Boolean).map(parseItDate),day=86400000;
+ return left.some(x=>right.some(y=>Math.abs(x-y)<=2*day));
+}
+function movementsLikelyMatch(a,b){
+ if(movementAmountKey(a)!==movementAmountKey(b)||movementTypeKey(a)!==movementTypeKey(b)||!movementDatesAreClose(a,b))return false;
+ const left=normalizedMovementDescription(a.description),right=normalizedMovementDescription(b.description);if(!left||!right)return false;
+ return left===right||left.includes(right)||right.includes(left)||movementDescriptionSimilarity(left,right)>=.55;
+}
 function detectImportedDuplicates(candidates,existing){
- const knownStrong=new Set(),knownLoose=new Map(),seenIncoming=new Set();
- existing.forEach(m=>{const strong=movementStableSignature(m),loose=movementLooseSignature(m);knownStrong.add(strong);if(!knownLoose.has(loose))knownLoose.set(loose,[]);knownLoose.get(loose).push(m)});
- const accepted=[],acceptedLoose=new Map();let ignored=0,ambiguous=0;
+ const knownStrong=new Set(),knownComparable=new Map(),seenIncoming=new Set();
+ existing.forEach(m=>{const strong=movementStableSignature(m),key=`${movementAmountKey(m)}|${movementTypeKey(m)}`;knownStrong.add(strong);if(!knownComparable.has(key))knownComparable.set(key,[]);knownComparable.get(key).push(m)});
+ const accepted=[],acceptedComparable=new Map();let ignored=0,ambiguous=0;
  candidates.forEach(m=>{
-   const strong=movementStableSignature(m),loose=movementLooseSignature(m);
+   const strong=movementStableSignature(m),key=`${movementAmountKey(m)}|${movementTypeKey(m)}`;
    if(knownStrong.has(strong)||seenIncoming.has(strong)){ignored++;return}
-   const similarExisting=(knownLoose.get(loose)||[]).some(old=>movementDescriptionSimilarity(old.description,m.description)>=.8);
-   const similarIncoming=(acceptedLoose.get(loose)||[]).some(old=>movementDescriptionSimilarity(old.description,m.description)>=.8);
+   const similarExisting=(knownComparable.get(key)||[]).some(old=>movementsLikelyMatch(old,m));
+   const similarIncoming=(acceptedComparable.get(key)||[]).some(old=>movementsLikelyMatch(old,m));
    if(similarExisting){ignored++;return}
    if(similarIncoming){m.duplicateReview=true;ambiguous++}
-   accepted.push(m);seenIncoming.add(strong);if(!acceptedLoose.has(loose))acceptedLoose.set(loose,[]);acceptedLoose.get(loose).push(m);
+   accepted.push(m);seenIncoming.add(strong);if(!acceptedComparable.has(key))acceptedComparable.set(key,[]);acceptedComparable.get(key).push(m);
  });
  return{accepted,ignored,ambiguous};
 }
