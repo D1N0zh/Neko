@@ -12,6 +12,8 @@
 
 html{width:100%;max-width:100%;background:var(--bg);overflow-x:clip}
 body{width:100%;max-width:100%;min-height:100dvh;overflow-x:clip}
+body{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+input,textarea,[contenteditable="true"]{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important}
 .app{width:100%;max-width:800px;min-width:0;padding-top:12px!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
 .screen{width:100%;max-width:100%;min-width:0;padding-bottom:16px!important}
 
