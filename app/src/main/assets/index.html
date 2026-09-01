@@ -2580,27 +2580,31 @@ function movementDescriptionSimilarity(a,b){
  const left=new Set(normalizedMovementDescription(a).split(" ").filter(Boolean)),right=new Set(normalizedMovementDescription(b).split(" ").filter(Boolean));
  if(!left.size||!right.size)return 0;let common=0;left.forEach(token=>{if(right.has(token))common++});return common/Math.max(left.size,right.size);
 }
-function movementDatesAreClose(a,b){
+function movementDatesAreClose(a,b,maxDays=2){
  const left=[a.date,a.valueDate].filter(Boolean).map(parseItDate),right=[b.date,b.valueDate].filter(Boolean).map(parseItDate),day=86400000;
- return left.some(x=>right.some(y=>Math.abs(x-y)<=2*day));
+ return left.some(x=>right.some(y=>Math.abs(x-y)<=maxDays*day));
 }
 function movementsLikelyMatch(a,b){
  if(movementAmountKey(a)!==movementAmountKey(b)||movementTypeKey(a)!==movementTypeKey(b)||!movementDatesAreClose(a,b))return false;
  const left=normalizedMovementDescription(a.description),right=normalizedMovementDescription(b.description);if(!left||!right)return false;
  return left===right||left.includes(right)||right.includes(left)||movementDescriptionSimilarity(left,right)>=.55;
 }
+function manualMovementMatchesPdf(a,b){
+ return (a.source==="manual"||b.source==="manual")&&movementAmountKey(a)===movementAmountKey(b)&&movementTypeKey(a)===movementTypeKey(b)&&movementDatesAreClose(a,b,5);
+}
 function detectImportedDuplicates(candidates,existing){
- const knownStrong=new Set(),knownComparable=new Map(),seenIncoming=new Set();
- existing.forEach(m=>{const strong=movementStableSignature(m),key=`${movementAmountKey(m)}|${movementTypeKey(m)}`;knownStrong.add(strong);if(!knownComparable.has(key))knownComparable.set(key,[]);knownComparable.get(key).push(m)});
+ const availableExisting=existing.map(m=>({movement:m,strong:movementStableSignature(m),matched:false})),seenIncoming=new Set();
  const accepted=[],acceptedComparable=new Map();let ignored=0,ambiguous=0;
  candidates.forEach(m=>{
    const strong=movementStableSignature(m),key=`${movementAmountKey(m)}|${movementTypeKey(m)}`;
-   if(knownStrong.has(strong)||seenIncoming.has(strong)){ignored++;return}
-   const similarExisting=(knownComparable.get(key)||[]).some(old=>movementsLikelyMatch(old,m));
+   if(seenIncoming.has(strong)){ignored++;return}seenIncoming.add(strong);
+   let existingMatch=availableExisting.find(item=>!item.matched&&item.strong===strong);
+   if(!existingMatch)existingMatch=availableExisting.find(item=>!item.matched&&movementsLikelyMatch(item.movement,m));
+   if(!existingMatch)existingMatch=availableExisting.find(item=>!item.matched&&manualMovementMatchesPdf(item.movement,m));
    const similarIncoming=(acceptedComparable.get(key)||[]).some(old=>movementsLikelyMatch(old,m));
-   if(similarExisting){ignored++;return}
+   if(existingMatch){existingMatch.matched=true;ignored++;return}
    if(similarIncoming){m.duplicateReview=true;ambiguous++}
-   accepted.push(m);seenIncoming.add(strong);if(!acceptedComparable.has(key))acceptedComparable.set(key,[]);acceptedComparable.get(key).push(m);
+   accepted.push(m);if(!acceptedComparable.has(key))acceptedComparable.set(key,[]);acceptedComparable.get(key).push(m);
  });
  return{accepted,ignored,ambiguous};
 }
