@@ -1899,31 +1899,31 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div class="head compactHead">
   <div class="compactBrandMark" aria-label="Neko"><img src="assets/neko-logo.png" alt="Logo Neko"></div>
   <div class="monthControl">
-    <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente">‹</button>
-    <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese">
+    <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente" data-i18n-aria="previous_month">‹</button>
+    <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese" data-i18n-aria="select_month">
       <span class="monthCalendarIcon" aria-hidden="true"></span>
       <span id="monthLabel" class="monthLabel"></span>
     </button>
-    <button id="nextMonth" class="monthArrow secondary" type="button" aria-label="Mese successivo">›</button>
+    <button id="nextMonth" class="monthArrow secondary" type="button" aria-label="Mese successivo" data-i18n-aria="next_month">›</button>
   </div>
-  <button id="addTop" class="primary compactAddMove" type="button"><span class="plusMark">＋</span><span>Movimento</span></button>
+  <button id="addTop" class="primary compactAddMove" type="button"><span class="plusMark">＋</span><span data-i18n="movement">Movimento</span></button>
 </div>
 
 <section id="home" class="screen active">
 
 <div id="homeEditBar" class="homeEditBar">
-  <div><b>Modifica Home</b><div class="kicker">Trascina le sezioni per riordinarle. Puoi anche rimuoverle.</div></div>
-  <div class="actions"><button id="addHomeBlockBtn" class="secondary" type="button">＋ Aggiungi</button><button id="doneHomeEdit" class="primary" type="button">Fine</button></div>
+  <div><b data-i18n="home_edit">Modifica Home</b><div class="kicker" data-i18n="home_edit_help">Trascina le sezioni per riordinarle. Puoi anche rimuoverle.</div></div>
+  <div class="actions"><button id="addHomeBlockBtn" class="secondary" type="button" data-i18n="add">＋ Aggiungi</button><button id="doneHomeEdit" class="primary" type="button" data-i18n="done">Fine</button></div>
 </div>
 <div id="addHomePanel" class="addHomePanel">
-  <div class="kicker" style="margin-bottom:8px">Sezioni disponibili</div>
+  <div class="kicker" style="margin-bottom:8px" data-i18n="available_sections">Sezioni disponibili</div>
   <div id="addHomeGrid" class="addHomeGrid"></div>
 </div>
 <div id="homeEmptyState" class="homeEmptyState">
   <div style="font-size:28px;margin-bottom:8px">⌂</div>
-  <b>La Home è vuota</b>
-  <div class="kicker" style="margin:5px 0 14px">Puoi scegliere nuovamente le sezioni da mostrare.</div>
-  <button id="restoreHomeBlocks" class="primary" type="button">＋ Aggiungi sezioni</button>
+  <b data-i18n="empty_home">La Home è vuota</b>
+  <div class="kicker" style="margin:5px 0 14px" data-i18n="empty_home_help">Puoi scegliere nuovamente le sezioni da mostrare.</div>
+  <button id="restoreHomeBlocks" class="primary" type="button" data-i18n="add_sections">＋ Aggiungi sezioni</button>
 </div>
 <div id="homeSummary" class="homeBlock homeHero" data-homekey="summary">
   <div class="homeBlockControls">
@@ -1931,22 +1931,22 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
   <div class="homeHeroTop">
     <div>
-      <div class="homeEyebrow">Saldo del mese</div>
-      <button id="homeBalanceAction" class="homeBalanceAction" type="button"><span id="balance" class="homeBalance">€ 0,00</span><span class="homeActionHint">Vedi movimenti ›</span></button>
+      <div class="homeEyebrow" data-i18n="monthly_balance">Saldo del mese</div>
+      <button id="homeBalanceAction" class="homeBalanceAction" type="button"><span id="balance" class="homeBalance">€ 0,00</span><span class="homeActionHint" data-i18n="view_movements">Vedi movimenti ›</span></button>
     </div>
-    <button class="secondary goMoves homeQuickAction" type="button">Movimenti</button>
+    <button class="secondary goMoves homeQuickAction" type="button" data-i18n="movements">Movimenti</button>
   </div>
   <div class="homeMetrics">
     <button class="homeMetric homeMetricAction" type="button" data-home-filter="income">
-      <span>Entrate</span>
+      <span data-i18n="income">Entrate</span>
       <b id="income" class="in">€ 0</b>
     </button>
     <button class="homeMetric homeMetricAction" type="button" data-home-filter="expense">
-      <span>Uscite</span>
+      <span data-i18n="expenses">Uscite</span>
       <b id="expense" class="out">€ 0</b>
     </button>
     <button class="homeMetric homeMetricAction" type="button" data-home-go="stats">
-      <span>Risparmio</span>
+      <span data-i18n="savings">Risparmio</span>
       <b id="saving">€ 0</b>
     </button>
   </div>
@@ -1965,23 +1965,23 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
   <div class="homeSectionHead">
     <div>
-      <div class="homeSectionTitle">Andamento del mese</div>
-      <div class="homeSectionSub">Rispetto al mese precedente</div>
+      <div class="homeSectionTitle" data-i18n="monthly_trend">Andamento del mese</div>
+      <div class="homeSectionSub" data-i18n="previous_month_comparison">Rispetto al mese precedente</div>
     </div>
   </div>
   <div class="homeCompareStrip">
     <div class="homeCompareItem">
-      <span>Uscite</span>
+      <span data-i18n="expenses">Uscite</span>
       <b id="cmpExpense">—</b>
       <div id="cmpExpenseTxt" class="compare"></div>
     </div>
     <div class="homeCompareItem">
-      <span>Entrate</span>
+      <span data-i18n="income">Entrate</span>
       <b id="cmpIncome">—</b>
       <div id="cmpIncomeTxt" class="compare"></div>
     </div>
     <div class="homeCompareItem">
-      <span>Risparmio</span>
+      <span data-i18n="savings">Risparmio</span>
       <b id="cmpSaving">—</b>
       <div id="cmpSavingTxt" class="compare"></div>
     </div>
@@ -1994,10 +1994,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
   <div class="homeSectionHead">
     <div>
-      <div class="homeSectionTitle">Budget</div>
-      <div class="homeSectionSub">Quanto puoi ancora spendere</div>
+      <div class="homeSectionTitle" data-i18n="budget">Budget</div>
+      <div class="homeSectionSub" data-i18n="budget_remaining">Quanto puoi ancora spendere</div>
     </div>
-    <button class="secondary homeMiniBtn" type="button" id="homeBudgetManage">Gestisci</button>
+    <button class="secondary homeMiniBtn" type="button" id="homeBudgetManage" data-i18n="manage">Gestisci</button>
   </div>
   <div id="homeBudget"></div>
 </div>
@@ -2008,10 +2008,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
   <div class="homeSectionHead">
     <div>
-      <div class="homeSectionTitle">Dove spendi di più</div>
-      <div class="homeSectionSub">Categorie principali del mese</div>
+      <div class="homeSectionTitle" data-i18n="top_spending">Dove spendi di più</div>
+      <div class="homeSectionSub" data-i18n="top_categories_month">Categorie principali del mese</div>
     </div>
-    <button class="secondary homeMiniBtn" type="button" data-home-go="stats">Statistiche</button>
+    <button class="secondary homeMiniBtn" type="button" data-home-go="stats" data-i18n="statistics">Statistiche</button>
   </div>
   <div id="topcats"></div>
 </div>
@@ -2022,10 +2022,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   </div>
   <div class="homeSectionHead">
     <div>
-      <div class="homeSectionTitle">Ultimi movimenti</div>
-      <div class="homeSectionSub">Le operazioni più recenti</div>
+      <div class="homeSectionTitle" data-i18n="latest_movements">Ultimi movimenti</div>
+      <div class="homeSectionSub" data-i18n="recent_operations">Le operazioni più recenti</div>
     </div>
-    <button class="secondary goMoves homeMiniBtn" type="button">Vedi tutti</button>
+    <button class="secondary goMoves homeMiniBtn" type="button" data-i18n="view_all">Vedi tutti</button>
   </div>
   <div id="latest"></div>
 </div>
@@ -2035,11 +2035,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <section id="moves" class="screen">
   <div class="movesHeader">
     <div>
-      <div class="movesTitle">Movimenti</div>
-      <div class="movesSubtitle">Tieni premuto per selezionare più operazioni</div>
+      <div class="movesTitle" data-i18n="movements">Movimenti</div>
+      <div class="movesSubtitle" data-i18n="movements_help">Tieni premuto per selezionare più operazioni</div>
     </div>
     <div class="movesActions">
-      <button id="pickPdf" class="primary movesPdfBtn" type="button">Carica Documento</button>
+      <button id="pickPdf" class="primary movesPdfBtn" type="button" data-i18n="load_document">Carica Documento</button>
     </div>
   </div>
 
@@ -2048,28 +2048,28 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 
   <div class="movesSearchBar">
     <span class="movesSearchIcon">⌕</span>
-    <input id="searchMoves" type="search" placeholder="Cerca movimenti">
-    <button id="toggleFilters" class="movesFilterBtn secondary" type="button">Filtri</button>
+    <input id="searchMoves" type="search" placeholder="Cerca movimenti" data-i18n-placeholder="search_movements">
+    <button id="toggleFilters" class="movesFilterBtn secondary" type="button" data-i18n="filters">Filtri</button>
   </div>
 
   <div class="movesQuickFilters">
     <button id="filterType" class="movementFilterSelect" type="button" aria-haspopup="dialog">
-      <span class="movementFilterIcon">↕</span><span class="movementFilterCopy"><small>Tipo</small><b id="filterTypeLabel">Tutti i movimenti</b></span><span class="movementFilterChevron">⌄</span>
+      <span class="movementFilterIcon">↕</span><span class="movementFilterCopy"><small data-i18n="type">Tipo</small><b id="filterTypeLabel">Tutti i movimenti</b></span><span class="movementFilterChevron">⌄</span>
     </button>
     <button id="filterStats" class="movementFilterSelect" type="button" aria-haspopup="dialog">
-      <span class="movementFilterIcon">◉</span><span class="movementFilterCopy"><small>Statistiche</small><b id="filterStatsLabel">Tutti</b></span><span class="movementFilterChevron">⌄</span>
+      <span class="movementFilterIcon">◉</span><span class="movementFilterCopy"><small data-i18n="statistics">Statistiche</small><b id="filterStatsLabel">Tutti</b></span><span class="movementFilterChevron">⌄</span>
     </button>
   </div>
 
   <div id="filtersSummary" class="filtersSummary movesFilterSummary">Nessun filtro categoria</div>
   <div id="filtersPanel" class="filtersPanel movesFiltersPanel">
-    <div class="movesPanelTitle">Categorie</div>
+    <div class="movesPanelTitle" data-i18n="categories">Categorie</div>
     <div id="filterCats" class="filterCats"></div>
   </div>
 
   <div class="movesListHead">
-    <span>Operazioni</span>
-    <span class="movesListHint">Tocca per i dettagli</span>
+    <span data-i18n="operations">Operazioni</span>
+    <span class="movesListHint" data-i18n="tap_details">Tocca per i dettagli</span>
   </div>
   <div id="allmoves" class="movesFlatList"></div>
 </section>
@@ -2077,46 +2077,46 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <section id="stats" class="screen">
   <div class="statsHeader">
     <div>
-      <div class="statsTitle">Statistiche</div>
-      <div class="statsSubtitle">Panoramica del mese selezionato</div>
+      <div class="statsTitle" data-i18n="statistics">Statistiche</div>
+      <div class="statsSubtitle" data-i18n="statistics_subtitle">Panoramica del mese selezionato</div>
     </div>
   </div>
 
   <div class="statsOverview">
     <div class="statsMetric">
-      <span>Entrate</span>
+      <span data-i18n="income">Entrate</span>
       <b id="statsIncome" class="in">€ 0</b>
     </div>
     <div class="statsMetric">
-      <span>Uscite</span>
+      <span data-i18n="expenses">Uscite</span>
       <b id="statsExpense" class="out">€ 0</b>
     </div>
     <div class="statsMetric">
-      <span>Risparmio</span>
+      <span data-i18n="savings">Risparmio</span>
       <b id="statsSaving">€ 0</b>
     </div>
   </div>
 
   <div class="statsSection" id="availableEstimateCard">
-    <div class="statsSectionHead"><div><div class="statsSectionTitle">Disponibile stimato</div><div class="statsSectionSub">Una stima prudente, non il saldo del conto</div></div></div>
+    <div class="statsSectionHead"><div><div class="statsSectionTitle" data-i18n="estimated_available_short">Disponibile stimato</div><div class="statsSectionSub" data-i18n="estimated_available_help">Una stima prudente, non il saldo del conto</div></div></div>
     <div id="availableEstimateDetail"></div>
   </div>
 
   <div class="statsSection" id="monthComparisonCard">
-    <div class="statsSectionHead"><div><div class="statsSectionTitle">Confronto mensile</div><div class="statsSectionSub">Rispetto al mese precedente</div></div></div>
+    <div class="statsSectionHead"><div><div class="statsSectionTitle" data-i18n="monthly_comparison">Confronto mensile</div><div class="statsSectionSub" data-i18n="previous_month_comparison">Rispetto al mese precedente</div></div></div>
     <div id="monthComparison"></div>
   </div>
 
   <div class="statsSection" id="spendingForecastCard">
-    <div class="statsSectionHead"><div><div class="statsSectionTitle">Previsione di fine mese</div><div class="statsSectionSub">Stima indicativa basata sull’andamento attuale</div></div></div>
+    <div class="statsSectionHead"><div><div class="statsSectionTitle" data-i18n="end_month_forecast">Previsione di fine mese</div><div class="statsSectionSub" data-i18n="forecast_help">Stima indicativa basata sull’andamento attuale</div></div></div>
     <div id="spendingForecast"></div>
   </div>
 
   <div class="statsSection statsPieSection">
     <div class="statsSectionHead">
       <div>
-        <div class="statsSectionTitle">Distribuzione delle spese</div>
-        <div class="statsSectionSub">Quanto pesa ogni categoria</div>
+        <div class="statsSectionTitle" data-i18n="expense_distribution">Distribuzione delle spese</div>
+        <div class="statsSectionSub" data-i18n="expense_distribution_help">Quanto pesa ogni categoria</div>
       </div>
     </div>
     <div class="pieWrap statsPieWrap">
@@ -2128,10 +2128,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div class="statsSection" id="statsCategoriesCard">
     <div class="statsSectionHead">
       <div>
-        <div class="statsSectionTitle">Categorie</div>
-        <div class="statsSectionSub">Tocca una categoria per vedere i movimenti</div>
+        <div class="statsSectionTitle" data-i18n="categories">Categorie</div>
+        <div class="statsSectionSub" data-i18n="category_tap_help">Tocca una categoria per vedere i movimenti</div>
       </div>
-      <button id="toggleStatsEdit" class="secondary statsOrderBtn" type="button">Ordina</button>
+      <button id="toggleStatsEdit" class="secondary statsOrderBtn" type="button" data-i18n="order">Ordina</button>
     </div>
     <div id="catstats" class="statsCategoryList"></div>
   </div>
@@ -2142,15 +2142,15 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <div id="statsDetailTitle" class="statsDetailTitle">Categoria</div>
         <div id="statsDetailSummary" class="statsDetailSummary"></div>
       </div>
-      <button id="closeStatsDetail" class="secondary statsCloseBtn" type="button">Chiudi</button>
+      <button id="closeStatsDetail" class="secondary statsCloseBtn" type="button" data-i18n="close">Chiudi</button>
     </div>
 
     <div id="statsBulkBar" class="bulkBar statsBulkBar">
-      <div><span class="bulkCount" id="statsBulkCount">0</span> selezionati</div>
+      <div><span class="bulkCount" id="statsBulkCount">0</span> <span data-i18n="selected">selezionati</span></div>
       <div class="actions">
-        <button id="statsBulkAll" class="secondary" type="button">Tutti</button>
-        <button id="statsBulkCancel" class="secondary" type="button">Annulla</button>
-        <button id="statsBulkAssign" class="primary" type="button">Assegna categoria</button>
+        <button id="statsBulkAll" class="secondary" type="button" data-i18n="all">Tutti</button>
+        <button id="statsBulkCancel" class="secondary" type="button" data-i18n="cancel">Annulla</button>
+        <button id="statsBulkAssign" class="primary" type="button" data-i18n="assign_category">Assegna categoria</button>
       </div>
     </div>
 
@@ -2162,8 +2162,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div id="settingsRoot">
   <div id="settingsMainPage" class="settingsPage active">
     <div class="settingsHeader">
-      <div class="settingsHeaderText"><h3>Impostazioni</h3><div class="kicker">Gestisci organizzazione, automazioni e dati dell'app.</div></div>
-      <button id="themeToggle" class="themeToggle" type="button" aria-label="Attiva modalità scura" title="Cambia tema"><span class="themeSun">☀</span><span class="themeMoon">☾</span></button>
+      <div class="settingsHeaderText"><h3 data-i18n="settings">Impostazioni</h3><div class="kicker" data-i18n="settings_subtitle">Gestisci organizzazione, automazioni e dati dell'app.</div></div>
+      <button id="themeToggle" class="themeToggle" type="button" aria-label="Attiva modalità scura" title="Cambia tema" data-i18n-title="change_theme"><span class="themeSun">☀</span><span class="themeMoon">☾</span></button>
     </div>
 
     <div class="settingsList">
@@ -2171,8 +2171,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">🏷️</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Categorie</span>
-            <span class="settingsItemDesc">Crea, rinomina, elimina e personalizza colori e icone.</span>
+            <span class="settingsItemTitle" data-i18n="categories">Categorie</span>
+            <span class="settingsItemDesc" data-i18n="categories_desc">Crea, rinomina, elimina e personalizza colori e icone.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2182,8 +2182,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">✨</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Regole automatiche</span>
-            <span class="settingsItemDesc">Controlla le associazioni apprese tra esercenti e categorie.</span>
+            <span class="settingsItemTitle" data-i18n="rules">Regole automatiche</span>
+            <span class="settingsItemDesc" data-i18n="rules_desc">Controlla le associazioni apprese tra esercenti e categorie.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2193,8 +2193,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">🎯</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Budget</span>
-            <span class="settingsItemDesc">Gestisci i limiti mensili che hai impostato.</span>
+            <span class="settingsItemTitle" data-i18n="budget">Budget</span>
+            <span class="settingsItemDesc" data-i18n="budget_desc">Gestisci i limiti mensili che hai impostato.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2204,8 +2204,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">↻</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Ricorrenze</span>
-            <span class="settingsItemDesc">Controlla le spese ricorrenti rilevate automaticamente.</span>
+            <span class="settingsItemTitle" data-i18n="recurrences">Ricorrenze</span>
+            <span class="settingsItemDesc" data-i18n="recurrences_desc">Controlla le spese ricorrenti rilevate automaticamente.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2215,8 +2215,19 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">💾</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Dati e backup</span>
-            <span class="settingsItemDesc">Importa PDF, esporta CSV, crea o ripristina backup.</span>
+            <span class="settingsItemTitle" data-i18n="data_backup">Dati e backup</span>
+            <span class="settingsItemDesc" data-i18n="data_backup_desc">Importa PDF, esporta CSV, crea o ripristina backup.</span>
+          </span>
+        </span>
+        <span class="settingsArrow">›</span>
+      </button>
+
+      <button type="button" class="settingsItem" data-settings-page="settingsLanguagePage">
+        <span class="settingsItemLeft">
+          <span class="settingsItemIcon">🌐</span>
+          <span class="settingsItemText">
+            <span class="settingsItemTitle" data-i18n="language">Lingua</span>
+            <span class="settingsItemDesc" data-i18n="language_desc">Scegli la lingua dell'interfaccia.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2226,8 +2237,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <span class="settingsItemLeft">
           <span class="settingsItemIcon">ℹ️</span>
           <span class="settingsItemText">
-            <span class="settingsItemTitle">Info</span>
-            <span class="settingsItemDesc">Versione dell'app e identificativo della build.</span>
+            <span class="settingsItemTitle" data-i18n="info">Info</span>
+            <span class="settingsItemDesc" data-i18n="info_desc">Versione dell'app e identificativo della build.</span>
           </span>
         </span>
         <span class="settingsArrow">›</span>
@@ -2235,26 +2246,37 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
     </div>
   </div>
 
+  <div id="settingsLanguagePage" class="settingsPage">
+    <div class="settingsBackRow">
+      <button type="button" class="secondary settingsBack">‹</button>
+      <div><h3 class="settingsSectionTitle" data-i18n="language_title">Lingua dell'app</h3><div class="kicker" data-i18n="language_help">La scelta viene salvata su questo dispositivo.</div></div>
+    </div>
+    <div class="languageOptions">
+      <button type="button" class="languageOption" data-language="it"><span class="languageFlag">IT</span><span><b data-i18n="italian">Italiano</b><small>Italiano</small></span><span class="languageCheck">✓</span></button>
+      <button type="button" class="languageOption" data-language="en"><span class="languageFlag">EN</span><span><b data-i18n="english">English</b><small>English</small></span><span class="languageCheck">✓</span></button>
+    </div>
+  </div>
+
   <div id="settingsCategoriesPage" class="settingsPage">
     <div class="settingsBackRow categorySettingsHeader">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div class="categorySettingsHeading"><div class="categorySettingsTitleLine"><h3 class="settingsSectionTitle">Categorie</h3><button id="newCategory" class="secondary categoryEditButton" type="button">Aggiungi Categoria</button></div><div class="kicker">Tocca una categoria per personalizzarla.</div></div>
+      <div class="categorySettingsHeading"><div class="categorySettingsTitleLine"><h3 class="settingsSectionTitle" data-i18n="categories">Categorie</h3><button id="newCategory" class="secondary categoryEditButton" type="button" data-i18n="add_category">Aggiungi Categoria</button></div><div class="kicker" data-i18n="customize_category_help">Tocca una categoria per personalizzarla.</div></div>
     </div>
     <div class="card">
-      <div id="categoryManager"><div class="empty">Caricamento categorie…</div></div>
+      <div id="categoryManager"><div class="empty" data-i18n="loading_categories">Caricamento categorie…</div></div>
     </div>
   </div>
 
   <div id="settingsRulesPage" class="settingsPage">
     <div class="settingsBackRow">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div><h3 class="settingsSectionTitle">Regole automatiche</h3><div class="kicker">Associazioni che l'app ha imparato dalle tue correzioni.</div></div>
+      <div><h3 class="settingsSectionTitle" data-i18n="rules">Regole automatiche</h3><div class="kicker" data-i18n="rules_page_help">Associazioni che l'app ha imparato dalle tue correzioni.</div></div>
     </div>
     <div class="card">
-      <div class="hint">Esempio: se sposti più volte “LIDL” in Alimentari, l'app può classificare automaticamente i movimenti simili nei prossimi PDF.</div>
+      <div class="hint" data-i18n="rules_example">Esempio: se sposti più volte “LIDL” in Alimentari, l'app può classificare automaticamente i movimenti simili nei prossimi PDF.</div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px">
         <div id="rulesInfo" class="kicker"></div>
-        <button id="clearRules" class="secondary" type="button">Cancella tutte</button>
+        <button id="clearRules" class="secondary" type="button" data-i18n="clear_all">Cancella tutte</button>
       </div>
       <div id="rulesList" style="margin-top:10px"></div>
     </div>
@@ -2263,12 +2285,12 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div id="settingsBudgetPage" class="settingsPage">
     <div class="settingsBackRow">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div><h3 class="settingsSectionTitle">Budget</h3><div class="kicker">Vengono creati solo da te.</div></div>
+      <div><h3 class="settingsSectionTitle" data-i18n="budget">Budget</h3><div class="kicker" data-i18n="budget_user_only">Vengono creati solo da te.</div></div>
     </div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-        <div class="kicker">Budget mensili</div>
-        <button id="addBudgetBtn" class="secondary" type="button">Aggiungi Budget</button>
+        <div class="kicker" data-i18n="monthly_budgets">Budget mensili</div>
+        <button id="addBudgetBtn" class="secondary" type="button" data-i18n="add_budget">Aggiungi Budget</button>
       </div>
       <div id="budgetManager" style="margin-top:10px"></div>
     </div>
@@ -2277,15 +2299,15 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div id="settingsRecurringPage" class="settingsPage">
     <div class="settingsBackRow">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div><h3 class="settingsSectionTitle">Ricorrenze</h3><div class="kicker">Conferma o ignora quelle rilevate.</div></div>
+      <div><h3 class="settingsSectionTitle" data-i18n="recurrences">Ricorrenze</h3><div class="kicker" data-i18n="recurrences_help">Conferma o ignora quelle rilevate.</div></div>
     </div>
     <div class="card">
-      <div class="recurringIntro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
-      <div class="recurringGroupLabel">Le tue scelte</div>
+      <div class="recurringIntro" data-i18n="recurrences_intro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
+      <div class="recurringGroupLabel" data-i18n="your_choices">Le tue scelte</div>
       <div id="managedRecurring"></div>
       <button id="toggleIgnoredRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
       <div id="ignoredRecurring" hidden></div>
-      <div class="recurringGroupLabel recurringDetectedLabel">Da controllare</div>
+      <div class="recurringGroupLabel recurringDetectedLabel" data-i18n="to_review">Da controllare</div>
       <div id="recurringList"></div>
     </div>
   </div>
@@ -2293,41 +2315,41 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div id="settingsDataPage" class="settingsPage">
     <div class="settingsBackRow">
       <button type="button" class="secondary settingsBack">‹</button>
-      <div><h3 class="settingsSectionTitle">Dati e backup</h3><div class="kicker">Importazione, esportazione e sicurezza dei dati.</div></div>
+      <div><h3 class="settingsSectionTitle" data-i18n="data_backup">Dati e backup</h3><div class="kicker" data-i18n="data_backup_help">Importazione, esportazione e sicurezza dei dati.</div></div>
     </div>
 
     <div class="card">
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Importa PDF</div>
-          <div class="settingsActionDesc">Aggiungi una nuova lista movimenti bancaria.</div>
+          <div class="settingsActionTitle" data-i18n="import_pdf">Importa PDF</div>
+          <div class="settingsActionDesc" data-i18n="import_pdf_desc">Aggiungi una nuova lista movimenti bancaria.</div>
         </div>
-        <button id="pickPdf2" class="secondary" type="button">Importa</button>
+        <button id="pickPdf2" class="secondary" type="button" data-i18n="import">Importa</button>
         <input id="pdf2" type="file" accept=".pdf,application/pdf">
       </div>
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Esporta CSV</div>
-          <div class="settingsActionDesc">Apribile con Excel, Google Sheets o LibreOffice.</div>
+          <div class="settingsActionTitle" data-i18n="export_csv">Esporta CSV</div>
+          <div class="settingsActionDesc" data-i18n="export_csv_desc">Apribile con Excel, Google Sheets o LibreOffice.</div>
         </div>
-        <button id="exportCsv" class="secondary" type="button">Esporta</button>
+        <button id="exportCsv" class="secondary" type="button" data-i18n="export">Esporta</button>
       </div>
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Backup dati</div>
-          <div class="settingsActionDesc">Salva movimenti, categorie, regole e budget. Gli allegati restano sul dispositivo.</div>
+          <div class="settingsActionTitle" data-i18n="backup_data">Backup dati</div>
+          <div class="settingsActionDesc" data-i18n="backup_data_desc">Salva movimenti, categorie, regole e budget. Gli allegati restano sul dispositivo.</div>
         </div>
-        <button id="exportBackup" class="secondary" type="button">Esporta</button>
+        <button id="exportBackup" class="secondary" type="button" data-i18n="export">Esporta</button>
       </div>
 
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Ripristina backup</div>
-          <div class="settingsActionDesc">Carica un backup JSON precedente.</div>
+          <div class="settingsActionTitle" data-i18n="restore_backup">Ripristina backup</div>
+          <div class="settingsActionDesc" data-i18n="restore_backup_desc">Carica un backup JSON precedente.</div>
         </div>
-        <label for="importBackup" class="filebtn">Ripristina</label>
+        <label for="importBackup" class="filebtn" data-i18n="restore">Ripristina</label>
         <input id="importBackup" type="file" accept=".json,application/json">
       </div>
 
@@ -2337,10 +2359,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
     <div class="card dangerZone">
       <div class="settingsActionRow">
         <div class="settingsActionText">
-          <div class="settingsActionTitle">Cancella tutti i dati</div>
-          <div class="settingsActionDesc">Rimuove definitivamente tutti i dati locali dell'app.</div>
+          <div class="settingsActionTitle" data-i18n="delete_all_data">Cancella tutti i dati</div>
+          <div class="settingsActionDesc" data-i18n="delete_all_data_desc">Rimuove definitivamente tutti i dati locali dell'app.</div>
         </div>
-        <button id="clear" class="danger" type="button">Cancella</button>
+        <button id="clear" class="danger" type="button" data-i18n="delete">Cancella</button>
       </div>
     </div>
   </div>
@@ -2348,7 +2370,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 </section>
 </div>
 
-<nav class="bottom"><div class="nav"><button class="active" data-screen="home"><span>⌂</span>Home</button><button data-screen="moves"><span>≡</span>Movimenti</button><button data-screen="stats"><span>◔</span>Statistiche</button><button data-screen="settings"><span>⚙</span>Impostazioni</button></div></nav>
+<nav class="bottom"><div class="nav"><button class="active" data-screen="home"><span>⌂</span>Home</button><button data-screen="moves"><span>≡</span><span class="navLabel" data-i18n="movements">Movimenti</span></button><button data-screen="stats"><span>◔</span><span class="navLabel" data-i18n="statistics">Statistiche</span></button><button data-screen="settings"><span>⚙</span><span class="navLabel" data-i18n="settings">Impostazioni</span></button></div></nav>
 <div id="importSummaryToast" class="importSummaryToast" role="status" aria-live="polite"></div>
 
 <div id="appInfoModal" class="modal"><div class="sheet">
@@ -2457,6 +2479,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <label class="f">Categoria</label><select id="mcat"></select><div style="margin-top:12px"><button class="primary" type="submit">Aggiungi movimento</button></div></form>
 </div></div>
 
+<script src="i18n.js"></script>
 <script src="pdf.min.js"></script>
 <script>
 
@@ -2551,10 +2574,10 @@ function applyTheme(dark,savePreference=true){
  if(darkMode)document.documentElement.dataset.theme="dark";else delete document.documentElement.dataset.theme;
  if(savePreference)localStorage.setItem("neko_theme",darkMode?"dark":"light");
  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=darkMode?"#11141b":"#f6f7f9";
- const toggle=document.getElementById("themeToggle");if(toggle){toggle.setAttribute("aria-label",darkMode?"Attiva modalità chiara":"Attiva modalità scura");toggle.setAttribute("aria-pressed",String(darkMode))}
+ const toggle=document.getElementById("themeToggle");if(toggle){toggle.setAttribute("aria-label",window.NekoI18n?NekoI18n.t(darkMode?"light_mode":"dark_mode"):(darkMode?"Attiva modalità chiara":"Attiva modalità scura"));toggle.setAttribute("aria-pressed",String(darkMode))}
  try{if(window.NekoApp&&NekoApp.setDarkMode)NekoApp.setDarkMode(darkMode)}catch(e){}
 }
-const euro=n=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(n), esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])), uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
+const nekoLocale=()=>window.NekoI18n?NekoI18n.getLocale():"it-IT",euro=n=>new Intl.NumberFormat(nekoLocale(),{style:"currency",currency:"EUR"}).format(n), esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])), uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random();
 const sanitizeDescription=s=>String(s)
  .replace(/\bBONGIORNO\s+CALOGERO\s+IVAN\b/gi,"")
  .replace(/\bCALOGERO\s+IVAN\s+BONGIORNO\b/gi,"")
@@ -2623,7 +2646,7 @@ function syncCalendarMonth(shouldRender=false){
 function ensureSelectedMonth(){
  if(!selectedMonth)selectedMonth=nowMonthKey();
 }
-function monthLabelText(k){const [y,m]=k.split("-").map(Number);return new Intl.DateTimeFormat("it-IT",{month:"long",year:"numeric"}).format(new Date(y,m-1,1))}
+function monthLabelText(k){const [y,m]=k.split("-").map(Number);return new Intl.DateTimeFormat(nekoLocale(),{month:"long",year:"numeric"}).format(new Date(y,m-1,1))}
 function shiftMonth(k,delta){let [y,m]=k.split("-").map(Number);m+=delta;while(m<1){m+=12;y--}while(m>12){m-=12;y++}return `${y}-${String(m).padStart(2,"0")}`}
 function monthMoves(k){return moves.filter(m=>monthKeyFromDateStr(m.date)===k)}
 function validSplitParts(m){
@@ -2826,7 +2849,8 @@ function renderMonthPicker(){
  const grid=document.getElementById("monthPickerGrid");
  if(yearEl)yearEl.textContent=monthPickerYearValue;
  if(!grid)return;
- grid.innerHTML=MONTH_NAMES.map((name,i)=>{
+ grid.innerHTML=MONTH_NAMES.map((fallback,i)=>{
+   const name=new Intl.DateTimeFormat(nekoLocale(),{month:"short"}).format(new Date(monthPickerYearValue,i,1));
    const ym=`${monthPickerYearValue}-${String(i+1).padStart(2,"0")}`;
    return `<button type="button" class="${ym===selectedMonth?"active":""}" data-month="${ym}">${name}</button>`;
  }).join("");
@@ -2861,7 +2885,7 @@ function render(){
    filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
    filterCatsEl.querySelectorAll(".filterCatBtn").forEach(x=>x.onclick=()=>{filter=x.dataset.cat;bulkSelected.clear();bulkMode=false;render()});
  }
-  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?"Nessun filtro categoria":`Categoria: ${filter}`;
+  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?(window.NekoI18n?NekoI18n.t("no_category_filter"):"Nessun filtro categoria"):(window.NekoI18n?NekoI18n.t("category_prefix",{category:filter}):`Categoria: ${filter}`);
   updateMovementFilterButtons();
  let visible=(filter==="Tutte"?sorted:sorted.flatMap(m=>splitEntries(m).filter(x=>x.category===filter)));
  if(searchText)visible=visible.filter(m=>searchable(m).includes(searchText));
@@ -2878,6 +2902,7 @@ function render(){
    x.onclick=e=>{if(statsEditMode||e.target.closest(".statsMoveControls"))return;openCategory(x.dataset.cat)};
  });
  bindStatsCategoryEditing();
+ if(window.NekoI18n)requestAnimationFrame(()=>NekoI18n.apply());
 }
 
 
@@ -3376,10 +3401,11 @@ document.addEventListener("click",e=>{if(suppressSwipeClick){e.preventDefault();
 
 
 const toggleFiltersBtn=document.getElementById("toggleFilters"),filtersPanelEl=document.getElementById("filtersPanel");
-if(toggleFiltersBtn&&filtersPanelEl)toggleFiltersBtn.onclick=()=>{filtersPanelOpen=!filtersPanelOpen;filtersPanelEl.classList.toggle("active",filtersPanelOpen);toggleFiltersBtn.textContent=filtersPanelOpen?"Chiudi filtri":"Filtri"};
+if(toggleFiltersBtn&&filtersPanelEl)toggleFiltersBtn.onclick=()=>{filtersPanelOpen=!filtersPanelOpen;filtersPanelEl.classList.toggle("active",filtersPanelOpen);toggleFiltersBtn.textContent=window.NekoI18n?NekoI18n.t(filtersPanelOpen?"close_filters":"filters"):(filtersPanelOpen?"Chiudi filtri":"Filtri")};
 
 function openSettingsPage(id){
  document.querySelectorAll("#settings .settingsPage").forEach(p=>p.classList.toggle("active",p.id===id));
+ if(id==="settingsLanguagePage")renderLanguageOptions();
  if(id==="settingsCategoriesPage")renderCategoryManager();
  if(id==="settingsRulesPage")renderRulesManager();
   if(id==="settingsBudgetPage"){
@@ -3388,8 +3414,12 @@ function openSettingsPage(id){
   }
   if(id==="settingsRecurringPage")renderRecurringManager();
 }
+function renderLanguageOptions(){
+ const language=window.NekoI18n?NekoI18n.getLanguage():"it";document.querySelectorAll(".languageOption").forEach(option=>option.classList.toggle("active",option.dataset.language===language));
+}
 document.querySelectorAll("#settings [data-settings-page]").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage(btn.dataset.settingsPage)));
 document.querySelectorAll("#settings .settingsBack").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage("settingsMainPage")));
+document.querySelectorAll(".languageOption").forEach(option=>option.addEventListener("click",()=>{if(!window.NekoI18n)return;NekoI18n.setLanguage(option.dataset.language);renderLanguageOptions();render();applyTheme(darkMode,false);NekoI18n.apply()}));
 const appInfoModal=document.getElementById("appInfoModal");
 const openAppInfoBtn=document.getElementById("openAppInfo");
 const closeAppInfoBtn=document.getElementById("closeAppInfo");
@@ -3420,12 +3450,12 @@ const clearRulesBtn=document.getElementById("clearRules");
 if(clearRulesBtn)clearRulesBtn.onclick=()=>{
  openNekoConfirm("Cancellare le regole automatiche?","Le categorie e i movimenti non verranno modificati.","Cancella regole",()=>{rules={};save();renderRulesManager()});
 };
-const MOVEMENT_FILTER_OPTIONS={type:[{value:"all",label:"Tutti i movimenti",description:"Entrate e uscite"},{value:"expense",label:"Solo uscite",description:"Pagamenti e spese"},{value:"income",label:"Solo entrate",description:"Accrediti e incassi"}],stats:[{value:"all",label:"Tutti",description:"Senza filtro statistiche"},{value:"included",label:"Nelle statistiche",description:"Movimenti inclusi nei calcoli"},{value:"excluded",label:"Fuori statistiche",description:"Movimenti esclusi dai calcoli"}]};
+function movementFilterOptions(){const t=key=>window.NekoI18n?NekoI18n.t(key):({all_movements:"Tutti i movimenti",income_and_expenses:"Entrate e uscite",only_expenses:"Solo uscite",payments_expenses:"Pagamenti e spese",only_income:"Solo entrate",income_receipts:"Accrediti e incassi",all:"Tutti",without_stats_filter:"Senza filtro statistiche",in_statistics:"Nelle statistiche",included_calculations:"Movimenti inclusi nei calcoli",outside_statistics:"Fuori statistiche",excluded_calculations:"Movimenti esclusi dai calcoli"}[key]||key);return{type:[{value:"all",label:t("all_movements"),description:t("income_and_expenses")},{value:"expense",label:t("only_expenses"),description:t("payments_expenses")},{value:"income",label:t("only_income"),description:t("income_receipts")}],stats:[{value:"all",label:t("all"),description:t("without_stats_filter")},{value:"included",label:t("in_statistics"),description:t("included_calculations")},{value:"excluded",label:t("outside_statistics"),description:t("excluded_calculations")}]}}
 function updateMovementFilterButtons(){
- const typeLabel=document.getElementById("filterTypeLabel"),statsLabel=document.getElementById("filterStatsLabel"),typeButton=document.getElementById("filterType"),statsButton=document.getElementById("filterStats"),typeOption=MOVEMENT_FILTER_OPTIONS.type.find(x=>x.value===filterTypeValue),statsOption=MOVEMENT_FILTER_OPTIONS.stats.find(x=>x.value===filterStatsValue);if(typeLabel)typeLabel.textContent=typeOption?.label||"Tutti i movimenti";if(statsLabel)statsLabel.textContent=statsOption?.label||"Tutti";if(typeButton)typeButton.classList.toggle("active",filterTypeValue!=="all");if(statsButton)statsButton.classList.toggle("active",filterStatsValue!=="all");
+ const options=movementFilterOptions(),typeLabel=document.getElementById("filterTypeLabel"),statsLabel=document.getElementById("filterStatsLabel"),typeButton=document.getElementById("filterType"),statsButton=document.getElementById("filterStats"),typeOption=options.type.find(x=>x.value===filterTypeValue),statsOption=options.stats.find(x=>x.value===filterStatsValue);if(typeLabel)typeLabel.textContent=typeOption?.label||options.type[0].label;if(statsLabel)statsLabel.textContent=statsOption?.label||options.stats[0].label;if(typeButton)typeButton.classList.toggle("active",filterTypeValue!=="all");if(statsButton)statsButton.classList.toggle("active",filterStatsValue!=="all");
 }
 function openMovementFilter(kind){
- const modal=document.getElementById("movementFilterModal"),title=document.getElementById("movementFilterTitle"),subtitle=document.getElementById("movementFilterSubtitle"),root=document.getElementById("movementFilterOptions"),options=MOVEMENT_FILTER_OPTIONS[kind]||[],current=kind==="type"?filterTypeValue:filterStatsValue;if(!modal||!root)return;title.textContent=kind==="type"?"Tipo di movimento":"Presenza nelle statistiche";subtitle.textContent=kind==="type"?"Scegli quali operazioni mostrare.":"Mostra o nascondi i movimenti esclusi.";root.innerHTML=options.map(option=>`<button type="button" class="movementFilterOption ${option.value===current?"active":""}" data-value="${option.value}"><span class="movementFilterOptionMark">${option.value===current?"✓":""}</span><span><b>${option.label}</b><small>${option.description}</small></span></button>`).join("");root.querySelectorAll(".movementFilterOption").forEach(button=>button.onclick=()=>{if(kind==="type")filterTypeValue=button.dataset.value;else filterStatsValue=button.dataset.value;modal.style.display="none";render()});modal.style.display="flex";
+ const t=key=>window.NekoI18n?NekoI18n.t(key):key,modal=document.getElementById("movementFilterModal"),title=document.getElementById("movementFilterTitle"),subtitle=document.getElementById("movementFilterSubtitle"),root=document.getElementById("movementFilterOptions"),options=movementFilterOptions()[kind]||[],current=kind==="type"?filterTypeValue:filterStatsValue;if(!modal||!root)return;title.textContent=kind==="type"?t("movement_type"):t("statistics_presence");subtitle.textContent=kind==="type"?t("choose_operations"):t("show_hide_excluded");root.innerHTML=options.map(option=>`<button type="button" class="movementFilterOption ${option.value===current?"active":""}" data-value="${option.value}"><span class="movementFilterOptionMark">${option.value===current?"✓":""}</span><span><b>${option.label}</b><small>${option.description}</small></span></button>`).join("");root.querySelectorAll(".movementFilterOption").forEach(button=>button.onclick=()=>{if(kind==="type")filterTypeValue=button.dataset.value;else filterStatsValue=button.dataset.value;modal.style.display="none";render()});modal.style.display="flex";
 }
 const searchMovesEl=document.getElementById("searchMoves"),filterTypeEl=document.getElementById("filterType"),filterStatsEl=document.getElementById("filterStats"),closeMovementFilterBtn=document.getElementById("closeMovementFilter");
 if(searchMovesEl)searchMovesEl.addEventListener("input",()=>{searchText=searchMovesEl.value.trim().toLowerCase();render()});
@@ -3679,7 +3709,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));syncCalendarMonth(false);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncCalendarMonth(true)});window.addEventListener("focus",()=>syncCalendarMonth(true));setInterval(()=>syncCalendarMonth(true),60000);applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));syncCalendarMonth(false);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncCalendarMonth(true)});window.addEventListener("focus",()=>syncCalendarMonth(true));setInterval(()=>syncCalendarMonth(true),60000);if(window.NekoI18n)NekoI18n.apply();renderLanguageOptions();applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();if(window.NekoI18n)NekoI18n.apply();
 </script>
 </body></html>
 <style>

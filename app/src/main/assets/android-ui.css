@@ -19,6 +19,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text!important;user-
 
 button,.filebtn{min-height:var(--android-touch)}
 input,select,textarea{min-height:46px;color:var(--text);border-color:var(--line);background:var(--android-surface-raised)}
+.nav .navLabel{display:block!important;margin:0!important;font-size:11px!important;line-height:1.2!important}
 
 /* App bar */
 .compactHead{
@@ -277,6 +278,9 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 #settings .settingsBackRow .kicker{font-size:10.5px!important;line-height:1.35!important;margin-top:3px!important}
 #settings .settingsPage>.card{padding-top:0!important;border-top:0!important}
 
+/* Language selection */
+.languageOptions{display:grid;gap:9px}.languageOption{display:grid!important;grid-template-columns:42px minmax(0,1fr) 24px!important;align-items:center!important;gap:11px!important;width:100%!important;min-height:64px!important;padding:10px 12px!important;border:1px solid var(--line)!important;border-radius:17px!important;background:var(--android-surface-raised)!important;color:var(--text)!important;text-align:left!important}.languageFlag{display:grid;width:42px;height:42px;place-items:center;border-radius:13px;background:var(--android-surface-muted);color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.5px}.languageOption>span:nth-child(2){display:flex;min-width:0;flex-direction:column;gap:3px}.languageOption b{font-size:13px}.languageOption small{color:var(--muted);font-size:9.5px}.languageCheck{opacity:0;color:var(--accent);font-size:18px;font-weight:900;text-align:center}.languageOption.active{border-color:var(--accent)!important;background:var(--accent-soft)!important}.languageOption.active .languageCheck{opacity:1}[data-theme="dark"] .languageOption{background:var(--card)!important}[data-theme="dark"] .languageOption.active{background:var(--accent-soft)!important}
+
 /* Rules and recurrences share one modern list language. */
 #settingsRulesPage .hint{padding:12px!important;border:1px solid var(--line)!important;border-radius:15px!important;background:var(--android-surface-muted)!important}
 #settings #rulesList,#settings #managedRecurring,#settings #recurringList{display:grid!important;gap:7px!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
@@ -285,6 +289,7 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 
 /* Data actions become distinct touch-friendly cards. */
 #settingsDataPage>.card:first-of-type{display:grid!important;gap:8px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
+#settingsDataPage>.dangerZone,[data-theme="dark"] #settingsDataPage>.dangerZone{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 #settingsDataPage .settingsActionRow{min-height:66px!important;padding:11px 12px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--android-surface-raised)!important}
 #settingsDataPage .settingsActionRow:last-of-type{border:1px solid var(--line)!important}
 #settingsDataPage .settingsActionTitle{font-size:13.5px!important}
