@@ -17,7 +17,7 @@ input[type=file]{display:none}.actions{display:flex;gap:8px;flex-wrap:wrap}.stat
 .bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex;justify-content:center;padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:20}.nav{width:min(800px,100%);display:grid;grid-template-columns:repeat(4,1fr)}.nav button{background:transparent;color:var(--muted);padding:6px;font-size:11px}.nav span{display:block;font-size:20px;margin-bottom:2px}.nav button.active{color:var(--text);font-weight:850}
 .screen{display:none}.screen.active{display:block}.screen.screenEnterRight{animation:screenEnterRight .24s cubic-bezier(.22,.8,.32,1)}.screen.screenEnterLeft{animation:screenEnterLeft .24s cubic-bezier(.22,.8,.32,1)}@keyframes screenEnterRight{from{opacity:.35;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@keyframes screenEnterLeft{from{opacity:.35;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}.empty{text-align:center;color:var(--muted);padding:28px 8px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;align-items:flex-end;justify-content:center;padding:8px}.sheet{background:#fff;width:100%;max-width:800px;border-radius:25px 25px 12px 12px;padding:18px;max-height:90vh;overflow:auto}
 label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-size:16px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.preview{max-height:55vh;overflow:auto}.previewItem{padding:12px;border:1px solid var(--line);border-radius:15px;margin-bottom:8px}.previewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.previewSelect{margin-top:9px}
+.preview{max-height:55vh;overflow:auto}.previewItem{padding:12px;border:1px solid var(--line);border-radius:15px;margin-bottom:8px}.previewHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .badge{font-size:11px;padding:4px 7px;border-radius:99px;background:#edf1f4;color:#555}.badge.auto{background:#edf8f0;color:#17613b}.badge.warn{background:#fff4d6;color:#765800}.badge.learn{background:#e9f6ff;color:#185c86}
 .hint{padding:10px 12px;background:#f7f7fa;border-radius:13px;font-size:12px;color:var(--muted)}
 .pieWrap{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:18px;align-items:center}.pieBox{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:auto}.pieLegend{display:grid;gap:8px}.legendRow{display:flex;justify-content:space-between;gap:10px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}.categoryManagerHead{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}.categoryManagerHead .kicker{min-width:0}.categoryManagerHead button{flex:none}.catManageRow{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:8px;align-items:center;width:100%;max-width:100%;box-sizing:border-box;min-height:54px;padding:8px 0;border-bottom:1px solid var(--line);overflow:hidden}.catManageRow:last-child{border:0}.catManageRow .ico{display:grid;place-items:center;width:36px!important;height:36px!important;margin:0!important;line-height:1}.catName{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:700;line-height:1.25}.catManageRow .editCategoryBtn{display:grid;place-items:center;width:36px;min-width:36px;height:36px;min-height:36px;padding:0!important;border-radius:11px;align-self:center;font-size:17px}.tiny{padding:7px 9px;min-height:34px;font-size:12px}
@@ -2381,6 +2381,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
   <div class="movementFilterSheetHead"><div><b id="movementFilterTitle">Filtra movimenti</b><div id="movementFilterSubtitle" class="kicker"></div></div><button id="closeMovementFilter" class="secondary" type="button">Chiudi</button></div>
   <div id="movementFilterOptions" class="movementFilterOptions"></div>
 </div></div>
+<div id="previewCategoryModal" class="modal"><div class="sheet previewCategorySheet">
+  <div class="previewCategoryHead"><div><b>Scegli categoria</b><div class="kicker">Assegna la categoria al movimento importato.</div></div><button id="closePreviewCategory" class="secondary" type="button">Chiudi</button></div>
+  <div id="previewCategoryOptions" class="previewCategoryOptions"></div>
+</div></div>
 <div id="editModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center"><b>Dettaglio movimento</b><button id="closeEdit" class="secondary">Chiudi</button></div>
 <p id="editDesc" style="font-weight:800"></p><div id="editMeta" class="kicker"></div><label class="f">Nome movimento</label><input id="moveName" type="text" placeholder="Nome personalizzato"><label class="f">Categoria</label><select id="categorySelect"></select>
@@ -2523,6 +2527,7 @@ const MERCHANT_RULES=[
 ];
 
 let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],pendingImportSummary={ignored:0,ambiguous:0},selected=null,filter="Tutte",attachmentCounts={};
+let importedPdfFingerprints=JSON.parse(localStorage.getItem("micio_v11_imported_pdfs")||"[]"),pendingPdfFingerprint=null;
 let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
@@ -2538,6 +2543,7 @@ let homeTouchDragKey=null,homeTouchDropKey=null,homeTouchGhost=null,homeTouchOff
 let statsTouchDragCat=null,statsTouchDropCat=null,statsTouchStartX=0,statsTouchStartY=0,statsTouchTimer=null;
 let homePrefs=JSON.parse(localStorage.getItem("micio_v91_homeprefs")||'{"summary":true,"compare":true,"budget":true,"topcats":true,"latest":true}');
 let selectedMonth=localStorage.getItem("micio_v8_month")||null;
+let lastCalendarMonth=localStorage.getItem("micio_v11_calendar_month")||null;
 let editingBudget=null;
 let darkMode=document.documentElement.dataset.theme==="dark";
 function applyTheme(dark,savePreference=true){
@@ -2570,31 +2576,39 @@ function movementStableSignature(m){
  const ref=movementReference(m);if(ref)return "ref|"+ref+"|"+movementAmountKey(m)+"|"+movementTypeKey(m);
  return "movement|"+movementLooseSignature(m)+"|"+normalizedMovementDescription(m.description);
 }
+function movementDescriptionSimilarity(a,b){
+ const left=new Set(normalizedMovementDescription(a).split(" ").filter(Boolean)),right=new Set(normalizedMovementDescription(b).split(" ").filter(Boolean));
+ if(!left.size||!right.size)return 0;let common=0;left.forEach(token=>{if(right.has(token))common++});return common/Math.max(left.size,right.size);
+}
 function detectImportedDuplicates(candidates,existing){
- const available=new Map(),knownLoose=new Map();
- existing.forEach(m=>{const strong=movementStableSignature(m),loose=movementLooseSignature(m);available.set(strong,(available.get(strong)||0)+1);if(!knownLoose.has(loose))knownLoose.set(loose,new Set());knownLoose.get(loose).add(strong)});
+ const knownStrong=new Set(),knownLoose=new Map(),seenIncoming=new Set();
+ existing.forEach(m=>{const strong=movementStableSignature(m),loose=movementLooseSignature(m);knownStrong.add(strong);if(!knownLoose.has(loose))knownLoose.set(loose,[]);knownLoose.get(loose).push(m)});
  const accepted=[],acceptedLoose=new Map();let ignored=0,ambiguous=0;
  candidates.forEach(m=>{
-   const strong=movementStableSignature(m),loose=movementLooseSignature(m),count=available.get(strong)||0;
-   if(count>0){available.set(strong,count-1);ignored++;return}
-   const similarExisting=knownLoose.has(loose)&&!knownLoose.get(loose).has(strong);
-   const similarIncoming=acceptedLoose.has(loose)&&!acceptedLoose.get(loose).has(strong);
-   if(similarExisting||similarIncoming){m.duplicateReview=true;ambiguous++}
-   accepted.push(m);if(!acceptedLoose.has(loose))acceptedLoose.set(loose,new Set());acceptedLoose.get(loose).add(strong);
+   const strong=movementStableSignature(m),loose=movementLooseSignature(m);
+   if(knownStrong.has(strong)||seenIncoming.has(strong)){ignored++;return}
+   const similarExisting=(knownLoose.get(loose)||[]).some(old=>movementDescriptionSimilarity(old.description,m.description)>=.8);
+   const similarIncoming=(acceptedLoose.get(loose)||[]).some(old=>movementDescriptionSimilarity(old.description,m.description)>=.8);
+   if(similarExisting){ignored++;return}
+   if(similarIncoming){m.duplicateReview=true;ambiguous++}
+   accepted.push(m);seenIncoming.add(strong);if(!acceptedLoose.has(loose))acceptedLoose.set(loose,[]);acceptedLoose.get(loose).push(m);
  });
  return{accepted,ignored,ambiguous};
 }
-const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth)};
+const save=()=>{localStorage.setItem("micio_v5_moves",JSON.stringify(moves));localStorage.setItem("micio_v5_rules",JSON.stringify(rules));localStorage.setItem("micio_v7_customcats",JSON.stringify(customCats));localStorage.setItem("micio_v7_renamedcats",JSON.stringify(renamedCats));localStorage.setItem("micio_v7_deletedcats",JSON.stringify(deletedCats));localStorage.setItem("micio_v8_budgets",JSON.stringify(budgets));localStorage.setItem("micio_v9_catstyles",JSON.stringify(categoryStyles));localStorage.setItem("micio_v9_recurring",JSON.stringify(recurringPrefs));localStorage.setItem("micio_v91_catorder",JSON.stringify(categoryOrder));localStorage.setItem("micio_v91_homeprefs",JSON.stringify(homePrefs));localStorage.setItem("micio_v92_homeorder",JSON.stringify(homeOrder));localStorage.setItem("micio_v93_statsorder",JSON.stringify(statsCategoryOrder));localStorage.setItem("micio_v11_imported_pdfs",JSON.stringify(importedPdfFingerprints.slice(-30)));if(selectedMonth)localStorage.setItem("micio_v8_month",selectedMonth)};
 
 
 function parseItDate(s){const [d,m,y]=s.split("/").map(Number);return new Date(y,m-1,d)}
 function monthKeyFromDateStr(s){const [d,m,y]=s.split("/");return `${y}-${m}`}
 function nowMonthKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`}
+function syncCalendarMonth(shouldRender=false){
+ const current=nowMonthKey();let changed=false;
+ if(lastCalendarMonth&&current!==lastCalendarMonth&&(!selectedMonth||selectedMonth===lastCalendarMonth)){selectedMonth=current;changed=true}
+ else if(!lastCalendarMonth&&selectedMonth===shiftMonth(current,-1)){selectedMonth=current;changed=true}
+ lastCalendarMonth=current;localStorage.setItem("micio_v11_calendar_month",current);if(changed){save();if(shouldRender){closeStatsCategoryDetail();render();applyHomePrefs()}}return changed;
+}
 function ensureSelectedMonth(){
- if(!selectedMonth){
-   if(moves.length){selectedMonth=[...moves].sort((a,b)=>parseItDate(b.date)-parseItDate(a.date))[0].date;selectedMonth=monthKeyFromDateStr(selectedMonth)}
-   else selectedMonth=nowMonthKey();
- }
+ if(!selectedMonth)selectedMonth=nowMonthKey();
 }
 function monthLabelText(k){const [y,m]=k.split("-").map(Number);return new Intl.DateTimeFormat("it-IT",{month:"long",year:"numeric"}).format(new Date(y,m-1,1))}
 function shiftMonth(k,delta){let [y,m]=k.split("-").map(Number);m+=delta;while(m<1){m+=12;y--}while(m>12){m-=12;y++}return `${y}-${String(m).padStart(2,"0")}`}
@@ -2611,7 +2625,7 @@ function statMoves(k){return monthMoves(k).filter(m=>!m.excludeStats).flatMap(sp
 function categoryViewMoves(k,cat){return monthMoves(k).flatMap(m=>splitEntries(m).filter(x=>x.category===cat))}
 function movementMatchesCategory(m,cat){return splitEntries(m).some(x=>x.category===cat)}
 function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category} ${(validSplitParts(m)||[]).map(p=>p.category).join(" ")}`.toLowerCase()}
-function monthTotals(k){const mm=monthMoves(k),income=mm.filter(x=>x.amount>0).reduce((s,x)=>s+x.amount,0),expense=mm.filter(x=>x.amount<0).reduce((s,x)=>s+Math.abs(x.amount),0);return {moves:mm,income,expense,saving:income-expense}}
+function monthTotals(k){const original=monthMoves(k),included=statMoves(k),income=included.filter(x=>x.amount>0).reduce((s,x)=>s+x.amount,0),expense=included.filter(x=>x.amount<0).reduce((s,x)=>s+Math.abs(x.amount),0);return {moves:original,income,expense,saving:income-expense}}
 function expenseCategoriesForMonth(k){const totals={};statMoves(k).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});return totals}
 function renderMonthComparison(){
  const root=document.getElementById("monthComparison");if(!root)return;const previousKey=shiftMonth(selectedMonth,-1),current=expenseCategoriesForMonth(selectedMonth),previous=expenseCategoriesForMonth(previousKey),currentTotal=Object.values(current).reduce((s,v)=>s+v,0),previousTotal=Object.values(previous).reduce((s,v)=>s+v,0),diff=currentTotal-previousTotal;
@@ -2749,7 +2763,17 @@ async function extract(file){
  let out=[],m;while((m=re.exec(text))){let amount=parseAmount(m[3]),desc=sanitizeDescription(m[4].replace(/Stampa da Relax Banking.*?(?=\d{2}\/\d{2}\/\d{4}|$)/i,"").trim()),cl=classify(desc,amount);out.push({date:m[1],valueDate:m[2],amount,description:desc,category:cl.cat,why:cl.why,source:"pdf",note:"",excludeStats:false})}return out
 }
 function badge(m){if(m.duplicateReview)return'<span class="badge warn">possibile duplicato</span>';if(m.why==="learned")return'<span class="badge learn">imparato</span>';if(m.why==="local")return'<span class="badge auto">riconosciuto</span>';return'<span class="badge warn">da controllare</span>'}
-function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${m.date} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><select class="previewSelect" data-i="${i}">${CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("")}</select></div>`}
+function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${m.date} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><button type="button" class="previewCategoryButton" data-i="${i}"><span class="previewCategoryIcon" style="background:${softColor(colorFor(m.category),.24)};color:${colorFor(m.category)}">${iconFor(m.category)}</span><span><small>Categoria</small><b>${esc(m.category)}</b></span><span class="previewCategoryChevron">›</span></button></div>`}
+function renderPendingPreview(){
+ const root=document.getElementById("previewList");if(!root)return;root.innerHTML=pending.map(previewCard).join("")||'<div class="empty">Nessun nuovo movimento.</div>';root.querySelectorAll(".previewCategoryButton").forEach(button=>button.onclick=()=>openPreviewCategory(Number(button.dataset.i)));
+}
+let previewCategoryIndex=null;
+function closePreviewCategory(){const modal=document.getElementById("previewCategoryModal");if(modal)modal.style.display="none";previewCategoryIndex=null}
+function openPreviewCategory(index){
+ const movement=pending[index],modal=document.getElementById("previewCategoryModal"),root=document.getElementById("previewCategoryOptions");if(!movement||!modal||!root)return;previewCategoryIndex=index;
+ root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===movement.category?"active":""}" data-cat="${esc(category)}"><span class="previewCategoryOptionIcon" style="background:${softColor(colorFor(category),.24)};color:${colorFor(category)}">${iconFor(category)}</span><span>${esc(category)}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
+ root.querySelectorAll(".previewCategoryOption").forEach(button=>button.onclick=()=>{movement.category=button.dataset.cat;movement.why="learned";closePreviewCategory();renderPendingPreview()});modal.style.display="flex";
+}
 
 function renderRulesManager(){
  const list=document.getElementById("rulesList"),info=document.getElementById("rulesInfo");
@@ -3296,11 +3320,10 @@ function openManual(){
 }
 function itDate(iso){const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
 const SCREEN_ORDER=["home","moves","stats","settings"];
-let nekoScreenHistory=["home"],lastAndroidBackAt=0;
+let lastAndroidBackAt=0;
 function go(s,direction=0,recordHistory=true){
  if(!SCREEN_ORDER.includes(s))return;
  const current=document.querySelector(".screen.active"),target=document.getElementById(s);if(current===target)return;
- if(recordHistory&&nekoScreenHistory[nekoScreenHistory.length-1]!==s)nekoScreenHistory.push(s);
  document.querySelectorAll(".screen").forEach(x=>{x.classList.remove("active","screenEnterLeft","screenEnterRight")});
  if(target){target.classList.add("active");if(direction)target.classList.add(direction>0?"screenEnterRight":"screenEnterLeft");setTimeout(()=>target.classList.remove("screenEnterLeft","screenEnterRight"),280)}
  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));
@@ -3316,8 +3339,7 @@ window.nekoHandleAndroidBack=function(){
  const activeSettings=document.querySelector("#settings .settingsPage.active");
  if(document.getElementById("settings").classList.contains("active")&&activeSettings&&activeSettings.id!=="settingsMainPage"){openSettingsPage("settingsMainPage");window.scrollTo(0,0);return "handled"}
  const current=document.querySelector(".screen.active")?.id||"home";
- if(nekoScreenHistory.length>1){nekoScreenHistory.pop();const previous=nekoScreenHistory[nekoScreenHistory.length-1]||"home";const direction=SCREEN_ORDER.indexOf(previous)<SCREEN_ORDER.indexOf(current)?-1:1;go(previous,direction,false);return "handled"}
- if(current!=="home"){nekoScreenHistory=["home"];go("home",-1,false);return "handled"}
+ if(current!=="home"){lastAndroidBackAt=0;go("home",-1,false);return "handled"}
  const now=Date.now();if(now-lastAndroidBackAt<2200){lastAndroidBackAt=0;return "exit"}lastAndroidBackAt=now;showTemporaryMessage("Premi di nuovo per uscire",2200);return "handled";
 };
 
@@ -3397,6 +3419,7 @@ if(searchMovesEl)searchMovesEl.addEventListener("input",()=>{searchText=searchMo
 if(filterTypeEl)filterTypeEl.addEventListener("click",()=>openMovementFilter("type"));
 if(filterStatsEl)filterStatsEl.addEventListener("click",()=>openMovementFilter("stats"));
 if(closeMovementFilterBtn)closeMovementFilterBtn.addEventListener("click",()=>{const modal=document.getElementById("movementFilterModal");if(modal)modal.style.display="none"});
+const closePreviewCategoryBtn=document.getElementById("closePreviewCategory");if(closePreviewCategoryBtn)closePreviewCategoryBtn.addEventListener("click",closePreviewCategory);
 const pdfInput=document.getElementById("pdf"),pdfInput2=document.getElementById("pdf2");
 const pickPdfBtn=document.getElementById("pickPdf"),pickPdfBtn2=document.getElementById("pickPdf2");
 if(pickPdfBtn&&pdfInput)pickPdfBtn.addEventListener("click",()=>pdfInput.click());
@@ -3411,13 +3434,12 @@ async function choose(file){
 Analisi PDF…`}
  try{
    if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile. Chiudi e riapri l'app.");
-   const detection=detectImportedDuplicates(await extract(file),moves);pending=detection.accepted;pendingImportSummary={ignored:detection.ignored,ambiguous:detection.ambiguous};
+   pendingPdfFingerprint=await pdfFingerprint(file);
+   const extracted=await extract(file);
+   const detection=importedPdfFingerprints.includes(pendingPdfFingerprint)?{accepted:[],ignored:extracted.length,ambiguous:0}:detectImportedDuplicates(extracted,moves);pending=detection.accepted;pendingImportSummary={ignored:detection.ignored,ambiguous:detection.ambiguous};
    const unknown=pending.filter(m=>m.category==="Da classificare"&&!m.duplicateReview).length,review=unknown+detection.ambiguous;
    if(previewInfoEl)previewInfoEl.textContent=`${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`;
-   if(previewListEl){
-     previewListEl.innerHTML=pending.map(previewCard).join("")||'<div class="empty">Nessun nuovo movimento.</div>';
-     previewListEl.querySelectorAll("select").forEach(s=>s.addEventListener("change",()=>{const i=Number(s.dataset.i);pending[i].category=s.value;pending[i].why="learned"}));
-   }
+   if(previewListEl)renderPendingPreview();
    if(previewModalEl)previewModalEl.style.display="flex";
    if(statusEl)statusEl.textContent="";
    showTemporaryMessage(`PDF letto · ${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`);
@@ -3425,6 +3447,9 @@ Analisi PDF…`}
    console.error("Errore import PDF",e);
    if(statusEl){statusEl.textContent="Errore importazione: "+(e&&e.message?e.message:String(e));statusEl.className="status err"}
  }
+}
+async function pdfFingerprint(file){
+ try{const bytes=await file.arrayBuffer(),digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){return `${file.name}|${file.size}|${file.lastModified}`}
 }
 function onPdfSelected(e){
  const input=e.currentTarget;const file=input.files&&input.files[0];
@@ -3453,7 +3478,7 @@ function restoreLastMovementAction(){
  const el=document.getElementById("undoToast");if(el)el.classList.remove("active");showTemporaryMessage("Modifica annullata");
 }
 const undoToastAction=document.getElementById("undoToastAction");if(undoToastAction)undoToastAction.onclick=restoreLastMovementAction;
-confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}pending=[];pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
+confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}if(imported&&pendingPdfFingerprint&&!importedPdfFingerprints.includes(pendingPdfFingerprint))importedPdfFingerprints.push(pendingPdfFingerprint);pending=[];pendingPdfFingerprint=null;pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingPdfFingerprint=null;pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
 
 
 
@@ -3533,9 +3558,9 @@ exportCsv.onclick=()=>{
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
  saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
 };
-function backupData(){return{version:10,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder}}
+function backupData(){return{version:11,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder,importedPdfFingerprints}}
 exportBackup.onclick=()=>saveTextFile("neko-backup.json","application/json",JSON.stringify(backupData(),null,2),backupStatus);
-importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
+importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];importedPdfFingerprints=d.importedPdfFingerprints||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
 closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
 saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
 categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
@@ -3612,7 +3637,7 @@ if(addTopBtn)addTopBtn.addEventListener("click",openManual);
 if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
 closeManual.onclick=()=>manualModal.style.display="none";
 manualForm.onsubmit=e=>{e.preventDefault();const n=Number(mamount.value);if(!n||n<=0)return;const amount=mtype.value==="expense"?-n:n,desc=sanitizeDescription(mdesc.value.trim()),cl=classify(desc,amount),chosen=mcat.value==="Da classificare"?cl.cat:mcat.value;moves.push({id:uid(),date:itDate(mdate.value),valueDate:itDate(mdate.value),amount,description:desc,category:chosen,why:"manual",source:"manual",note:"",excludeStats:false});save();render();manualModal.style.display="none";go("moves")};
-clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
+clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];importedPdfFingerprints=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");
 const themeToggleBtn=document.getElementById("themeToggle");
@@ -3641,7 +3666,7 @@ if(homeBudgetManage)homeBudgetManage.onclick=()=>{
  openSettingsPage("settingsBudgetPage");
 };
 
-document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));syncCalendarMonth(false);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncCalendarMonth(true)});window.addEventListener("focus",()=>syncCalendarMonth(true));setInterval(()=>syncCalendarMonth(true),60000);applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();
 </script>
 </body></html>
 <style>
