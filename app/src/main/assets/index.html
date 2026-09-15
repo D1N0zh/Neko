@@ -2473,16 +2473,17 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 
 <div id="manualModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center"><b data-i18n="manual_title">Nuovo movimento</b><button id="closeManual" class="secondary" data-i18n="close">Chiudi</button></div>
-<form id="manualForm"><div class="twocol"><div><label class="f" for="mdate" data-i18n="manual_date">Data</label><input id="mdate" type="date" required></div><div><label class="f" for="mtype" data-i18n="type">Tipo</label><select id="mtype"><option value="expense" data-i18n="expenses">Uscita</option><option value="income" data-i18n="income">Entrata</option></select></div></div>
+<form id="manualForm"><div class="twocol"><div><label class="f" for="mdate" data-i18n="manual_date">Data</label><input id="mdate" type="date" required></div><div><label class="f" id="manualTypeLabel" for="manualTypeButton" data-i18n="type">Tipo</label><input id="mtype" type="hidden" value="expense"><button id="manualTypeButton" type="button" class="manualFieldButton" aria-haspopup="dialog" aria-labelledby="manualTypeLabel manualTypeName"><span id="manualTypeName"></span><span aria-hidden="true">›</span></button></div></div>
 <label class="f" for="mamount" data-i18n="manual_amount">Importo (€)</label><input id="mamount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
 <label class="f" for="mdesc" data-i18n="manual_description">Descrizione / esercente</label><input id="mdesc" type="text" required placeholder="es. Spesa supermercato" data-i18n-placeholder="manual_description_hint">
-<label class="f" id="manualCategoryLabel" for="mcat" data-i18n="category">Categoria</label><select id="mcat"></select><button id="toggleManualSplit" type="button" class="secondary manualSplitToggle" aria-expanded="false" data-i18n="manual_split">Dividi tra categorie</button>
+<label class="f" id="manualCategoryLabel" for="manualCategoryButton" data-i18n="category">Categoria</label><input id="mcat" type="hidden"><button id="manualCategoryButton" type="button" class="manualFieldButton" aria-haspopup="dialog" aria-labelledby="manualCategoryLabel manualCategoryName"><span id="manualCategoryName"></span><span aria-hidden="true">›</span></button><button id="toggleManualSplit" type="button" class="secondary manualSplitToggle" aria-expanded="false" data-i18n="manual_split">Dividi tra categorie</button>
 <div id="manualSplitPanel" hidden><div id="manualSplitRows"></div><button type="button" id="addManualSplit" class="secondary" data-i18n="manual_add_part">＋ Aggiungi parte</button><div id="manualSplitBalance" role="status" class="kicker"></div></div>
 <div id="manualError" class="status err" role="alert"></div>
 <div style="margin-top:12px"><button class="primary" type="submit" data-i18n="manual_save">Aggiungi movimento</button></div></form>
 </div></div>
 <div id="manualCategoryModal" class="modal"><div class="sheet previewCategorySheet"><div class="previewCategoryHead"><b data-i18n="manual_choose_category">Scegli categoria</b><button id="closeManualCategory" type="button" class="secondary" data-i18n="close">Chiudi</button></div><div id="manualCategoryOptions" class="previewCategoryOptions"></div></div></div>
 
+<div id="manualTypeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="manualTypeTitle"><div class="sheet previewCategorySheet"><div class="previewCategoryHead"><b id="manualTypeTitle" data-i18n="type">Tipo</b><button id="closeManualType" type="button" class="secondary" data-i18n="close">Chiudi</button></div><div id="manualTypeOptions" class="manualTypeOptions"></div></div></div>
 <script src="i18n.js"></script>
 <script src="manual-entry.js"></script>
 <script src="pdf.min.js"></script>

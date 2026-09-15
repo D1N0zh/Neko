@@ -41,24 +41,33 @@ window.NekoManual=(()=>{
    $("toggleManualSplit").hidden=!expense;$("toggleManualSplit").setAttribute("aria-expanded",String(enabled));
    $("toggleManualSplit").dataset.i18n=enabled?"manual_remove_split":"manual_split";
    $("toggleManualSplit").textContent=t(enabled?"manual_remove_split":"manual_split");
-   $("manualSplitPanel").hidden=!enabled;$("mcat").hidden=enabled;$("manualCategoryLabel").hidden=enabled;
+   $("manualSplitPanel").hidden=!enabled;$("manualCategoryButton").hidden=enabled;$("manualCategoryLabel").hidden=enabled;
+   $("manualTypeName").textContent=t(expense?"expenses":"income");
+   $("manualCategoryName").textContent=$("mcat").value;
    // Hidden draft fields must not block an income or an unsplit movement.
    $("manualSplitRows").querySelectorAll("input").forEach(input=>input.disabled=!enabled);
  }
  function open(){
    $("manualForm").reset();parts=[];split=false;categoryChosen=false;saving=false;
    const date=new Date();$("mdate").value=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
-   $("mcat").replaceChildren(...CATS().map(category=>new Option(category,category)));$("mcat").value="Da classificare";$("mtype").value="expense";$("manualError").textContent="";$("manualSplitRows").innerHTML="";
+   $("mcat").value="Da classificare";$("mtype").value="expense";$("manualError").textContent="";$("manualSplitRows").innerHTML="";
    updateView();NekoI18n.apply();$("manualModal").style.display="flex";document.body.classList.add("manual-modal-open");
  }
  function close(){
    if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
-   $("manualCategoryModal").style.display="none";$("manualModal").style.display="none";document.body.classList.remove("manual-modal-open");
+   $("manualTypeModal").style.display="none";$("manualCategoryModal").style.display="none";$("manualModal").style.display="none";document.body.classList.remove("manual-modal-open");
  }
  function bind(){
    $("closeManual").onclick=close;$("closeManualCategory").onclick=()=>$("manualCategoryModal").style.display="none";
-   $("mtype").onchange=()=>{$("manualError").textContent="";updateView()};
-   $("mcat").onchange=()=>{categoryChosen=$("mcat").value!=="Da classificare"};
+   $("manualCategoryButton").onclick=()=>chooseCategory($("mcat").value,value=>{$("mcat").value=value;categoryChosen=value!=="Da classificare";updateView()});
+   $("closeManualType").onclick=()=>$("manualTypeModal").style.display="none";
+   $("manualTypeButton").onclick=()=>{
+     if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
+     const root=$("manualTypeOptions");
+     root.innerHTML=["expense","income"].map(value=>'<button type="button" class="previewCategoryOption '+(value===$("mtype").value?'active':'')+'" data-type="'+value+'" aria-pressed="'+(value===$("mtype").value)+'"><span>'+t(value==="expense"?"expenses":"income")+'</span><span class="previewCategoryCheck" aria-hidden="true">✓</span></button>').join("");
+     root.querySelectorAll("button").forEach(button=>button.onclick=()=>{$("mtype").value=button.dataset.type;$("manualError").textContent="";updateView();$("manualTypeModal").style.display="none"});
+     $("manualTypeModal").style.display="flex";
+   };
    $("mamount").addEventListener("input",updateBalance);
    $("toggleManualSplit").onclick=()=>{
      split=!split;
