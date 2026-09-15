@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - codex-write-test
+      - fix-manual-entry-and-import-review
 
 jobs:
   build:

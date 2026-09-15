@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ public class MainActivity extends Activity {
         }
 
         webView = new WebView(this);
+        applySurfaceTheme(getPreferences(MODE_PRIVATE).getBoolean("darkMode", false));
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -140,6 +142,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void applySurfaceTheme(boolean dark) {
+        int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
+        getWindow().setBackgroundDrawable(new ColorDrawable(background));
+        getWindow().getDecorView().setBackgroundColor(background);
+        if (webView != null) webView.setBackgroundColor(background);
+    }
+
     private class AppInfoBridge {
         @JavascriptInterface
         public String getVersionName() { return BuildConfig.VERSION_NAME; }
@@ -154,6 +163,8 @@ public class MainActivity extends Activity {
         @SuppressWarnings("deprecation")
         public void setDarkMode(boolean dark) {
             runOnUiThread(() -> {
+                getPreferences(MODE_PRIVATE).edit().putBoolean("darkMode", dark).apply();
+                applySurfaceTheme(dark);
                 int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
                 getWindow().setStatusBarColor(background);
                 getWindow().setNavigationBarColor(background);

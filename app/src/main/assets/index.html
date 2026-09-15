@@ -2471,15 +2471,24 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div id="catMoves" style="margin-top:8px"></div>
 </div></div>
 
-<div id="manualModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><b>Nuovo movimento</b><button id="closeManual" class="secondary">Chiudi</button></div>
-<form id="manualForm"><div class="twocol"><div><label class="f">Data</label><input id="mdate" type="date" required></div><div><label class="f">Tipo</label><select id="mtype"><option value="expense">Uscita</option><option value="income">Entrata</option></select></div></div>
-<label class="f">Importo (€)</label><input id="mamount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
-<label class="f">Descrizione / esercente</label><input id="mdesc" type="text" required placeholder="es. Spesa supermercato">
-<label class="f">Categoria</label><select id="mcat"></select><div style="margin-top:12px"><button class="primary" type="submit">Aggiungi movimento</button></div></form>
+<div id="manualModal" class="modal"><div class="sheet manualSheet">
+<div class="manualHead"><div><b data-i18n="manual_title">Nuovo movimento</b><div class="kicker" data-i18n="manual_help">Registra una spesa o un’entrata.</div></div><button id="closeManual" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
+<form id="manualForm">
+<input id="mtype" type="hidden" value="expense">
+<div class="manualType" role="group" aria-label="Tipo di movimento"><button type="button" data-manual-type="expense" aria-pressed="true" data-i18n="expenses">Uscite</button><button type="button" data-manual-type="income" aria-pressed="false" data-i18n="income">Entrate</button></div>
+<div class="manualAmount"><label for="mamount" data-i18n="manual_amount">Importo (€)</label><input id="mamount" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00"></div>
+<label class="f" for="mdate" data-i18n="manual_date">Data</label><input id="mdate" type="date" required>
+<label class="f" for="mdesc" data-i18n="manual_description">Descrizione / esercente</label><input id="mdesc" type="text" required placeholder="es. Spesa supermercato" data-i18n-placeholder="manual_description_hint">
+<label class="f" id="manualCategoryLabel" data-i18n="category">Categoria</label><input id="mcat" type="hidden"><button type="button" id="manualCategoryButton" class="manualCategoryButton" aria-labelledby="manualCategoryLabel manualCategoryName"><span id="manualCategoryIcon"></span><b id="manualCategoryName"></b><span aria-hidden="true">›</span></button>
+<button id="toggleManualSplit" type="button" class="secondary manualSplitToggle" aria-expanded="false" data-i18n="manual_split">Dividi tra categorie</button>
+<div id="manualSplitPanel" hidden><div id="manualSplitRows"></div><button type="button" id="addManualSplit" class="secondary" data-i18n="manual_add_part">＋ Aggiungi parte</button><div id="manualSplitBalance" role="status" class="kicker"></div></div>
+<div id="manualError" class="status err" role="alert"></div>
+<div class="manualFooter"><button class="primary" type="submit" data-i18n="manual_save">Aggiungi movimento</button></div></form>
 </div></div>
+<div id="manualCategoryModal" class="modal"><div class="sheet previewCategorySheet"><div class="previewCategoryHead"><b data-i18n="manual_choose_category">Scegli categoria</b><button id="closeManualCategory" type="button" class="secondary" data-i18n="close">Chiudi</button></div><div id="manualCategoryOptions" class="previewCategoryOptions"></div></div></div>
 
 <script src="i18n.js"></script>
+<script src="manual-entry.js"></script>
 <script src="pdf.min.js"></script>
 <script>
 
@@ -3345,17 +3354,7 @@ function edit(mid){
   renderMovementAttachments(mid);
   if(modalEl){modalEl.style.display="flex";document.body.classList.add("edit-modal-open")}
 }
-function openManual(){
- const form=document.getElementById("manualForm");
- const dateEl=document.getElementById("mdate");
- const catEl=document.getElementById("mcat");
- const modal=document.getElementById("manualModal");
- if(form)form.reset();
- const d=new Date();
- if(dateEl)dateEl.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
- if(catEl){catEl.innerHTML=CATS().map(c=>`<option>${c}</option>`).join("");catEl.value="Da classificare"}
- if(modal)modal.style.display="flex";
-}
+function openManual(){NekoManual.open()}
 function itDate(iso){const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
 const SCREEN_ORDER=["home","moves","stats","settings"];
 let lastAndroidBackAt=0;
@@ -3371,7 +3370,7 @@ function go(s,direction=0,recordHistory=true){
 }
 window.nekoHandleAndroidBack=function(){
  const visibleModals=[...document.querySelectorAll(".modal")].filter(m=>getComputedStyle(m).display!=="none");
- if(visibleModals.length){const closing=visibleModals[visibleModals.length-1];closing.style.display="none";if(closing.id==="editModal")document.body.classList.remove("edit-modal-open");return "handled"}
+ if(visibleModals.length){const closing=visibleModals[visibleModals.length-1];closing.style.display="none";if(closing.id==="manualModal")NekoManual.close();if(closing.id==="editModal")document.body.classList.remove("edit-modal-open");return "handled"}
  if(homeEditMode){exitHomeEdit();return "handled"}
  if(currentStatsCategory){closeStatsCategoryDetail();return "handled"}
  const activeSettings=document.querySelector("#settings .settingsPage.active");
@@ -3678,8 +3677,7 @@ const addTopBtn=document.getElementById("addTop");
 const addMoveBtn=document.getElementById("addMove");
 if(addTopBtn)addTopBtn.addEventListener("click",openManual);
 if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
-closeManual.onclick=()=>manualModal.style.display="none";
-manualForm.onsubmit=e=>{e.preventDefault();const n=Number(mamount.value);if(!n||n<=0)return;const amount=mtype.value==="expense"?-n:n,desc=sanitizeDescription(mdesc.value.trim()),cl=classify(desc,amount),chosen=mcat.value==="Da classificare"?cl.cat:mcat.value;moves.push({id:uid(),date:itDate(mdate.value),valueDate:itDate(mdate.value),amount,description:desc,category:chosen,why:"manual",source:"manual",note:"",excludeStats:false});save();render();manualModal.style.display="none";go("moves")};
+NekoManual.bind();
 clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];importedPdfFingerprints=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");

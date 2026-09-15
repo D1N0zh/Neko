@@ -378,3 +378,21 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
   #editModal .twocol{grid-template-columns:minmax(0,1fr)!important}
   #budgetModal .budgetCategoryPicker{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Manual entry and consistent data card spacing. */
+#settingsDataPage>.card:first-of-type{gap:12px!important}
+#settingsDataPage>.dangerZone{margin-top:12px!important}
+#backupStatus:empty{display:none}
+#manualModal .manualSheet{padding:20px!important;max-height:90dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--card)!important}
+.manualHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.manualHead b{font-size:20px}.manualHead .kicker{margin-top:5px}
+.manualType{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:16px;background:var(--android-surface-muted);margin-bottom:18px}
+.manualType button{border:0!important;background:transparent!important;color:var(--muted)!important;border-radius:12px!important;min-height:42px}
+.manualType button[aria-pressed="true"]{background:var(--accent)!important;color:#fff!important}
+.manualAmount{padding:16px;border-radius:18px;background:var(--android-surface-muted);margin-bottom:16px}.manualAmount label{font-size:12px;color:var(--muted)}
+#manualForm .manualAmount input{font-size:30px!important;font-weight:750;background:transparent!important;border:0!important;padding:8px 0!important}
+#manualForm>input{min-height:46px;border-radius:13px!important;background:var(--android-surface-muted)!important;color:var(--text)!important}
+.manualCategoryButton{display:flex;align-items:center;gap:10px;width:100%;min-width:0;min-height:48px;text-align:left;border:1px solid var(--line)!important;border-radius:14px!important;background:var(--android-surface-muted)!important;color:var(--text)!important}
+.manualCategoryButton b{flex:1;overflow-wrap:anywhere}.manualCategoryIcon,#manualCategoryIcon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:10px}
+.manualSplitToggle{width:100%;margin:16px 0 10px}.manualSplitRow{display:grid;grid-template-columns:minmax(0,1fr) 85px 36px;gap:6px;margin-bottom:9px;align-items:center}.manualSplitRow input{min-width:0;width:100%;box-sizing:border-box}.manualSplitRow>button:last-child{padding:6px!important}
+#manualSplitPanel{padding:12px;border:1px solid var(--line);border-radius:16px}#manualSplitBalance{margin-top:10px}#manualError:empty{display:none}.manualFooter{margin-top:18px}.manualFooter button{width:100%;min-height:48px}
+#manualForm [hidden]{display:none!important}#manualCategoryModal{z-index:2200}body.manual-modal-open{overflow:hidden}
