@@ -15,12 +15,12 @@ window.NekoManual=(()=>{
    $("manualSplitBalance").className=difference===0?"status ok":"status err";
  }
  function categoryButton(button,category){
-   button.innerHTML=`<span class="manualCategoryIcon" style="background:${softColor(colorFor(category),.24)};color:${colorFor(category)}">${iconFor(category)}</span><b>${esc(category)}</b><span aria-hidden="true">›</span>`;
+   button.innerHTML=`<b>${esc(category)}</b><span aria-hidden="true">›</span>`;
  }
  function chooseCategory(current,onChoose){
    if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
    const root=$("manualCategoryOptions");
-   root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===current?"active":""}" data-cat="${esc(category)}"><span class="previewCategoryOptionIcon" style="background:${softColor(colorFor(category),.24)};color:${colorFor(category)}">${iconFor(category)}</span><span>${esc(category)}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
+   root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===current?"active":""}" data-cat="${esc(category)}"><span>${esc(category)}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
    root.querySelectorAll("button").forEach(button=>button.onclick=()=>{onChoose(button.dataset.cat);$("manualCategoryModal").style.display="none"});
    $("manualCategoryModal").style.display="flex";
  }
@@ -38,19 +38,17 @@ window.NekoManual=(()=>{
  }
  function updateView(){
    const expense=$("mtype").value==="expense",enabled=expense&&split;
-   document.querySelectorAll("[data-manual-type]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.manualType===$("mtype").value)));
    $("toggleManualSplit").hidden=!expense;$("toggleManualSplit").setAttribute("aria-expanded",String(enabled));
    $("toggleManualSplit").dataset.i18n=enabled?"manual_remove_split":"manual_split";
    $("toggleManualSplit").textContent=t(enabled?"manual_remove_split":"manual_split");
-   $("manualSplitPanel").hidden=!enabled;$("manualCategoryButton").hidden=enabled;$("manualCategoryLabel").hidden=enabled;
-   $("manualCategoryIcon").textContent=iconFor($("mcat").value);$("manualCategoryIcon").style.background=softColor(colorFor($("mcat").value),.24);$("manualCategoryName").textContent=$("mcat").value;
+   $("manualSplitPanel").hidden=!enabled;$("mcat").hidden=enabled;$("manualCategoryLabel").hidden=enabled;
    // Hidden draft fields must not block an income or an unsplit movement.
    $("manualSplitRows").querySelectorAll("input").forEach(input=>input.disabled=!enabled);
  }
  function open(){
    $("manualForm").reset();parts=[];split=false;categoryChosen=false;saving=false;
    const date=new Date();$("mdate").value=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
-   $("mcat").value="Da classificare";$("mtype").value="expense";$("manualError").textContent="";$("manualSplitRows").innerHTML="";
+   $("mcat").replaceChildren(...CATS().map(category=>new Option(category,category)));$("mcat").value="Da classificare";$("mtype").value="expense";$("manualError").textContent="";$("manualSplitRows").innerHTML="";
    updateView();NekoI18n.apply();$("manualModal").style.display="flex";document.body.classList.add("manual-modal-open");
  }
  function close(){
@@ -59,8 +57,8 @@ window.NekoManual=(()=>{
  }
  function bind(){
    $("closeManual").onclick=close;$("closeManualCategory").onclick=()=>$("manualCategoryModal").style.display="none";
-   document.querySelectorAll("[data-manual-type]").forEach(button=>button.onclick=()=>{$("mtype").value=button.dataset.manualType;$("manualError").textContent="";updateView()});
-   $("manualCategoryButton").onclick=()=>chooseCategory($("mcat").value,value=>{$("mcat").value=value;categoryChosen=true;updateView()});
+   $("mtype").onchange=()=>{$("manualError").textContent="";updateView()};
+   $("mcat").onchange=()=>{categoryChosen=$("mcat").value!=="Da classificare"};
    $("mamount").addEventListener("input",updateBalance);
    $("toggleManualSplit").onclick=()=>{
      split=!split;

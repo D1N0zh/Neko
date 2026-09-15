@@ -1493,7 +1493,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #settings #recurringList .row:last-child{border-bottom:0!important}
 
 /* Data & backup becomes one clean list */
-#settingsDataPage>.card:first-of-type{
+#settingsDataPage>.dataActions{
   background:#fff!important;
   border:1px solid var(--line)!important;
   border-radius:17px!important;
@@ -2318,7 +2318,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div><h3 class="settingsSectionTitle" data-i18n="data_backup">Dati e backup</h3><div class="kicker" data-i18n="data_backup_help">Importazione, esportazione e sicurezza dei dati.</div></div>
     </div>
 
-    <div class="card">
+    <div class="card dataActions">
       <div class="settingsActionRow">
         <div class="settingsActionText">
           <div class="settingsActionTitle" data-i18n="import_pdf">Importa PDF</div>
@@ -2471,19 +2471,15 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div id="catMoves" style="margin-top:8px"></div>
 </div></div>
 
-<div id="manualModal" class="modal"><div class="sheet manualSheet">
-<div class="manualHead"><div><b data-i18n="manual_title">Nuovo movimento</b><div class="kicker" data-i18n="manual_help">Registra una spesa o un’entrata.</div></div><button id="closeManual" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
-<form id="manualForm">
-<input id="mtype" type="hidden" value="expense">
-<div class="manualType" role="group" aria-label="Tipo di movimento"><button type="button" data-manual-type="expense" aria-pressed="true" data-i18n="expenses">Uscite</button><button type="button" data-manual-type="income" aria-pressed="false" data-i18n="income">Entrate</button></div>
-<div class="manualAmount"><label for="mamount" data-i18n="manual_amount">Importo (€)</label><input id="mamount" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00"></div>
-<label class="f" for="mdate" data-i18n="manual_date">Data</label><input id="mdate" type="date" required>
+<div id="manualModal" class="modal"><div class="sheet">
+<div style="display:flex;justify-content:space-between;align-items:center"><b data-i18n="manual_title">Nuovo movimento</b><button id="closeManual" class="secondary" data-i18n="close">Chiudi</button></div>
+<form id="manualForm"><div class="twocol"><div><label class="f" for="mdate" data-i18n="manual_date">Data</label><input id="mdate" type="date" required></div><div><label class="f" for="mtype" data-i18n="type">Tipo</label><select id="mtype"><option value="expense" data-i18n="expenses">Uscita</option><option value="income" data-i18n="income">Entrata</option></select></div></div>
+<label class="f" for="mamount" data-i18n="manual_amount">Importo (€)</label><input id="mamount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
 <label class="f" for="mdesc" data-i18n="manual_description">Descrizione / esercente</label><input id="mdesc" type="text" required placeholder="es. Spesa supermercato" data-i18n-placeholder="manual_description_hint">
-<label class="f" id="manualCategoryLabel" data-i18n="category">Categoria</label><input id="mcat" type="hidden"><button type="button" id="manualCategoryButton" class="manualCategoryButton" aria-labelledby="manualCategoryLabel manualCategoryName"><span id="manualCategoryIcon"></span><b id="manualCategoryName"></b><span aria-hidden="true">›</span></button>
-<button id="toggleManualSplit" type="button" class="secondary manualSplitToggle" aria-expanded="false" data-i18n="manual_split">Dividi tra categorie</button>
+<label class="f" id="manualCategoryLabel" for="mcat" data-i18n="category">Categoria</label><select id="mcat"></select><button id="toggleManualSplit" type="button" class="secondary manualSplitToggle" aria-expanded="false" data-i18n="manual_split">Dividi tra categorie</button>
 <div id="manualSplitPanel" hidden><div id="manualSplitRows"></div><button type="button" id="addManualSplit" class="secondary" data-i18n="manual_add_part">＋ Aggiungi parte</button><div id="manualSplitBalance" role="status" class="kicker"></div></div>
 <div id="manualError" class="status err" role="alert"></div>
-<div class="manualFooter"><button class="primary" type="submit" data-i18n="manual_save">Aggiungi movimento</button></div></form>
+<div style="margin-top:12px"><button class="primary" type="submit" data-i18n="manual_save">Aggiungi movimento</button></div></form>
 </div></div>
 <div id="manualCategoryModal" class="modal"><div class="sheet previewCategorySheet"><div class="previewCategoryHead"><b data-i18n="manual_choose_category">Scegli categoria</b><button id="closeManualCategory" type="button" class="secondary" data-i18n="close">Chiudi</button></div><div id="manualCategoryOptions" class="previewCategoryOptions"></div></div></div>
 
@@ -3780,7 +3776,7 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 [data-theme="dark"] #settings #rulesList,
 [data-theme="dark"] #settings #managedRecurring,
 [data-theme="dark"] #settings #recurringList,
-[data-theme="dark"] #settingsDataPage>.card:first-of-type{
+[data-theme="dark"] #settingsDataPage>.dataActions{
   background:var(--card)!important;
   border-color:var(--line)!important;
 }
