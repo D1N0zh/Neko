@@ -2683,7 +2683,7 @@ function renderSpendingForecast(){
  if(selectedMonth>currentKey){root.innerHTML='<div class="monthCompareEmpty">La previsione sarà disponibile quando inizierà il mese selezionato.</div>';return}
  if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Mese concluso</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">Il mese selezionato è terminato: viene mostrata la spesa effettiva, non una previsione.</div></div>`;return}
  const elapsed=Math.max(1,Math.min(today.getDate(),daysInMonth)),remaining=Math.max(0,daysInMonth-elapsed),monthOriginal=monthMoves(selectedMonth).filter(m=>m.amount<0&&!m.excludeStats),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>recurringKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
+ let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>merchantKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
  const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
  root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
 }
@@ -2691,7 +2691,7 @@ function availableEstimateForMonth(k){
  const totals=monthTotals(k),currentKey=nowMonthKey();
  if(k<currentKey)return{mode:"closed",amount:totals.saving,base:totals.saving,remaining:0,pending:[]};
  if(k>currentKey)return{mode:"future",amount:null,base:0,remaining:0,pending:[]};
- const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>recurringKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
+ const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>merchantKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
  return{mode:"current",amount:totals.saving-remaining,base:totals.saving,remaining,pending};
 }
 function renderAvailableEstimate(){
@@ -2729,7 +2729,7 @@ function renderBudgets(container,compact=false){
 function recurringCandidates(){
  const groups={};
  moves.filter(m=>m.amount<0&&!m.excludeStats).forEach(m=>{
-   const key=recurringGroupKey(m);
+   const key=(m.category+"|"+merchantKey(m.description)).trim();
    if(!groups[key])groups[key]=[];
    groups[key].push(m);
  });
@@ -2738,7 +2738,7 @@ function recurringCandidates(){
    if(months.size<2)return false;
    const vals=arr.map(m=>Math.abs(m.amount));const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
    return vals.every(v=>avg===0||Math.abs(v-avg)/avg<0.15);
- }).map(arr=>({name:shortDesc(arr[0]),key:recurringKey(arr[0].description),category:recurringCategory(arr[0]),avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
+ }).map(arr=>({name:shortDesc(arr[0]),key:merchantKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
@@ -2757,20 +2757,11 @@ function merchantKey(desc){desc=sanitizeDescription(desc);
  const stop=new Set(["SDD","CORE","RICHIESTA","INCASSO","SEPA","EFFETTI","RITIRATI","PAGATI","BONIFICO","VOSTRO","FAVORE","OPERAZIONE","EUROZONA"]);
  return s.split(" ").filter(w=>w.length>=2&&!stop.has(w)).slice(0,6).join(" ");
 }
-function recurringKey(desc){
- const normalized=normalizedMovementDescription(desc);
- if(/\bMUTUO\b/.test(normalized)||(/\bRATA\b/.test(normalized)&&/\bBANCA POPOLARE PUGLIESE\b/.test(normalized)))return"RATA MUTUO";
- if(/\bBCC CREDITOCONSUMO\b/.test(normalized)||/\bFINANZIAMENTO\b/.test(normalized)||/\bFINANZIARIA\b/.test(normalized))return"FINANZIAMENTO";
- return merchantKey(desc);
-}
-function recurringGroupKey(m){const key=recurringKey(m.description);return key==="RATA MUTUO"||key==="FINANZIAMENTO"?key:m.category+"|"+key}
-function recurringCategory(m){const key=recurringKey(m.description);return key==="RATA MUTUO"?"Mutuo":key==="FINANZIAMENTO"?"Auto":m.category}
 function learned(desc){const k=merchantKey(desc);for(const [rk,v] of Object.entries(rules))if(k.includes(rk)||rk.includes(k))return v;return null}
 function localRule(desc){const u=desc.toUpperCase();for(const [needle,c] of MERCHANT_RULES)if(u.includes(needle))return c;return null}
 function classify(desc,amount){
  const l=learned(desc); if(l)return {cat:l,why:"learned"};
  const d=desc.toLowerCase(),r=localRule(desc); if(r)return {cat:r,why:"local"};
- const recurring=recurringKey(desc);if(recurring==="RATA MUTUO")return{cat:"Mutuo",why:"local"};if(recurring==="FINANZIAMENTO")return{cat:"Auto",why:"local"};
  if(amount>0&&/stipend/i.test(d))return{cat:"Stipendio",why:"local"}; if(amount>0)return{cat:"Entrate",why:"local"};
  if(/rata/i.test(d)&&Math.abs(amount)>450&&Math.abs(amount)<530)return{cat:"Mutuo",why:"local"};
  if(Math.abs(amount)>225&&Math.abs(amount)<260&&/sdd|rata|credito/i.test(d))return{cat:"Auto",why:"local"};
@@ -2784,7 +2775,7 @@ function classify(desc,amount){
  return{cat:"Da classificare",why:"unknown"};
 }
 function subtype(m){let d=m.description.toLowerCase();if(m.category!=="Auto")return"";if(/bcc creditoconsumo|finanzi/i.test(d))return"Finanziamento";if(/carbur|benz|q8|tamoil|esso|eni station/i.test(d))return"Carburante";if(/parchegg|parking|apcoa/i.test(d))return"Parcheggio";return"Altro auto"}
-function shortDesc(m){if(m&&m.customName)return m.customName;const recurring=recurringKey(m.description);if(recurring==="RATA MUTUO"||m.category==="Mutuo")return"Rata mutuo";if(recurring==="FINANZIAMENTO"||(m.category==="Auto"&&subtype(m)==="Finanziamento"))return"Finanziamento auto";if(m.category==="Stipendio")return"Stipendio";return merchantKey(sanitizeDescription(m.description))||sanitizeDescription(m.description).slice(0,55)}
+function shortDesc(m){if(m&&m.customName)return m.customName;if(m.category==="Mutuo")return"Rata mutuo";if(m.category==="Auto"&&subtype(m)==="Finanziamento")return"Finanziamento auto";if(m.category==="Stipendio")return"Stipendio";return merchantKey(sanitizeDescription(m.description))||sanitizeDescription(m.description).slice(0,55)}
 function parseAmount(s){return Number(s.replace(/\./g,"").replace(",","."))}
 function row(m,opts={}){
  const selectable=!!opts.selectable;
@@ -3608,4 +3599,197 @@ exportCsv.onclick=()=>{
 };
 function backupData(){return{version:11,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder,importedPdfFingerprints}}
 exportBackup.onclick=()=>saveTextFile("neko-backup.json","application/json",JSON.stringify(backupData(),null,2),backupStatus);
-importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.[Truncated]
+importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];importedPdfFingerprints=d.importedPdfFingerprints||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
+closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
+saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
+categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
+const categoryDeleteModal=document.getElementById("categoryDeleteModal"),categoryDeleteQuestion=document.getElementById("categoryDeleteQuestion");
+const closeCategoryDelete=()=>{if(categoryDeleteModal)categoryDeleteModal.style.display="none"};
+deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteQuestion)categoryDeleteQuestion.textContent=`Sei sicuro di voler eliminare “${editingCategory}”?`;if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
+document.getElementById("cancelCategoryDelete").onclick=closeCategoryDelete;
+document.getElementById("confirmCategoryDelete").onclick=()=>{if(!editingCategory)return;removeCategory(editingCategory);save();render();renderCategoryManager();manageCatModal.style.display="none";closeCategoryDelete()};
+const bulkModalCloseBtn=document.getElementById("bulkModalClose");
+const bulkConfirmBtn=document.getElementById("bulkConfirm");
+if(bulkModalCloseBtn)bulkModalCloseBtn.onclick=()=>{
+  const m=document.getElementById("bulkModal");
+  if(m){m.style.display="none";delete m.dataset.source}
+};
+if(bulkConfirmBtn)bulkConfirmBtn.onclick=()=>{
+  const m=document.getElementById("bulkModal");
+  if(m&&m.dataset.source==="stats")applyStatsBulkCategory();
+};
+
+const closeEditBtn=document.getElementById("closeEdit");
+if(closeEditBtn)closeEditBtn.onclick=()=>{const m=document.getElementById("editModal");if(m)m.style.display="none";document.body.classList.remove("edit-modal-open")};
+const openSplitMoveBtn=document.getElementById("openSplitMove"),splitMoveModal=document.getElementById("splitMoveModal");
+if(openSplitMoveBtn)openSplitMoveBtn.onclick=openSplitEditor;
+document.getElementById("closeSplitMove").onclick=()=>splitMoveModal.style.display="none";
+document.getElementById("addSplitPart").onclick=()=>{const used=new Set(editingSplitParts.map(p=>p.category)),category=CATS().find(c=>!used.has(c))||CATS()[0];editingSplitParts.push({category,amount:0});renderSplitRows()};
+document.getElementById("saveSplitMove").onclick=()=>{
+ const m=moves.find(x=>x.id===selected);if(!m)return;const target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),cats=editingSplitParts.map(p=>p.category);
+ if(editingSplitParts.length<2||editingSplitParts.some(p=>!p.category||Number(p.amount)<=0)||new Set(cats).size!==cats.length||sum!==target){const el=document.getElementById("splitBalance");if(el){el.textContent=new Set(cats).size!==cats.length?"Scegli categorie diverse per ogni parte.":"Controlla gli importi: la somma deve coincidere esattamente.";el.className="splitBalance err"}return}
+ m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";
+};
+document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
+const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
+deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
+document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";document.body.classList.remove("edit-modal-open");closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
+const homeBudgetList=document.getElementById("homeBudget");
+if(homeBudgetList){
+ homeBudgetList.addEventListener("click",e=>{
+   const row=e.target.closest(".budgetRow");
+   if(!row||!homeBudgetList.contains(row))return;
+   const label=row.querySelector(".budgetTop b");
+   const cat=label?label.textContent.trim():"";
+   if(!cat)return;
+   openBudget(cat);
+ });
+}
+
+const homeTopCatsList=document.getElementById("topcats");
+if(homeTopCatsList){
+ homeTopCatsList.addEventListener("click",e=>{
+   const row=e.target.closest("[data-home-cat]");
+   if(!row||!homeTopCatsList.contains(row))return;
+   const cat=row.dataset.homeCat;
+   go("stats");
+   requestAnimationFrame(()=>openCategory(cat));
+ });
+}
+
+const latestHomeList=document.getElementById("latest");
+if(latestHomeList){
+ latestHomeList.addEventListener("click",e=>{
+   const movementRow=e.target.closest(".row[data-id]");
+   if(!movementRow||!latestHomeList.contains(movementRow))return;
+   e.preventDefault();
+   e.stopPropagation();
+   edit(movementRow.dataset.id);
+ });
+}
+
+const addTopBtn=document.getElementById("addTop");
+const addMoveBtn=document.getElementById("addMove");
+if(addTopBtn)addTopBtn.addEventListener("click",openManual);
+if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
+NekoManual.bind();
+clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];importedPdfFingerprints=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
+document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>go(x.dataset.screen));
+const monthPickerBtn=document.getElementById("monthPickerBtn");
+const themeToggleBtn=document.getElementById("themeToggle");
+const closeMonthPickerBtn=document.getElementById("closeMonthPicker");
+const monthPickerPrevYearBtn=document.getElementById("monthPickerPrevYear");
+const monthPickerNextYearBtn=document.getElementById("monthPickerNextYear");
+if(monthPickerBtn)monthPickerBtn.onclick=openMonthPicker;
+if(themeToggleBtn)themeToggleBtn.onclick=()=>applyTheme(!darkMode);
+if(closeMonthPickerBtn)closeMonthPickerBtn.onclick=()=>{const m=document.getElementById("monthPickerModal");if(m)m.style.display="none"};
+if(monthPickerPrevYearBtn)monthPickerPrevYearBtn.onclick=()=>{monthPickerYearValue--;renderMonthPicker()};
+if(monthPickerNextYearBtn)monthPickerNextYearBtn.onclick=()=>{monthPickerYearValue++;renderMonthPicker()};
+
+const homeBalanceAction=document.getElementById("homeBalanceAction");
+if(homeBalanceAction)homeBalanceAction.onclick=()=>{filter="Tutte";filterTypeValue="all";go("moves");render()};
+
+document.querySelectorAll("[data-home-filter]").forEach(btn=>btn.onclick=()=>{
+ filter="Tutte";
+ filterTypeValue=btn.dataset.homeFilter;
+ go("moves");
+ render();
+});
+
+const homeBudgetManage=document.getElementById("homeBudgetManage");
+if(homeBudgetManage)homeBudgetManage.onclick=()=>{
+ go("settings");
+ openSettingsPage("settingsBudgetPage");
+};
+
+document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));document.querySelectorAll("[data-home-go]").forEach(x=>x.onclick=()=>go(x.dataset.homeGo));syncCalendarMonth(false);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncCalendarMonth(true)});window.addEventListener("focus",()=>syncCalendarMonth(true));setInterval(()=>syncCalendarMonth(true),60000);if(window.NekoI18n)NekoI18n.apply();renderLanguageOptions();applyTheme(darkMode,false);refreshAttachmentCounts();render();applyHomePrefs();if(window.NekoI18n)NekoI18n.apply();
+</script>
+</body></html>
+<style>
+#statsCategoriesCard .statsMoveControls{display:none!important}
+#statsCategoriesCard.statsEditing .statsMoveControls{
+  display:flex!important;
+  flex-direction:column;
+  gap:4px;
+  margin-left:10px;
+}
+#statsCategoriesCard.statsEditing .statsMoveControls button{
+  width:34px;
+  height:30px;
+  padding:0;
+  min-height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#statsCategoriesCard .catStatHead{align-items:center}
+#statsCategoriesCard.statsEditing .catStatValue{margin-left:auto}
+#statsCategoriesCard.statsEditing .catStatBtn{outline:none!important;cursor:default!important}
+#toggleStatsEdit{display:none!important}
+#statsCategoriesCard.statsEditing #toggleStatsEdit{display:block!important;position:fixed!important;right:14px!important;bottom:74px!important;z-index:19!important;box-shadow:0 8px 24px rgba(30,41,59,.14)!important}
+#statsCategoriesCard .catStatBtn{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important}
+#statsCategoriesCard.statsEditing .catStatBtn{touch-action:pan-y;border:1px solid rgba(70,87,168,.18)!important}
+#statsCategoriesCard .catStatBtn.statsDragging{position:relative!important;z-index:18!important;pointer-events:none!important;transition:none!important;box-shadow:0 16px 38px rgba(30,41,59,.20)!important}
+#statsCategoriesCard .catStatBtn.statsDragover{border-color:var(--accent)!important;transform:scale(1.008)}
+#home.home-editing > .homeBlock > .homeHeroTop,
+#home.home-editing > .homeBlock > .homeSectionHead{padding-right:42px!important}
+#home.home-editing .homeBlockControls{top:9px!important;right:9px!important}
+#home.home-editing .homeBlockRemove{width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px!important;display:grid!important;place-items:center!important}
+#home.home-editing .homeBlock button:not(.homeBlockRemove),
+#home.home-editing .homeBlock a,
+#home.home-editing .homeBlock input,
+#home.home-editing .homeBlock select{pointer-events:none!important}
+
+/* Dark mode specificity fixes for redesigned screens */
+[data-theme="dark"] #home .homeHero{
+  background:linear-gradient(145deg,#1b2130 0%,var(--accent-soft) 100%)!important;
+  border-color:#30395d!important;
+}
+[data-theme="dark"] #home .homeMetric{
+  background:#222938!important;
+  border-color:#313a49!important;
+}
+[data-theme="dark"] #homeCompare,
+[data-theme="dark"] #homeBudgetCard,
+[data-theme="dark"] #homeTopCats,
+[data-theme="dark"] #homeLatest{
+  background:var(--card)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #moves .movesSearchBar,
+[data-theme="dark"] #moves .movesQuickFilters select,
+[data-theme="dark"] #moves .movesFiltersPanel{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #stats .statsMetric,
+[data-theme="dark"] #stats .statsDetailSheet{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #settings .settingsList,
+[data-theme="dark"] #settings #categoryManager,
+[data-theme="dark"] #settings #budgetManager,
+[data-theme="dark"] #settings #rulesList,
+[data-theme="dark"] #settings #managedRecurring,
+[data-theme="dark"] #settings #recurringList,
+[data-theme="dark"] #settingsDataPage>.dataActions{
+  background:var(--card)!important;
+  border-color:var(--line)!important;
+}
+[data-theme="dark"] #settings .settingsItem,
+[data-theme="dark"] #settings #categoryManager .row,
+[data-theme="dark"] #settings #budgetManager .row,
+[data-theme="dark"] #settings #rulesList .row,
+[data-theme="dark"] #settings #managedRecurring .row,
+[data-theme="dark"] #settings #recurringList .row{
+  background:var(--card)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+</style>
+<link rel="stylesheet" href="android-ui.css">
