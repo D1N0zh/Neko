@@ -2683,7 +2683,7 @@ function renderSpendingForecast(){
  if(selectedMonth>currentKey){root.innerHTML='<div class="monthCompareEmpty">La previsione sarà disponibile quando inizierà il mese selezionato.</div>';return}
  if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Mese concluso</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">Il mese selezionato è terminato: viene mostrata la spesa effettiva, non una previsione.</div></div>`;return}
  const elapsed=Math.max(1,Math.min(today.getDate(),daysInMonth)),remaining=Math.max(0,daysInMonth-elapsed),monthOriginal=monthMoves(selectedMonth).filter(m=>m.amount<0&&!m.excludeStats),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>merchantKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
+ let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>recurringKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
  const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
  root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
 }
@@ -2691,7 +2691,7 @@ function availableEstimateForMonth(k){
  const totals=monthTotals(k),currentKey=nowMonthKey();
  if(k<currentKey)return{mode:"closed",amount:totals.saving,base:totals.saving,remaining:0,pending:[]};
  if(k>currentKey)return{mode:"future",amount:null,base:0,remaining:0,pending:[]};
- const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>merchantKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
+ const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>recurringKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
  return{mode:"current",amount:totals.saving-remaining,base:totals.saving,remaining,pending};
 }
 function renderAvailableEstimate(){
@@ -2729,7 +2729,7 @@ function renderBudgets(container,compact=false){
 function recurringCandidates(){
  const groups={};
  moves.filter(m=>m.amount<0&&!m.excludeStats).forEach(m=>{
-   const key=(m.category+"|"+merchantKey(m.description)).trim();
+   const key=(m.category+"|"+recurringKey(m.description)).trim();
    if(!groups[key])groups[key]=[];
    groups[key].push(m);
  });
@@ -2738,7 +2738,7 @@ function recurringCandidates(){
    if(months.size<2)return false;
    const vals=arr.map(m=>Math.abs(m.amount));const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
    return vals.every(v=>avg===0||Math.abs(v-avg)/avg<0.15);
- }).map(arr=>({name:shortDesc(arr[0]),key:merchantKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
+ }).map(arr=>({name:shortDesc(arr[0]),key:recurringKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
@@ -2756,6 +2756,12 @@ function merchantKey(desc){desc=sanitizeDescription(desc);
  let s=desc.toUpperCase().replace(/OPERAZIONE POS EUROZONA/gi," ").replace(/PAGAMENTI PAGOBANCOMAT/gi," ").replace(/PAGAMENTO TRAMITE POS/gi," ").replace(/CARTA \*?\d+/gi," ").replace(/\bDEL \d{2}\.\d{2}\.\d{2}\b/gi," ").replace(/\b\d{2}:\d{2}\b/g," ").replace(/\bITA\b/g," ").replace(/[^A-ZÀ-ÖØ-Ý0-9 ]/g," ").replace(/\s+/g," ").trim();
  const stop=new Set(["SDD","CORE","RICHIESTA","INCASSO","SEPA","EFFETTI","RITIRATI","PAGATI","BONIFICO","VOSTRO","FAVORE","OPERAZIONE","EUROZONA"]);
  return s.split(" ").filter(w=>w.length>=2&&!stop.has(w)).slice(0,6).join(" ");
+}
+function recurringKey(desc){
+ const normalized=normalizedMovementDescription(desc);
+ if(/\bMUTUO\b/.test(normalized)||(/\bRATA\b/.test(normalized)&&/\bBANCA POPOLARE PUGLIESE\b/.test(normalized)))return"RATA MUTUO";
+ if(/\bBCC CREDITOCONSUMO\b/.test(normalized)||/\bFINANZIAMENTO\b/.test(normalized)||/\bFINANZIARIA\b/.test(normalized))return"FINANZIAMENTO";
+ return merchantKey(desc);
 }
 function learned(desc){const k=merchantKey(desc);for(const [rk,v] of Object.entries(rules))if(k.includes(rk)||rk.includes(k))return v;return null}
 function localRule(desc){const u=desc.toUpperCase();for(const [needle,c] of MERCHANT_RULES)if(u.includes(needle))return c;return null}
