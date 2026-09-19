@@ -2736,8 +2736,9 @@ function recurringCandidates(){
  return Object.values(groups).filter(arr=>{
    const months=new Set(arr.map(m=>monthKeyFromDateStr(m.date)));
    if(months.size<2)return false;
-   const vals=arr.map(m=>Math.abs(m.amount));const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
-   return vals.every(v=>avg===0||Math.abs(v-avg)/avg<0.15);
+   const amounts=arr.map(m=>Math.round(Math.abs(m.amount)*100)),days=arr.map(m=>parseItDate(m.date).getDate());
+   const sameAmount=Math.max(...amounts)===Math.min(...amounts),samePeriod=Math.max(...days)-Math.min(...days)<=2;
+   return sameAmount&&samePeriod;
  }).map(arr=>({name:shortDesc(arr[0]),key:recurringKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
 }
