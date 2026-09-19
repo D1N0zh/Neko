@@ -2734,11 +2734,15 @@ function recurringCandidates(){
    groups[key].push(m);
  });
  return Object.values(groups).filter(arr=>{
-   const months=new Set(arr.map(m=>monthKeyFromDateStr(m.date)));
-   if(months.size<2)return false;
-   const amounts=arr.map(m=>Math.round(Math.abs(m.amount)*100)),days=arr.map(m=>parseItDate(m.date).getDate());
-   const sameAmount=Math.max(...amounts)===Math.min(...amounts),samePeriod=Math.max(...days)-Math.min(...days)<=2;
-   return sameAmount&&samePeriod;
+   const byMonth={};arr.forEach(m=>{const month=monthKeyFromDateStr(m.date);if(!byMonth[month])byMonth[month]=[];byMonth[month].push(m)});
+   const monthly=Object.entries(byMonth).sort(([a],[b])=>a.localeCompare(b)),key=recurringKey(arr[0].description),special=key==="RATA MUTUO"||key==="FINANZIAMENTO";
+   if(monthly.length<(special?2:3)||monthly.some(([,items])=>items.length!==1))return false;
+   const monthNumbers=monthly.map(([month])=>{const [year,value]=month.split("-").map(Number);return year*12+value});
+   if(monthNumbers.some((value,index)=>index&&value-monthNumbers[index-1]!==1))return false;
+   const entries=monthly.map(([,items])=>items[0]),values=entries.map(m=>Math.abs(m.amount)),average=values.reduce((sum,value)=>sum+value,0)/values.length,tolerance=Math.max(1,Math.min(5,average*.05));
+   if(Math.max(...values)-Math.min(...values)>tolerance)return false;
+   const days=entries.map(m=>Math.min(parseItDate(m.date).getDate(),28));
+   return Math.max(...days)-Math.min(...days)<=3;
  }).map(arr=>({name:shortDesc(arr[0]),key:recurringKey(arr[0].description),category:arr[0].category,avg:arr.reduce((s,m)=>s+Math.abs(m.amount),0)/arr.length,avgDay:Math.round(arr.reduce((s,m)=>s+parseItDate(m.date).getDate(),0)/arr.length),count:new Set(arr.map(m=>monthKeyFromDateStr(m.date))).size}))
  .sort((a,b)=>b.avg-a.avg);
 }
