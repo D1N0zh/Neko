@@ -4,10 +4,18 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7f9"><title>Neko V10.8.29</title>
 <script>try{if(localStorage.getItem("neko_theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
-<style>html,body{background:#f5f7fb}html[data-theme="dark"],html[data-theme="dark"] body{background:#11141b}body.home-loading{visibility:hidden}</style>
+<style>html,body{background:#f5f7fb}html[data-theme="dark"],html[data-theme="dark"] body{background:#11141b}body.home-loading{overflow:hidden}body.home-loading>.app,body.home-loading>.bottom{visibility:hidden}</style>
 <style>
 :root{--bg:#f5f7fb;--card:#ffffff;--text:#1e293b;--muted:#7b8494;--line:#e6eaf0;--green:#2f855a;--red:#c95b67;--soft:#eef2f7;--amber:#b7791f;--accent:#4657a8;--accent-soft:#eef0ff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
+.startupSplash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#f5f7fb;color:#1e293b;opacity:1;visibility:visible;pointer-events:auto;transition:opacity .26s ease,visibility 0s linear .26s}
+[data-theme="dark"] .startupSplash{background:#11141b;color:#f7f8fb}
+.startupSplashBrand{display:grid;justify-items:center;gap:14px;transform-origin:center;animation:startupBreath .9s cubic-bezier(.22,.72,.28,1) both}
+.startupSplashLogo{display:block;width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 12px 24px rgba(48,59,112,.13))}
+.startupSplashName{font-size:25px;font-weight:900;letter-spacing:-.7px}
+.startupSplash.leaving{opacity:0;visibility:hidden;pointer-events:none}
+@keyframes startupBreath{0%{opacity:.18;transform:scale(.88)}45%{opacity:1;transform:scale(1.04)}72%{transform:scale(.985)}100%{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.startupSplashBrand{animation:startupAppear .18s ease both}.startupSplash{transition-duration:.12s}@keyframes startupAppear{from{opacity:0}to{opacity:1}}}
 .app{max-width:800px;margin:auto;padding:18px 14px 98px}.head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}
 .logo{font-size:23px;font-weight:900}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:17px;margin-bottom:13px;box-shadow:0 4px 18px rgba(0,0,0,.035)}
 .kicker{font-size:12px;color:var(--muted)}.balance{font-size:35px;font-weight:900;margin:3px 0 14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini{background:var(--bg);border-radius:15px;padding:11px}.mini b{display:block;margin-top:4px;font-size:15px}
@@ -1899,6 +1907,12 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 </style>
 </head>
 <body class="home-loading">
+<div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Neko">
+  <div class="startupSplashBrand">
+    <img class="startupSplashLogo" src="assets/neko-logo.png" alt="">
+    <span class="startupSplashName">Neko</span>
+  </div>
+</div>
 <div class="app">
 <div class="head compactHead">
   <div class="compactBrandMark" aria-label="Neko"><img src="assets/neko-logo.png" alt="Logo Neko"></div>
@@ -2495,6 +2509,23 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <script src="pdf.min.js"></script>
 <script>
 
+const nekoStartupStartedAt=performance.now();
+const nekoStartupMinimumMs=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches?220:900;
+let nekoStartupFinishing=false;
+function finishStartupSplash(){
+ if(nekoStartupFinishing)return;
+ nekoStartupFinishing=true;
+ const remaining=Math.max(0,nekoStartupMinimumMs-(performance.now()-nekoStartupStartedAt));
+ setTimeout(()=>{
+   document.body.classList.remove("home-loading");
+   const splash=document.getElementById("startupSplash");
+   if(!splash)return;
+   requestAnimationFrame(()=>splash.classList.add("leaving"));
+   setTimeout(()=>splash.remove(),320);
+ },remaining);
+}
+setTimeout(finishStartupSplash,2600);
+
 if(window.pdfjsLib){
  pdfjsLib.GlobalWorkerOptions.workerSrc="pdf.worker.min.js";
 }
@@ -3087,7 +3118,7 @@ function applyHomePrefs(){
  home.classList.toggle("home-empty",!Object.keys(map).some(k=>homePrefs[k]!==false));
  if(before)home.insertBefore(before,home.firstChild);if(addPanel&&before)home.insertBefore(addPanel,before.nextSibling);
  renderAddHomePanel();bindHomeBlockEditing();
- document.body.classList.remove("home-loading");
+ finishStartupSplash();
 }
 function renderAddHomePanel(){
  const panel=document.getElementById("addHomeGrid");if(!panel)return;
