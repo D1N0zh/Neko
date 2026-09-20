@@ -1467,7 +1467,8 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #settings #budgetManager,
 #settings #rulesList,
 #settings #managedRecurring,
-#settings #recurringList{
+#settings #recurringList,
+#settings #concludedRecurring{
   background:#fff;
   border:1px solid var(--line);
   border-radius:16px;
@@ -1477,7 +1478,8 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #settings #budgetManager .row,
 #settings #rulesList .row,
 #settings #managedRecurring .row,
-#settings #recurringList .row{
+#settings #recurringList .row,
+#settings #concludedRecurring .row{
   margin:0!important;
   border:0!important;
   border-bottom:1px solid var(--line)!important;
@@ -1490,7 +1492,8 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #settings #budgetManager .row:last-child,
 #settings #rulesList .row:last-child,
 #settings #managedRecurring .row:last-child,
-#settings #recurringList .row:last-child{border-bottom:0!important}
+#settings #recurringList .row:last-child,
+#settings #concludedRecurring .row:last-child{border-bottom:0!important}
 
 /* Data & backup becomes one clean list */
 #settingsDataPage>.dataActions{
@@ -2309,6 +2312,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div id="ignoredRecurring" hidden></div>
       <div class="recurringGroupLabel recurringDetectedLabel" data-i18n="to_review">Da controllare</div>
       <div id="recurringList"></div>
+      <div class="recurringGroupLabel recurringDetectedLabel">Concluso</div>
+      <div id="concludedRecurring"></div>
     </div>
   </div>
 
@@ -2749,15 +2754,16 @@ function recurringCandidates(){
  return detected.sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
- const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot)return;
- const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=!c.active?"Conclusa automaticamente":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=!c.active||ignored?"ignored":confirmed||automatic?"included":"pending",actions=!c.active?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
+ const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot)return;
+ const candidates=recurringCandidates(),active=candidates.filter(c=>c.active),concluded=candidates.filter(c=>!c.active&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false).sort((a,b)=>b.lastMonth.localeCompare(a.lastMonth)),managed=active.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=active.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
+ const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?"Conclusa":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi${concluded?` · ultimo ${c.lastMonth}`:""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
  managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
  ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
  ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=`${ignoredRecurringOpen?"Nascondi":"Mostra"} ignorate (${ignored.length})`;
  ignoredToggle.onclick=()=>{ignoredRecurringOpen=!ignoredRecurringOpen;renderRecurringManager()};
  detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):'<div class="recurringEmpty">Nessuna nuova ricorrenza da controllare.</div>';
- [managedRoot,ignoredRoot,detectedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
+ concludedRoot.innerHTML=concluded.length?concluded.map(c=>row(c,"concluded")).join(""):'<div class="recurringEmpty">Nessun pagamento concluso.</div>';
+ [managedRoot,ignoredRoot,detectedRoot,concludedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
  let s=desc.toUpperCase().replace(/OPERAZIONE POS EUROZONA/gi," ").replace(/PAGAMENTI PAGOBANCOMAT/gi," ").replace(/PAGAMENTO TRAMITE POS/gi," ").replace(/CARTA \*?\d+/gi," ").replace(/\bDEL \d{2}\.\d{2}\.\d{2}\b/gi," ").replace(/\b\d{2}:\d{2}\b/g," ").replace(/\bITA\b/g," ").replace(/[^A-ZÀ-ÖØ-Ý0-9 ]/g," ").replace(/\s+/g," ").trim();
@@ -3802,6 +3808,7 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 [data-theme="dark"] #settings #rulesList,
 [data-theme="dark"] #settings #managedRecurring,
 [data-theme="dark"] #settings #recurringList,
+[data-theme="dark"] #settings #concludedRecurring,
 [data-theme="dark"] #settingsDataPage>.dataActions{
   background:var(--card)!important;
   border-color:var(--line)!important;
@@ -3811,7 +3818,8 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 [data-theme="dark"] #settings #budgetManager .row,
 [data-theme="dark"] #settings #rulesList .row,
 [data-theme="dark"] #settings #managedRecurring .row,
-[data-theme="dark"] #settings #recurringList .row{
+[data-theme="dark"] #settings #recurringList .row,
+[data-theme="dark"] #settings #concludedRecurring .row{
   background:var(--card)!important;
   color:var(--text)!important;
   border-color:var(--line)!important;
