@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7f9"><title>Neko V10.8.29</title>
 <script>try{if(localStorage.getItem("neko_theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<style>html,body{background:#f5f7fb}html[data-theme="dark"],html[data-theme="dark"] body{background:#11141b}body.home-loading{visibility:hidden}</style>
 <style>
 :root{--bg:#f5f7fb;--card:#ffffff;--text:#1e293b;--muted:#7b8494;--line:#e6eaf0;--green:#2f855a;--red:#c95b67;--soft:#eef2f7;--amber:#b7791f;--accent:#4657a8;--accent-soft:#eef0ff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
@@ -2312,8 +2313,8 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div id="ignoredRecurring" hidden></div>
       <div class="recurringGroupLabel recurringDetectedLabel" data-i18n="to_review">Da controllare</div>
       <div id="recurringList"></div>
-      <div class="recurringGroupLabel recurringDetectedLabel">Concluso</div>
-      <div id="concludedRecurring"></div>
+      <button id="toggleConcludedRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
+      <div id="concludedRecurring" hidden></div>
     </div>
   </div>
 
@@ -2566,6 +2567,7 @@ let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
 let ignoredRecurringOpen=false;
+let concludedRecurringOpen=false;
 let searchText="",filterTypeValue="all",filterStatsValue="all";
 let filtersPanelOpen=false;
 let bulkMode=false,bulkSelected=new Set(),selectMode=false,moveLongPressTimer=null,statsLongPressTimer=null,statsSelectMode=false,statsSelected=new Set(),currentStatsCategory=null;
@@ -2754,7 +2756,7 @@ function recurringCandidates(){
  return detected.sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
- const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot)return;
+ const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring"),concludedToggle=document.getElementById("toggleConcludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot||!concludedToggle)return;
  const candidates=recurringCandidates(),active=candidates.filter(c=>c.active),concluded=candidates.filter(c=>!c.active&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false).sort((a,b)=>b.lastMonth.localeCompare(a.lastMonth)),managed=active.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=active.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
  const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?"Conclusa":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi${concluded?` · ultimo ${c.lastMonth}`:""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
  managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
@@ -2762,7 +2764,9 @@ function renderRecurringManager(){
  ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=`${ignoredRecurringOpen?"Nascondi":"Mostra"} ignorate (${ignored.length})`;
  ignoredToggle.onclick=()=>{ignoredRecurringOpen=!ignoredRecurringOpen;renderRecurringManager()};
  detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):'<div class="recurringEmpty">Nessuna nuova ricorrenza da controllare.</div>';
- concludedRoot.innerHTML=concluded.length?concluded.map(c=>row(c,"concluded")).join(""):'<div class="recurringEmpty">Nessun pagamento concluso.</div>';
+ concludedRoot.innerHTML=concluded.map(c=>row(c,"concluded")).join("");concludedRoot.hidden=!concludedRecurringOpen;
+ concludedToggle.style.display=concluded.length?"flex":"none";concludedToggle.textContent=`${concludedRecurringOpen?"Nascondi":"Mostra"} conclusi (${concluded.length})`;
+ concludedToggle.onclick=()=>{concludedRecurringOpen=!concludedRecurringOpen;renderRecurringManager()};
  [managedRoot,ignoredRoot,detectedRoot,concludedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
@@ -3766,6 +3770,12 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 #statsCategoriesCard .catStatBtn.statsDragover{border-color:var(--accent)!important;transform:scale(1.008)}
 #home.home-editing > .homeBlock > .homeHeroTop,
 #home.home-editing > .homeBlock > .homeSectionHead{padding-right:42px!important}
+#home.home-editing > .homeSection{
+  border:1px solid #cfd5ff!important;
+  border-radius:15px!important;
+  background:var(--card)!important;
+  padding:12px!important;
+}
 #home.home-editing .homeBlockControls{top:9px!important;right:9px!important}
 #home.home-editing .homeBlockRemove{width:34px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:11px!important;display:grid!important;place-items:center!important}
 #home.home-editing .homeBlock button:not(.homeBlockRemove),
@@ -3781,6 +3791,9 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 [data-theme="dark"] #home .homeMetric{
   background:#222938!important;
   border-color:#313a49!important;
+}
+[data-theme="dark"] #home.home-editing > .homeSection{
+  border-color:#56639a!important;
 }
 [data-theme="dark"] #homeCompare,
 [data-theme="dark"] #homeBudgetCard,
