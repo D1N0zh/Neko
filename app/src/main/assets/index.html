@@ -3974,3 +3974,86 @@ html[data-theme="dark"] .recurringExpectedSection{background:linear-gradient(145
 html[data-theme="dark"] .expectedRecurringLink{background:#332d24!important;border-color:#514431!important;color:#f5efe3!important}
 </style>
 <script>(function(){var card=document.getElementById('homeAvailableEstimate');if(card)card.onclick=openExpectedRecurringView})();</script>
+
+<style id="koin-concept-c-rich-home">
+html[data-theme="dark"]{--koin-gold:#d99d32;--koin-green:#6fc394;--koin-coral:#ef8178;--koin-blue:#70a9dd;--koin-purple:#ac8be0;--koin-rich-alpha:24%}
+#homeSummary.homeHero{position:relative!important;overflow:hidden!important;padding:18px!important;border-radius:23px!important}
+#homeSummary .homeHeroTop{display:block!important;padding-right:122px!important}
+#homeSummary .homeQuickAction,#homeSummary .homeActionHint{display:none!important}
+#homeSummary .homeEyebrow{font-size:11px!important;margin-bottom:5px!important}
+#homeSummary .homeBalance{font-size:35px!important;line-height:1!important;letter-spacing:-1.2px!important}
+#homeSummary .homeAvailableEstimate{position:absolute!important;top:16px!important;right:16px!important;width:108px!important;min-height:0!important;margin:0!important;padding:10px!important;display:block!important;border-radius:15px!important;text-align:right!important}
+#homeSummary .homeAvailableCopy{display:block!important}
+#homeSummary .homeAvailableLabel{display:block!important;font-size:10px!important;line-height:1.2!important;color:var(--muted)!important}
+#homeSummary .homeAvailableMeta{display:none!important}
+#homeSummary .homeAvailableValue{display:flex!important;justify-content:flex-end!important;gap:4px!important;margin-top:4px!important;font-size:18px!important}
+#homeSummary .homeAvailableAmount{font-size:18px!important;color:var(--accent)!important;white-space:nowrap!important}
+#homeSummary .homeMetrics{position:relative!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:17px!important;padding-top:15px!important}
+#homeSummary .homeMetrics:before{content:"";position:absolute;left:0;right:0;top:0;height:7px;border-radius:99px;background:linear-gradient(90deg,var(--green) 0 56%,var(--red) 56% 100%);box-shadow:0 0 16px color-mix(in srgb,var(--green) 18%,transparent)}
+#homeSummary .homeMetric{min-height:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#homeSummary .homeMetric:nth-child(1){text-align:left!important}
+#homeSummary .homeMetric:nth-child(2){text-align:right!important}
+#homeSummary .homeMetric:nth-child(3){display:none!important}
+#homeSummary .homeMetric span{font-size:10px!important;margin:0 0 3px!important}
+#homeSummary .homeMetric b{font-size:13px!important}
+#homeSummary #income{color:var(--green)!important}
+#homeSummary #expense{color:var(--red)!important}
+#home .homeSection{margin:0!important;padding:18px 2px 16px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#home .homeSection+.homeSection{padding-top:18px!important;border-top:0!important}
+#home .homeSectionHead{margin-bottom:11px!important}
+#home .homeSectionTitle{font-size:16px!important}
+#home .homeSectionSub{font-size:11px!important}
+#home .homeMiniBtn{background:color-mix(in srgb,var(--accent) 14%,var(--soft))!important;color:var(--accent)!important}
+#homeCompare .homeCompareStrip{gap:7px!important}
+#homeCompare .homeCompareItem{padding:11px 8px!important;border:1px solid color-mix(in srgb,var(--home-tone) 24%,transparent)!important;border-radius:18px!important;background:linear-gradient(145deg,color-mix(in srgb,var(--home-tone) 24%,var(--soft)),color-mix(in srgb,var(--home-tone) 7%,var(--card)))!important;box-shadow:0 7px 18px color-mix(in srgb,var(--home-tone) 9%,transparent)!important}
+#homeCompare .homeCompareItem:nth-child(1){--home-tone:var(--red)}
+#homeCompare .homeCompareItem:nth-child(2){--home-tone:var(--green)}
+#homeCompare .homeCompareItem:nth-child(3){--home-tone:var(--accent)}
+#homeCompare .homeCompareItem b{color:var(--home-tone)!important;font-size:17px!important}
+#homeCompare .homeCompareItem .compare{color:var(--muted)!important;font-size:10px!important}
+#homeBudget .budgetRow{--home-tone:var(--accent);padding:11px 7px!important;margin:0 -3px!important;border-radius:14px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--home-tone) 15%,transparent),transparent 72%)!important}
+#homeBudget .budgetRow+.budgetRow{margin-top:5px!important}
+#homeBudget .budgetTop b{font-size:13px!important}
+#homeBudget .budgetBar{height:6px!important;background:var(--soft)!important}
+#homeBudget .budgetFill{background:var(--home-tone)!important;box-shadow:0 0 13px color-mix(in srgb,var(--home-tone) 30%,transparent)!important}
+#homeBudget .budgetFill.over{background:var(--red)!important}
+#homeTopCats #topcats .homeTopCatRow{--home-tone:var(--accent);margin:0 0 5px!important;padding:10px 8px!important;border:0!important;border-radius:14px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--home-tone) 16%,transparent),transparent 78%)!important}
+#homeTopCats #topcats .homeTopCatRow:last-child{margin-bottom:0!important}
+#homeTopCats .catSwatch{box-shadow:0 0 0 5px color-mix(in srgb,var(--home-tone) 16%,transparent)!important}
+#homeTopCats .catBar{background:var(--soft)!important}
+#homeLatest #latest .row[data-id]{--home-tone:var(--accent);margin:0 0 5px!important;padding:9px 7px!important;border:0!important;border-radius:14px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--home-tone) 13%,transparent),transparent 78%)!important}
+#homeLatest #latest .row[data-id]:last-child{margin-bottom:0!important}
+#homeLatest #latest .ico{background:color-mix(in srgb,var(--home-tone) 24%,var(--soft))!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--home-tone) 24%,transparent)!important}
+#homeLatest #latest .amt.in{color:var(--green)!important}
+#homeLatest #latest .amt.out{color:var(--red)!important}
+#settings .settingsList{display:grid!important;gap:10px!important;overflow:visible!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#settings .settingsItem{--settings-tone:var(--accent);margin:0!important;padding:13px!important;border:1px solid color-mix(in srgb,var(--settings-tone) 22%,var(--line))!important;border-radius:17px!important;background:linear-gradient(100deg,color-mix(in srgb,var(--settings-tone) 13%,var(--card)),var(--card) 72%)!important;box-shadow:0 7px 18px rgba(0,0,0,.06)!important}
+#settings .settingsItem:nth-child(1){--settings-tone:#e6ad43}
+#settings .settingsItem:nth-child(2){--settings-tone:#ac8be0}
+#settings .settingsItem:nth-child(3){--settings-tone:#ef8178}
+#settings .settingsItem:nth-child(4){--settings-tone:#70a9dd}
+#settings .settingsItem:nth-child(5){--settings-tone:#6fc394}
+#settings .settingsItem:nth-child(6){--settings-tone:#63bfc2}
+#settings .settingsItem:nth-child(7){--settings-tone:#98a5b8}
+#settings .settingsItemIcon{background:color-mix(in srgb,var(--settings-tone) 24%,var(--accent-soft))!important;color:var(--settings-tone)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--settings-tone) 20%,transparent)!important}
+html[data-theme="dark"] #homeSummary.homeHero{background:radial-gradient(circle at 96% 0%,rgba(217,157,50,.30),transparent 38%),linear-gradient(145deg,#30291d,#211f1a 78%)!important;border-color:#66502d!important;box-shadow:0 15px 36px rgba(0,0,0,.30)!important}
+html[data-theme="dark"] #homeSummary .homeAvailableEstimate{background:linear-gradient(145deg,rgba(217,157,50,.27),rgba(48,43,34,.94))!important;border-color:rgba(217,157,50,.28)!important}
+html[data-theme="dark"] #home .homeSection{border-bottom-color:#473c2e!important}
+html[data-theme="dark"] #settings .settingsItem{box-shadow:0 9px 22px rgba(0,0,0,.18)!important}
+@media(max-width:430px){#homeSummary.homeHero{padding:16px!important}#homeSummary .homeHeroTop{padding-right:114px!important}#homeSummary .homeAvailableEstimate{top:14px!important;right:14px!important;width:104px!important}#homeSummary .homeBalance{font-size:31px!important}#homeCompare .homeCompareStrip{gap:5px!important}#homeCompare .homeCompareItem{padding:9px 6px!important}#homeCompare .homeCompareItem b{font-size:15px!important}}
+</style>
+<script id="koin-concept-c-rich-home-script">
+(function(){
+ var home=document.getElementById('home');
+ function toneFor(name,fallback){try{return typeof colorFor==='function'?colorFor(name):fallback}catch(e){return fallback}}
+ function apply(){
+  var label=document.getElementById('homeAvailableLabel');if(label&&label.textContent!=='Stima finale')label.textContent='Stima finale';
+  document.querySelectorAll('#homeBudget .budgetRow').forEach(function(row){var labelEl=row.querySelector('.budgetTop b');var name=labelEl?labelEl.textContent.trim():'';row.style.setProperty('--home-tone',toneFor(name,'#d99d32'))});
+  document.querySelectorAll('#homeTopCats .homeTopCatRow').forEach(function(row){var labelEl=row.querySelector('.homeTopCatName');var name=labelEl?labelEl.textContent.replace(/^\S+\s+/,'').trim():'';var swatch=row.querySelector('.catSwatch');var tone=swatch&&swatch.style.background?swatch.style.background:toneFor(name,'#d99d32');row.style.setProperty('--home-tone',tone)});
+  var cycle=['#ef8178','#6fc394','#ac8be0','#70a9dd','#d99d32'];
+  document.querySelectorAll('#homeLatest #latest .row[data-id]').forEach(function(row,index){var meta=row.querySelector('.meta');var parts=meta?meta.textContent.split('·'):[];var category=parts.length>1?parts[1].trim():'';row.style.setProperty('--home-tone',toneFor(category,cycle[index%cycle.length]))});
+ }
+ if(home){var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;apply()})});observer.observe(home,{subtree:true,childList:true,characterData:true});}
+ apply();
+})();
+</script>
