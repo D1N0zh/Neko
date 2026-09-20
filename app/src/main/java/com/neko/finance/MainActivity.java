@@ -53,8 +53,10 @@ public class MainActivity extends Activity {
             getWindow().setDecorFitsSystemWindows(true);
         }
 
+        boolean initialDarkMode = getPreferences(MODE_PRIVATE).getBoolean("darkMode", false);
+        applySurfaceTheme(initialDarkMode);
         webView = new WebView(this);
-        applySurfaceTheme(getPreferences(MODE_PRIVATE).getBoolean("darkMode", false));
+        applySurfaceTheme(initialDarkMode);
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -142,10 +144,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void applySurfaceTheme(boolean dark) {
         int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
         getWindow().setBackgroundDrawable(new ColorDrawable(background));
-        getWindow().getDecorView().setBackgroundColor(background);
+        getWindow().setStatusBarColor(background);
+        getWindow().setNavigationBarColor(background);
+        View decor = getWindow().getDecorView();
+        decor.setBackgroundColor(background);
+        int flags = decor.getSystemUiVisibility();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        }
+        decor.setSystemUiVisibility(flags);
         if (webView != null) webView.setBackgroundColor(background);
     }
 
@@ -165,18 +179,6 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 getPreferences(MODE_PRIVATE).edit().putBoolean("darkMode", dark).apply();
                 applySurfaceTheme(dark);
-                int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
-                getWindow().setStatusBarColor(background);
-                getWindow().setNavigationBarColor(background);
-                View decor = getWindow().getDecorView();
-                int flags = decor.getSystemUiVisibility();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-                }
-                decor.setSystemUiVisibility(flags);
             });
         }
 
