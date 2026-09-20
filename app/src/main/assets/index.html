@@ -4057,3 +4057,50 @@ html[data-theme="dark"] #settings .settingsItem{box-shadow:0 9px 22px rgba(0,0,0
  apply();
 })();
 </script>
+<style id="koin-home-flat-settings-fix">
+/* Keep the Concept C summary hero, flatten every secondary Home card. */
+html #home #homeSummary .homeMetric{
+  background:transparent!important;border:0!important;box-shadow:none!important
+}
+html #home #homeCompare,
+html #home #homeBudgetCard,
+html #home #homeTopCats,
+html #home #homeLatest{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;
+  border-radius:0!important;box-shadow:none!important
+}
+html[data-theme="dark"] #home #homeCompare,
+html[data-theme="dark"] #home #homeBudgetCard,
+html[data-theme="dark"] #home #homeTopCats,
+html[data-theme="dark"] #home #homeLatest{
+  background:transparent!important;border-color:#473c2e!important;box-shadow:none!important
+}
+html #homeCompare .homeCompareItem,
+html #homeBudget .budgetRow,
+html #homeTopCats #topcats .homeTopCatRow,
+html #homeLatest #latest .row[data-id]{
+  background:transparent!important;box-shadow:none!important
+}
+html #homeCompare .homeCompareItem{border-color:color-mix(in srgb,var(--home-tone) 32%,transparent)!important}
+/* The list itself must never become the large outer Settings card. */
+html #settings #settingsMainPage,
+html #settings #settingsMainPage .settingsList{
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;outline:0!important
+}
+html #settings #settingsMainPage .settingsList{padding:0!important;overflow:visible!important}
+html #settings #settingsMainPage::before,
+html #settings #settingsMainPage::after,
+html #settings #settingsMainPage .settingsList::before,
+html #settings #settingsMainPage .settingsList::after{display:none!important;content:none!important}
+#addTop.hiddenDuringHomeEdit{display:none!important}
+</style>
+<script id="koin-home-edit-fab-visibility">
+(function(){
+ var home=document.getElementById('home'),add=document.getElementById('addTop');
+ if(!home||!add)return;
+ function sync(){add.classList.toggle('hiddenDuringHomeEdit',home.classList.contains('home-editing'))}
+ new MutationObserver(sync).observe(home,{attributes:true,attributeFilter:['class']});
+ sync();
+})();
+</script>
