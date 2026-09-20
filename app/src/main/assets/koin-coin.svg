@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">Koin Finance Manager</title><desc id="desc">Moneta d'oro sorridente</desc>
+<defs><linearGradient id="gold" x1="25%" y1="10%" x2="80%" y2="90%"><stop offset="0" stop-color="#FFE27A"/><stop offset=".48" stop-color="#F4B942"/><stop offset="1" stop-color="#D98919"/></linearGradient></defs>
+<circle cx="128" cy="128" r="108" fill="#B87316"/>
+<circle cx="128" cy="128" r="96" fill="url(#gold)"/>
+<path d="M128 40c44 0 80 36 80 80 0 9-1.5 17.6-4.2 25.6C192.5 112.2 163.5 91 128 91c-28 0-54.3 11.3-73 30.2C63.7 74.5 93 40 128 40Z" fill="#FFE58A" opacity=".52"/>
+<ellipse cx="101" cy="112" rx="12" ry="16" fill="#26324A"/><ellipse cx="155" cy="112" rx="12" ry="16" fill="#26324A"/>
+<circle cx="105" cy="107" r="4" fill="#FFF8DC"/><circle cx="159" cy="107" r="4" fill="#FFF8DC"/>
+<path d="M82 143c12 18 28 27 46 27s34-9 46-27c-2 29-19 45-46 45s-44-16-46-45Z" fill="#26324A"/>
+<path d="M108 169c6-4 12-6 20-6s14 2 20 6c-5 11-12 16-20 16s-15-5-20-16Z" fill="#E97872"/>
+<path d="M74 72c9-12 20-21 33-26-8 9-13 19-16 31-7 0-12-2-17-5Z" fill="#FFF8DC" opacity=".9"/>
+</svg>
