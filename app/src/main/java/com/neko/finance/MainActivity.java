@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
         });
 
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed111-ui-icon-polish");
+            webView.loadUrl("file:///android_asset/index.html?v=signed112-koin-theme-bars");
         } else {
             webView.restoreState(savedInstanceState);
         }
@@ -146,10 +146,11 @@ public class MainActivity extends Activity {
 
     @SuppressWarnings("deprecation")
     private void applySurfaceTheme(boolean dark) {
-        int background = Color.parseColor(dark ? "#11141B" : "#F6F7F9");
+        int background = Color.parseColor(dark ? "#171611" : "#FBF7EF");
+        int navigationBackground = Color.parseColor(dark ? "#171611" : "#FFFDF8");
         getWindow().setBackgroundDrawable(new ColorDrawable(background));
         getWindow().setStatusBarColor(background);
-        getWindow().setNavigationBarColor(background);
+        getWindow().setNavigationBarColor(navigationBackground);
         View decor = getWindow().getDecorView();
         decor.setBackgroundColor(background);
         int flags = decor.getSystemUiVisibility();
