@@ -2683,7 +2683,7 @@ function renderSpendingForecast(){
  if(selectedMonth>currentKey){root.innerHTML='<div class="monthCompareEmpty">La previsione sarà disponibile quando inizierà il mese selezionato.</div>';return}
  if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Mese concluso</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">Il mese selezionato è terminato: viene mostrata la spesa effettiva, non una previsione.</div></div>`;return}
  const elapsed=Math.max(1,Math.min(today.getDate(),daysInMonth)),remaining=Math.max(0,daysInMonth-elapsed),monthOriginal=monthMoves(selectedMonth).filter(m=>m.amount<0&&!m.excludeStats),candidates=recurringCandidates().filter(c=>c.active&&(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>recurringKey(m.description)===c.key);if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
+ let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>recurringMatchesCandidate(m,c));if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
  const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
  root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
 }
@@ -2691,7 +2691,7 @@ function availableEstimateForMonth(k){
  const totals=monthTotals(k),currentKey=nowMonthKey();
  if(k<currentKey)return{mode:"closed",amount:totals.saving,base:totals.saving,remaining:0,pending:[]};
  if(k>currentKey)return{mode:"future",amount:null,base:0,remaining:0,pending:[]};
- const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>c.active&&(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>recurringKey(m.description)===c.key)),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
+ const monthExpenses=monthMoves(k).filter(m=>m.amount<0),candidates=recurringCandidates().filter(c=>c.active&&(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false),pending=candidates.filter(c=>!monthExpenses.some(m=>recurringMatchesCandidate(m,c))),remaining=pending.reduce((sum,c)=>sum+c.avg,0);
  return{mode:"current",amount:totals.saving-remaining,base:totals.saving,remaining,pending};
 }
 function renderAvailableEstimate(){
@@ -2727,27 +2727,27 @@ function renderBudgets(container,compact=false){
  if(!compact)container.querySelectorAll(".budgetManageRow").forEach(b=>b.onclick=()=>openBudget(b.dataset.cat));
 }
 function recurringCandidates(){
- const groups={};
+ const groups=[];
  moves.filter(m=>m.amount<0&&!m.excludeStats).forEach(m=>{
-   const key=recurringKey(m.description);
-   if(!groups[key])groups[key]=[];
-   groups[key].push(m);
+   const special=recurringSpecialKey(m.description),tokens=recurringTokens(m.description),group=groups.find(candidate=>special?candidate.special===special:!candidate.special&&candidate.tokens.some(token=>tokens.includes(token)));
+   if(!group){groups.push({items:[m],tokens,special});return}
+   group.items.push(m);if(!special)group.tokens=group.tokens.filter(token=>tokens.includes(token));
  });
- return Object.values(groups).map(arr=>{
+ return groups.map(group=>{const arr=group.items;
    const byMonth={};arr.forEach(m=>{const month=monthKeyFromDateStr(m.date);if(!byMonth[month])byMonth[month]=[];byMonth[month].push(m)});
    const monthly=Object.entries(byMonth).sort(([a],[b])=>a.localeCompare(b));let streak=[],previousMonth=null;
    monthly.forEach(([month,items])=>{const [year,value]=month.split("-").map(Number),monthNumber=year*12+value;if(items.length!==1){streak=[];previousMonth=null;return}if(previousMonth!==null&&monthNumber!==previousMonth+1)streak=[];streak.push(items[0]);previousMonth=monthNumber});
-   if(!streak.length)return null;const latest=streak[streak.length-1],key=recurringKey(latest.description),special=key==="RATA MUTUO"||key==="FINANZIAMENTO",minimum=special?2:3;
+   if(!streak.length)return null;const latest=streak[streak.length-1],key=group.special||group.tokens.slice().sort().slice(0,2).join(" ")||recurringKey(latest.description),special=key==="RATA MUTUO"||key==="FINANZIAMENTO",minimum=special?2:3;
    if(streak.length<minimum)return null;const recent=streak.slice(-Math.max(3,minimum)),values=recent.map(m=>Math.abs(m.amount)),average=values.reduce((sum,value)=>sum+value,0)/values.length,tolerance=Math.max(1,Math.min(5,average*.05));
-   if(Math.max(...values)-Math.min(...values)>tolerance)return null;const days=recent.map(m=>Math.min(parseItDate(m.date).getDate(),28));if(Math.max(...days)-Math.min(...days)>3)return null;
+   if(Math.max(...values)-Math.min(...values)>tolerance)return null;const days=recent.map(m=>Math.min(parseItDate(m.date).getDate(),28));if(Math.max(...days)-Math.min(...days)>5)return null;
    const lastMonth=monthKeyFromDateStr(latest.date),[lastYear,lastValue]=lastMonth.split("-").map(Number),[currentYear,currentValue]=nowMonthKey().split("-").map(Number),missedCompleteMonths=Math.max(0,currentYear*12+currentValue-(lastYear*12+lastValue)-1);
-   return{name:shortDesc(latest),key,category:latest.category,avg:recent.reduce((sum,m)=>sum+Math.abs(m.amount),0)/recent.length,avgDay:Math.round(recent.reduce((sum,m)=>sum+parseItDate(m.date).getDate(),0)/recent.length),count:streak.length,lastMonth,active:missedCompleteMonths<2};
+   return{name:shortDesc(latest),key,tokens:group.tokens,category:latest.category,avg:recent.reduce((sum,m)=>sum+Math.abs(m.amount),0)/recent.length,avgDay:Math.round(recent.reduce((sum,m)=>sum+parseItDate(m.date).getDate(),0)/recent.length),count:streak.length,lastMonth,active:missedCompleteMonths<2};
  }).filter(Boolean)
  .sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
  const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot)return;
- const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>c.active&&recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
+ const candidates=recurringCandidates(),managed=candidates.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=candidates.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
  const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",automatic=c.active&&!confirmed&&!ignored&&c.count>=3,label=!c.active?"Conclusa automaticamente":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=!c.active||ignored?"ignored":confirmed||automatic?"included":"pending",actions=!c.active?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
  managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
  ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
@@ -2761,12 +2761,22 @@ function merchantKey(desc){desc=sanitizeDescription(desc);
  const stop=new Set(["SDD","CORE","RICHIESTA","INCASSO","SEPA","EFFETTI","RITIRATI","PAGATI","BONIFICO","VOSTRO","FAVORE","OPERAZIONE","EUROZONA"]);
  return s.split(" ").filter(w=>w.length>=2&&!stop.has(w)).slice(0,6).join(" ");
 }
-function recurringKey(desc){
+function recurringSpecialKey(desc){
  const normalized=normalizedMovementDescription(desc);
  if(/\bMUTUO\b/.test(normalized)||(/\bRATA\b/.test(normalized)&&/\bBANCA POPOLARE PUGLIESE\b/.test(normalized)))return"RATA MUTUO";
  if(/\bBCC CREDITOCONSUMO\b/.test(normalized)||/\bFINANZIAMENTO\b/.test(normalized)||/\bFINANZIARIA\b/.test(normalized))return"FINANZIAMENTO";
- const noise=new Set(["SDD","CORE","RICHIESTA","INCASSO","SEPA","EFFETTI","RITIRATI","PAGATI","BONIFICO","VOSTRO","FAVORE","OPERAZIONE","EUROZONA","PAGAMENTO","PAGAMENTI","TRAMITE","CARTA","ADDEBITO","DOMICILIAZIONE","RICARICA","AUTOMATICA","AUTOMATICO","ONLINE","ITALIA","ITALY","SPA","SRL"]),tokens=normalized.split(" ").filter(token=>token.length>=2&&!noise.has(token)&&!/^\d+$/.test(token)&&!(/\d/.test(token)&&token.length>=6));
- return tokens.slice(0,2).join(" ")||merchantKey(desc);
+ return"";
+}
+function recurringTokens(desc){
+ const normalized=normalizedMovementDescription(desc),noise=new Set(["SDD","CORE","RICHIESTA","INCASSO","SEPA","EFFETTI","RITIRATI","PAGATI","BONIFICO","VOSTRO","FAVORE","OPERAZIONE","EUROZONA","PAGAMENTO","PAGAMENTI","TRAMITE","CARTA","ADDEBITO","DOMICILIAZIONE","RICARICA","AUTOMATICA","AUTOMATICO","ONLINE","ITALIA","ITALY","SPA","SRL","SOCIETA","SERVIZI","SERVICE","MOBILE","TELEFONIA","RID","MANDATO","CREDITORE","CREDITOR","CODICE","RIF","RIFERIMENTO","NUMERO","AUTORIZZAZIONE"]);
+ return[...new Set(normalized.split(" ").filter(token=>token.length>=3&&!noise.has(token)&&/[A-Z]/.test(token)&&!/\d/.test(token)))];
+}
+function recurringKey(desc){
+ const special=recurringSpecialKey(desc);if(special)return special;const tokens=recurringTokens(desc);return tokens.slice(0,2).join(" ")||merchantKey(desc);
+}
+function recurringMatchesCandidate(move,candidate){
+ const special=recurringSpecialKey(move.description);if(special||candidate.key==="RATA MUTUO"||candidate.key==="FINANZIAMENTO")return special===candidate.key;
+ const tokens=recurringTokens(move.description);return Array.isArray(candidate.tokens)&&candidate.tokens.some(token=>tokens.includes(token));
 }
 function learned(desc){const k=merchantKey(desc);for(const [rk,v] of Object.entries(rules))if(k.includes(rk)||rk.includes(k))return v;return null}
 function localRule(desc){const u=desc.toUpperCase();for(const [needle,c] of MERCHANT_RULES)if(u.includes(needle))return c;return null}
