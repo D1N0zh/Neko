@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f6f7f9"><title>Neko V10.8.29</title>
+<meta name="theme-color" content="#f6f7f9"><title>Koin Finance Manager</title>
 <script>try{if(localStorage.getItem("neko_theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
 <style>html,body{background:#f5f7fb}html[data-theme="dark"],html[data-theme="dark"] body{background:#11141b}body.home-loading{overflow:hidden}body.home-loading>.app,body.home-loading>.bottom{visibility:hidden}</style>
 <style>
@@ -902,7 +902,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #stats #pieChart{display:block!important;width:220px!important;height:220px!important;max-width:100%!important}
 #stats .pieLegend{flex:1;min-width:150px}
 @media(max-width:430px){#stats .pieWrap{justify-content:center!important}#stats .pieBox{width:200px!important;min-width:200px!important;height:200px!important}#stats #pieChart{width:200px!important;height:200px!important}}
-</style><link rel="icon" type="image/png" href="assets/neko-logo.png">
+</style><link rel="icon" type="image/png" href="koin-coin.svg">
 
 <style>
 .compactHead .compactBrandMark{
@@ -1907,15 +1907,15 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 </style>
 </head>
 <body class="home-loading">
-<div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Neko">
+<div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Koin Finance Manager">
   <div class="startupSplashBrand">
-    <img class="startupSplashLogo" src="assets/neko-logo.png" alt="">
-    <span class="startupSplashName">Neko</span>
+    <img class="startupSplashLogo" src="koin-coin.svg" alt="Koin Finance Manager">
+    <span class="startupSplashName">Koin Finance Manager</span>
   </div>
 </div>
 <div class="app">
 <div class="head compactHead">
-  <div class="compactBrandMark" aria-label="Neko"><img src="assets/neko-logo.png" alt="Logo Neko"></div>
+  <div class="compactBrandMark" aria-label="Koin Finance Manager"><img src="koin-coin.svg" alt="Logo Koin Finance Manager"></div>
   <div class="monthControl">
     <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente" data-i18n-aria="previous_month">‹</button>
     <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese" data-i18n-aria="select_month">
@@ -3885,7 +3885,7 @@ document.querySelectorAll(".goMoves").forEach(x=>x.onclick=()=>go("moves"));docu
 </style>
 
 <style id="koin-brand-warm-light">
-:root{--bg:#fbf7ef;--card:#fffdf8;--text:#2c261f;--muted:#756c60;--line:#e8dfd3;--green:#3f8f6b;--red:#c95f58;--soft:#f3ede4;--amber:#b67a19;--accent:#c8902f;--accent-soft:#fff1cc}
+html:not([data-theme="dark"]){--bg:#fbf7ef;--card:#fffdf8;--text:#2c261f;--muted:#756c60;--line:#e8dfd3;--green:#3f8f6b;--red:#c95f58;--soft:#f3ede4;--amber:#b67a19;--accent:#c8902f;--accent-soft:#fff1cc}
 html:not([data-theme="dark"]) body{background:#fbf7ef;color:#2c261f}
 html:not([data-theme="dark"]) .card,html:not([data-theme="dark"]) .sheet,html:not([data-theme="dark"]) input,html:not([data-theme="dark"]) select,html:not([data-theme="dark"]) textarea,html:not([data-theme="dark"]) .settingsCardBtn,html:not([data-theme="dark"]) .settingsTile,html:not([data-theme="dark"]) .settingsItem,html:not([data-theme="dark"]) .recurringCard{background:#fffdf8!important;color:#2c261f!important;border-color:#e8dfd3!important}
 html:not([data-theme="dark"]) .secondary{background:#f3ede4;color:#2c261f}
@@ -3898,7 +3898,7 @@ html:not([data-theme="dark"]) #home .homeMetric{background:#fff8e7!important;bor
 </style>
 <script>
 document.title="Koin Finance Manager";
-const koinSplashLogo=document.querySelector('.startupSplashLogo');if(koinSplashLogo){koinSplashLogo.src="assets/koin-coin.svg";koinSplashLogo.alt="Koin Finance Manager"}
+const koinSplashLogo=document.querySelector('.startupSplashLogo');if(koinSplashLogo){koinSplashLogo.src="koin-coin.svg";koinSplashLogo.alt="Koin Finance Manager"}
 const koinSplashName=document.querySelector('.startupSplashName');if(koinSplashName)koinSplashName.textContent="Koin Finance Manager";
 const koinBrand=document.querySelector('.compactBrandMark');if(koinBrand)koinBrand.setAttribute('aria-label','Koin Finance Manager');
 </script>
@@ -3911,4 +3911,21 @@ const koinBrand=document.querySelector('.compactBrandMark');if(koinBrand)koinBra
 [data-theme="dark"] .settingsHero,[data-theme="dark"] .forecastHero{background:linear-gradient(135deg,#4b3b1b,#25221d)!important;color:#f7f1e3!important;border-color:#8d6a22!important}
 [data-theme="dark"] .badge,[data-theme="dark"] .hint,[data-theme="dark"] .splitBalance{background:#342f28!important;color:#f7f1e3!important;border-color:#40382e!important}
 </style>
-<script>(function(){var b=document.querySelector('.compactBrandMark');if(b){var i=b.querySelector('img');b.setAttribute('aria-label','Koin Finance Manager');if(i){i.src='assets/koin-coin.svg';i.alt='Logo Koin Finance Manager'}}})();</script>
+<script>(function(){var b=document.querySelector('.compactBrandMark');if(b){var i=b.querySelector('img');b.setAttribute('aria-label','Koin Finance Manager');if(i){i.src='koin-coin.svg';i.alt='Logo Koin Finance Manager'}}})();</script>
+
+
+<style id="koin-dark-and-fab-final">
+html[data-theme="dark"]{color-scheme:dark;--bg:#181715;--card:#25221d;--text:#f7f1e3;--muted:#b7ad9e;--line:#40382e;--green:#68b486;--red:#e97872;--soft:#342f28;--amber:#f4b942;--accent:#d69a2d;--accent-soft:#4b3b1b;--android-surface:#25221d;--android-surface-raised:#25221d;--android-surface-muted:#342f28}
+html[data-theme="dark"] body{background:#181715!important;color:#f7f1e3!important}
+html[data-theme="dark"] .card,html[data-theme="dark"] .sheet,html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea,html[data-theme="dark"] .settingsItem,html[data-theme="dark"] .settingsActionRow,html[data-theme="dark"] .catManageRow,html[data-theme="dark"] .budgetManageRow,html[data-theme="dark"] .ruleRow,html[data-theme="dark"] .recurringManageRow,html[data-theme="dark"] .recurringCard,html[data-theme="dark"] .statsMetric,html[data-theme="dark"] .statsSection,html[data-theme="dark"] .monthCompareTotal,html[data-theme="dark"] .forecastItem,html[data-theme="dark"] .previewItem,html[data-theme="dark"] .languageOption,html[data-theme="dark"] .movementFilterSheet,html[data-theme="dark"] .movementFilterOption,html[data-theme="dark"] .manualFieldButton,html[data-theme="dark"] .manualCategoryButton,html[data-theme="dark"] #allmoves .row[data-id]{background:#25221d!important;color:#f7f1e3!important;border-color:#40382e!important}
+html[data-theme="dark"] .settingsItemTitle,html[data-theme="dark"] .settingsSectionTitle,html[data-theme="dark"] .settingsActionTitle,html[data-theme="dark"] .desc,html[data-theme="dark"] .amt,html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3{color:#f7f1e3!important}
+html[data-theme="dark"] .settingsItemDesc,html[data-theme="dark"] .settingsActionDesc,html[data-theme="dark"] .kicker,html[data-theme="dark"] .meta,html[data-theme="dark"] .recurringMeta{color:#b7ad9e!important}
+html[data-theme="dark"] .homeHero{background:linear-gradient(145deg,#2b251b 0%,#4b3b1b 100%)!important;border-color:#574728!important;color:#f7f1e3!important}
+html[data-theme="dark"] .homeMetric,html[data-theme="dark"] .homeAvailableEstimate,html[data-theme="dark"] .mini,html[data-theme="dark"] .badge,html[data-theme="dark"] .hint{background:#342f28!important;color:#f7f1e3!important;border-color:#40382e!important}
+html[data-theme="dark"] .bottom{background:rgba(24,23,21,.97)!important;border-color:#40382e!important}
+#addTop.compactAddMove{position:fixed!important;left:16px!important;right:auto!important;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom))!important;width:58px!important;min-width:58px!important;height:58px!important;min-height:58px!important;padding:0!important;border-radius:19px!important;display:grid!important;place-items:center!important;z-index:28!important;box-shadow:0 12px 30px rgba(44,38,31,.30)!important}
+#addTop.compactAddMove .plusMark{font-size:29px!important;line-height:1!important;margin:0!important}
+#addTop.compactAddMove span:last-child{display:none!important}
+.startupSplashLogo,.compactBrandMark img{display:block;width:100%;height:100%;object-fit:contain}
+</style>
+<script>(function(){var coin='koin-coin.svg';var splash=document.querySelector('.startupSplashLogo');if(splash){splash.src=coin;splash.alt='Koin Finance Manager'}var name=document.querySelector('.startupSplashName');if(name)name.textContent='Koin Finance Manager';var brand=document.querySelector('.compactBrandMark');if(brand){brand.setAttribute('aria-label','Koin Finance Manager');var img=brand.querySelector('img');if(img){img.src=coin;img.alt='Logo Koin Finance Manager'}}})();</script>
