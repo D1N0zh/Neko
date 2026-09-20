@@ -2321,6 +2321,10 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
     </div>
     <div class="card">
       <div class="recurringIntro" data-i18n="recurrences_intro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
+      <div id="expectedRecurringSection" class="recurringExpectedSection" hidden>
+        <div class="recurringGroupLabel">Attese questo mese</div>
+        <div id="expectedRecurringList"></div>
+      </div>
       <div class="recurringGroupLabel" data-i18n="your_choices">Le tue scelte</div>
       <div id="managedRecurring"></div>
       <button id="toggleIgnoredRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
@@ -2747,8 +2751,10 @@ function renderAvailableEstimate(){
  }
  homeLabel.textContent="Disponibile stimato del mese";homeMeta.textContent=result.remaining>0?`${result.pending.length} ricorrenz${result.pending.length===1?"a":"e"} ancora attes${result.pending.length===1?"a":"e"}`:"Nessuna ricorrenza ancora da sottrarre";
  const pendingNames=result.pending.slice(0,3).map(c=>esc(c.name)).join(" · ");
- detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Stima disponibile</span><b>${euro(result.amount)}</b><small>${negative?"Le uscite e le ricorrenze attese superano le entrate registrate.":"Quanto resterebbe dopo le ricorrenze ancora attese."}</small></div><div class="availableBreakdown"><div><span>Saldo del mese finora</span><b>${euro(result.base)}</b></div><div><span>Ricorrenze ancora attese</span><b>${result.remaining?"− "+euro(result.remaining):euro(0)}</b></div></div>${pendingNames?`<div class="availablePending">Incluse nella stima: ${pendingNames}${result.pending.length>3?` · +${result.pending.length-3}`:""}</div>`:""}<div class="availableDisclaimer">Non è il saldo bancario: considera solo i movimenti presenti in Neko e le ricorrenze rilevate.</div>`;
+ detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Stima disponibile</span><b>${euro(result.amount)}</b><small>${negative?"Le uscite e le ricorrenze attese superano le entrate registrate.":"Quanto resterebbe dopo le ricorrenze ancora attese."}</small></div><div class="availableBreakdown"><div><span>Saldo del mese finora</span><b>${euro(result.base)}</b></div><div><span>Ricorrenze ancora attese</span><b>${result.remaining?"− "+euro(result.remaining):euro(0)}</b></div></div>${pendingNames?`<button type="button" class="availablePending expectedRecurringLink" id="viewExpectedRecurring"><span>Incluse nella stima: ${pendingNames}${result.pending.length>3?` · +${result.pending.length-3}`:""}</span><b>Vedi tutte ›</b></button>`:""}<div class="availableDisclaimer">Non è il saldo bancario: considera solo i movimenti presenti in Neko e le ricorrenze rilevate.</div>`;
+ const viewExpectedButton=document.getElementById("viewExpectedRecurring");if(viewExpectedButton)viewExpectedButton.onclick=openExpectedRecurringView;
 }
+function openExpectedRecurringView(){go("settings");openSettingsPage("settingsRecurringPage");requestAnimationFrame(()=>{const section=document.getElementById("expectedRecurringSection");if(section&&!section.hidden)section.scrollIntoView({behavior:"smooth",block:"start"})})}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
  const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:"Nessun confronto",cls:""};
@@ -2790,6 +2796,8 @@ function renderRecurringManager(){
  const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring"),concludedToggle=document.getElementById("toggleConcludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot||!concludedToggle)return;
  const candidates=recurringCandidates(),active=candidates.filter(c=>c.active),concluded=candidates.filter(c=>!c.active&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false).sort((a,b)=>b.lastMonth.localeCompare(a.lastMonth)),managed=active.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=active.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
  const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?"Conclusa":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi${concluded?` · ultimo ${c.lastMonth}`:""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
+ const expectedEstimate=availableEstimateForMonth(selectedMonth),expected=expectedEstimate.mode==="current"?expectedEstimate.pending:[],expectedSection=document.getElementById("expectedRecurringSection"),expectedRoot=document.getElementById("expectedRecurringList");
+ if(expectedSection&&expectedRoot){expectedSection.hidden=!expected.length;expectedRoot.innerHTML=expected.map(c=>row(c,recurringPrefs[c.key]==="confirmed"?"confirmed":"expected")).join("")}
  managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
  ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
  ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=`${ignoredRecurringOpen?"Nascondi":"Mostra"} ignorate (${ignored.length})`;
@@ -2798,7 +2806,7 @@ function renderRecurringManager(){
  concludedRoot.innerHTML=concluded.map(c=>row(c,"concluded")).join("");concludedRoot.hidden=!concludedRecurringOpen;
  concludedToggle.style.display=concluded.length?"flex":"none";concludedToggle.textContent=`${concludedRecurringOpen?"Nascondi":"Mostra"} conclusi (${concluded.length})`;
  concludedToggle.onclick=()=>{concludedRecurringOpen=!concludedRecurringOpen;renderRecurringManager()};
- [managedRoot,ignoredRoot,detectedRoot,concludedRoot].forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
+ [expectedRoot,managedRoot,ignoredRoot,detectedRoot,concludedRoot].filter(Boolean).forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
 function merchantKey(desc){desc=sanitizeDescription(desc);
  let s=desc.toUpperCase().replace(/OPERAZIONE POS EUROZONA/gi," ").replace(/PAGAMENTI PAGOBANCOMAT/gi," ").replace(/PAGAMENTO TRAMITE POS/gi," ").replace(/CARTA \*?\d+/gi," ").replace(/\bDEL \d{2}\.\d{2}\.\d{2}\b/gi," ").replace(/\b\d{2}:\d{2}\b/g," ").replace(/\bITA\b/g," ").replace(/[^A-ZÀ-ÖØ-Ý0-9 ]/g," ").replace(/\s+/g," ").trim();
@@ -3923,9 +3931,46 @@ html[data-theme="dark"] .settingsItemDesc,html[data-theme="dark"] .settingsActio
 html[data-theme="dark"] .homeHero{background:linear-gradient(145deg,#2b251b 0%,#4b3b1b 100%)!important;border-color:#574728!important;color:#f7f1e3!important}
 html[data-theme="dark"] .homeMetric,html[data-theme="dark"] .homeAvailableEstimate,html[data-theme="dark"] .mini,html[data-theme="dark"] .badge,html[data-theme="dark"] .hint{background:#342f28!important;color:#f7f1e3!important;border-color:#40382e!important}
 html[data-theme="dark"] .bottom{background:rgba(24,23,21,.97)!important;border-color:#40382e!important}
-#addTop.compactAddMove{position:fixed!important;left:16px!important;right:auto!important;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom))!important;width:58px!important;min-width:58px!important;height:58px!important;min-height:58px!important;padding:0!important;border-radius:19px!important;display:grid!important;place-items:center!important;z-index:28!important;box-shadow:0 12px 30px rgba(44,38,31,.30)!important}
+#addTop.compactAddMove{position:fixed!important;left:auto!important;right:16px!important;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom))!important;width:58px!important;min-width:58px!important;height:58px!important;min-height:58px!important;padding:0!important;border-radius:19px!important;display:grid!important;place-items:center!important;z-index:28!important;box-shadow:0 12px 30px rgba(44,38,31,.30)!important}
 #addTop.compactAddMove .plusMark{font-size:29px!important;line-height:1!important;margin:0!important}
 #addTop.compactAddMove span:last-child{display:none!important}
 .startupSplashLogo,.compactBrandMark img{display:block;width:100%;height:100%;object-fit:contain}
 </style>
 <script>(function(){var coin='koin-coin.svg';var splash=document.querySelector('.startupSplashLogo');if(splash){splash.src=coin;splash.alt='Koin Finance Manager'}var name=document.querySelector('.startupSplashName');if(name)name.textContent='Koin Finance Manager';var brand=document.querySelector('.compactBrandMark');if(brand){brand.setAttribute('aria-label','Koin Finance Manager');var img=brand.querySelector('img');if(img){img.src=coin;img.alt='Logo Koin Finance Manager'}}})();</script>
+
+
+<style id="koin-dark-depth-polish">
+html[data-theme="dark"]{--bg:#171611;--card:#24211b;--text:#f5efe3;--muted:#b8ad9b;--line:#463b2d;--green:#72bf92;--red:#ed827a;--soft:#332d24;--amber:#f0b84b;--accent:#d99d32;--accent-soft:#44351c;--android-surface:#24211b;--android-surface-raised:#2b2720;--android-surface-muted:#332d24;--android-shadow:0 12px 30px rgba(0,0,0,.25)}
+html[data-theme="dark"] body{background:radial-gradient(circle at 82% -8%,rgba(217,157,50,.16),transparent 34%),linear-gradient(180deg,#191713 0%,#14130f 100%)!important;background-attachment:fixed!important}
+html[data-theme="dark"] .startupSplash{background:radial-gradient(circle at 50% 42%,rgba(217,157,50,.13),transparent 32%),#171611!important}
+html[data-theme="dark"] .card,html[data-theme="dark"] .sheet,html[data-theme="dark"] .settingsItem,html[data-theme="dark"] .settingsActionRow,html[data-theme="dark"] .catManageRow,html[data-theme="dark"] .budgetManageRow,html[data-theme="dark"] .ruleRow,html[data-theme="dark"] .recurringManageRow,html[data-theme="dark"] .recurringCard,html[data-theme="dark"] .statsSection,html[data-theme="dark"] .statsDetailSheet,html[data-theme="dark"] .previewItem,html[data-theme="dark"] .languageOption,html[data-theme="dark"] #allmoves .row[data-id]{background:linear-gradient(145deg,#2a261f 0%,#221f1a 100%)!important;border-color:#463b2d!important;box-shadow:0 8px 24px rgba(0,0,0,.16)!important}
+html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea,html[data-theme="dark"] .manualFieldButton,html[data-theme="dark"] .manualCategoryButton,html[data-theme="dark"] .movementFilterSheet,html[data-theme="dark"] .movementFilterOption{background:#2e2921!important;border-color:#4d4031!important;color:#f5efe3!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important}
+html[data-theme="dark"] .homeHero{background:radial-gradient(circle at 92% 0%,rgba(240,184,75,.19),transparent 38%),linear-gradient(145deg,#332919 0%,#24211b 70%)!important;border-color:#5a4728!important;box-shadow:0 14px 34px rgba(0,0,0,.25)!important}
+html[data-theme="dark"] .homeMetric,html[data-theme="dark"] .homeAvailableEstimate,html[data-theme="dark"] .mini{background:linear-gradient(145deg,#373026,#2d2821)!important;border:1px solid #4b4033!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important}
+html[data-theme="dark"] #homeCompare,html[data-theme="dark"] #homeBudgetCard,html[data-theme="dark"] #homeTopCats,html[data-theme="dark"] #homeLatest{background:linear-gradient(180deg,rgba(43,39,32,.72),rgba(34,31,26,.72))!important;border-color:#40372c!important;box-shadow:0 9px 25px rgba(0,0,0,.13)!important}
+html[data-theme="dark"] #settings .settingsList,html[data-theme="dark"] #settings #categoryManager,html[data-theme="dark"] #settings #budgetManager,html[data-theme="dark"] #settings #rulesList,html[data-theme="dark"] #settings #managedRecurring,html[data-theme="dark"] #settings #recurringList,html[data-theme="dark"] #settings #concludedRecurring,html[data-theme="dark"] #settingsDataPage>.dataActions{background:linear-gradient(145deg,#2b2720,#211e19)!important;border:1px solid #463b2d!important;box-shadow:0 10px 28px rgba(0,0,0,.18)!important}
+html[data-theme="dark"] #settings .settingsItem{background:linear-gradient(90deg,rgba(43,39,32,.92),rgba(36,33,27,.92))!important;box-shadow:none!important}
+html[data-theme="dark"] #settings .settingsItemIcon{background:linear-gradient(145deg,#4b3a1f,#382d1d)!important;color:#f0b84b!important;box-shadow:inset 0 0 0 1px rgba(240,184,75,.13)!important}
+html[data-theme="dark"] #stats .statsMetric{background:linear-gradient(145deg,#2d2922,#24211b)!important;border-color:#463b2d!important;box-shadow:0 8px 20px rgba(0,0,0,.16)!important}
+html[data-theme="dark"] #stats .statsMetric:has(.in){background:linear-gradient(145deg,rgba(51,79,61,.72),#24211b)!important}
+html[data-theme="dark"] #stats .statsMetric:has(.out){background:linear-gradient(145deg,rgba(89,48,43,.68),#24211b)!important}
+html[data-theme="dark"] .compactHead .monthControl{background:linear-gradient(145deg,#302b23,#24211b)!important;border-color:#4a3e30!important;box-shadow:0 7px 20px rgba(0,0,0,.18)!important}
+html[data-theme="dark"] .badge,html[data-theme="dark"] .hint,html[data-theme="dark"] .splitBalance{background:#352f25!important;border:1px solid #4a3e30!important;color:#e8dece!important}
+html[data-theme="dark"] .bottom{background:rgba(23,22,17,.92)!important;border-color:#463b2d!important;box-shadow:0 -10px 28px rgba(0,0,0,.24)!important;backdrop-filter:blur(18px)!important}
+html[data-theme="dark"] .nav button.active{color:#f0b84b!important}
+#addTop.compactAddMove{left:auto!important;right:16px!important;background:linear-gradient(145deg,#e3aa40,#c98720)!important;color:#fff8e8!important;box-shadow:0 14px 32px rgba(126,79,10,.42),inset 0 1px 0 rgba(255,255,255,.28)!important}
+</style>
+<style id="koin-header-logo-fit">
+.compactHead .compactBrandMark{overflow:visible!important;padding:2px!important;background:transparent!important}
+.compactHead .compactBrandMark img{width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important;border-radius:10px!important}
+</style>
+<style id="koin-expected-recurring-link">
+.recurringExpectedSection{margin:4px 0 16px;padding:12px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent-soft) 55%,var(--card))}
+.recurringExpectedSection[hidden]{display:none!important}
+.recurringExpectedSection .recurringGroupLabel{margin:0 2px 8px;color:var(--accent)}
+.expectedRecurringLink{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:10px;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--text);text-align:left;font-size:10.5px;line-height:1.4}
+.expectedRecurringLink span{min-width:0}.expectedRecurringLink b{flex:none;color:var(--accent);font-size:11px}
+html[data-theme="dark"] .recurringExpectedSection{background:linear-gradient(145deg,#3b301d,#2b2720);border-color:#66502b;box-shadow:0 8px 22px rgba(0,0,0,.16)}
+html[data-theme="dark"] .expectedRecurringLink{background:#332d24!important;border-color:#514431!important;color:#f5efe3!important}
+</style>
+<script>(function(){var card=document.getElementById('homeAvailableEstimate');if(card)card.onclick=openExpectedRecurringView})();</script>
