@@ -433,3 +433,16 @@ html .bottom .nav .navLabel{font-size:10px!important;line-height:1.25!important;
 .addActionOptions{display:grid;gap:10px;margin-top:16px}.addActionOption{display:grid;grid-template-columns:42px minmax(0,1fr) 18px;align-items:center;gap:12px;width:100%;padding:12px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--card)!important;color:var(--text)!important;text-align:left}
 .addActionOption>span:nth-child(2){display:flex;flex-direction:column;gap:4px}.addActionOption b{font-size:14px}.addActionOption small{font-size:11px;font-weight:400;color:var(--muted);line-height:1.35}.addActionIcon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);font-size:23px}.addActionOption>span:last-child{color:var(--muted);font-size:22px}
 @media(max-width:380px){html .bottom .nav .navLabel,html .bottom .nav button[data-screen]{font-size:9px!important}}
+
+html #settings #settingsDataPage label[for="importBackup"]{background:var(--soft)!important;color:var(--text)!important;box-shadow:none!important}
+html #settings #settingsDataPage label[for="importBackup"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+#importSummaryToast:empty{display:none}
+
+/* Data and backup actions share one aligned button column. */
+html #settings #settingsDataPage .settingsActionRow{display:grid!important;grid-template-columns:minmax(0,1fr) 96px!important;align-items:center!important;gap:12px!important}
+html #settings #settingsDataPage .settingsActionText{min-width:0!important}
+html #settings #settingsDataPage #exportCsv,
+html #settings #settingsDataPage #exportBackup,
+html #settings #settingsDataPage label[for="importBackup"],
+html #settings #settingsDataPage #clear{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:96px!important;height:40px!important;min-height:40px!important;padding:7px 10px!important;margin:0!important;border-radius:12px!important;box-sizing:border-box!important;text-align:center!important;font-size:11px!important;line-height:1.2!important}

@@ -30,7 +30,7 @@ window.NekoManual=(()=>{
      const row=document.createElement("div");row.className="manualSplitRow";
      const category=document.createElement("button");category.type="button";category.className="manualCategoryButton";categoryButton(category,part.category);
      category.onclick=()=>chooseCategory(part.category,value=>{part.category=value;categoryButton(category,value);updateBalance()});
-     const amount=document.createElement("input");amount.type="number";amount.min="0.01";amount.step="0.01";amount.inputMode="decimal";amount.value=part.amount||"";amount.placeholder="0,00";amount.setAttribute("aria-label",t("manual_part_amount",{number:index+1}));
+     const amount=document.createElement("input");amount.type="number";amount.min="0.01";amount.step="0.01";amount.inputMode="decimal";amount.value=part.amount||"";amount.placeholder=t("amount_placeholder");amount.setAttribute("aria-label",t("manual_part_amount",{number:index+1}));
      amount.oninput=()=>{part.amount=Number(amount.value);updateBalance()};
      const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.textContent="×";remove.disabled=parts.length<=2;remove.setAttribute("aria-label",t("manual_remove_part"));remove.onclick=()=>{parts.splice(index,1);renderParts()};
      row.append(category,amount,remove);root.append(row);

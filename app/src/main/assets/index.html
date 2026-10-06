@@ -2163,7 +2163,7 @@ html .compactBrandMark img{object-fit:contain!important;clip-path:none!important
   <div id="statsCategoryDetail" class="statsDetailSheet" style="display:none">
     <div class="statsDetailHead">
       <div>
-        <div id="statsDetailTitle" class="statsDetailTitle">Categoria</div>
+        <div id="statsDetailTitle" class="statsDetailTitle" data-i18n="category">Categoria</div>
         <div id="statsDetailSummary" class="statsDetailSummary"></div>
       </div>
       <button id="closeStatsDetail" class="secondary statsCloseBtn" type="button" data-i18n="close">Chiudi</button>
@@ -2372,7 +2372,7 @@ html .compactBrandMark img{object-fit:contain!important;clip-path:none!important
           <div class="settingsActionTitle" data-i18n="restore_backup">Ripristina backup</div>
           <div class="settingsActionDesc" data-i18n="restore_backup_desc">Carica un backup JSON precedente.</div>
         </div>
-        <label for="importBackup" class="filebtn" data-i18n="restore">Ripristina</label>
+        <label for="importBackup" class="filebtn secondary" role="button" tabindex="0" data-i18n="restore">Ripristina</label>
         <input id="importBackup" type="file" accept=".json,application/json">
       </div>
 
@@ -2397,7 +2397,7 @@ html .compactBrandMark img{object-fit:contain!important;clip-path:none!important
 <div id="importSummaryToast" class="importSummaryToast" role="status" aria-live="polite"></div>
 
 <div id="appInfoModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b data-i18n="app_info_title">Info Neko</b><div class="kicker" data-i18n="app_info_help">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button">Chiudi</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b data-i18n="app_info_title">Info Neko</b><div class="kicker" data-i18n="app_info_help">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
 <div class="card" style="margin-top:14px">
   <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="version_label">Versione</div><div id="appVersionText" class="settingsActionDesc">1.1.1</div></div></div>
   <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_number">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">5</div></div></div>
@@ -2406,88 +2406,88 @@ html .compactBrandMark img{object-fit:contain!important;clip-path:none!important
 </div></div>
 
 <div id="previewModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><div><b>Controlla prima di importare</b><div id="previewInfo" class="kicker"></div></div><button id="cancelImport" class="secondary">Annulla</button></div>
-<div class="hint" style="margin-top:10px">Puoi cambiare qui la categoria di ogni movimento. Le correzioni vengono memorizzate per gli import futuri.</div>
-<div id="previewList" class="preview" style="margin-top:12px"></div><div style="margin-top:12px"><button id="confirmImport" class="primary">Importa movimenti</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><b data-i18n="review_import">Controlla prima di importare</b><div id="previewInfo" class="kicker"></div></div><button id="cancelImport" class="secondary" data-i18n="cancel">Annulla</button></div>
+<div class="hint" style="margin-top:10px" data-i18n="preview_help">Puoi cambiare qui la categoria di ogni movimento. Le correzioni vengono memorizzate per gli import futuri.</div>
+<div id="previewList" class="preview" style="margin-top:12px"></div><div style="margin-top:12px"><button id="confirmImport" class="primary" data-i18n="import_transactions">Importa movimenti</button></div>
 </div></div>
 
 <div id="bulkModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><b>Assegna categoria</b><button id="bulkModalClose" class="secondary" type="button">Chiudi</button></div>
-<div class="kicker" style="margin-top:6px">La categoria verrà applicata a tutti i movimenti selezionati.</div>
-<label class="f">Categoria</label><select id="bulkCategorySelect"></select>
-<div style="margin-top:12px"><button id="bulkConfirm" class="primary" type="button">Applica</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><b data-i18n="assign_category">Assegna categoria</b><button id="bulkModalClose" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
+<div class="kicker" style="margin-top:6px" data-i18n="bulk_help">La categoria verrà applicata a tutti i movimenti selezionati.</div>
+<label class="f" data-i18n="category">Categoria</label><select id="bulkCategorySelect"></select>
+<div style="margin-top:12px"><button id="bulkConfirm" class="primary" type="button" data-i18n="apply">Applica</button></div>
 </div></div>
 <div id="monthPickerModal" class="modal"><div class="sheet monthPickerSheet">
-<div class="monthPickerHead"><div><b>Seleziona mese</b><div class="kicker">Vai rapidamente a un altro periodo.</div></div><button id="closeMonthPicker" class="secondary" type="button">Chiudi</button></div>
-<div class="monthPickerNav"><button id="monthPickerPrevYear" class="secondary" type="button">‹</button><b id="monthPickerYear"></b><button id="monthPickerNextYear" class="secondary" type="button">›</button></div>
+<div class="monthPickerHead"><div><b data-i18n="select_month">Seleziona mese</b><div class="kicker" data-i18n="month_picker_help">Vai rapidamente a un altro periodo.</div></div><button id="closeMonthPicker" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
+<div class="monthPickerNav"><button id="monthPickerPrevYear" data-i18n-aria="previous_year" class="secondary" type="button">‹</button><b id="monthPickerYear"></b><button id="monthPickerNextYear" data-i18n-aria="next_year" class="secondary" type="button">›</button></div>
 <div id="monthPickerGrid" class="monthPickerGrid"></div>
 </div></div>
 <div id="movementFilterModal" class="modal"><div class="sheet movementFilterSheet">
-  <div class="movementFilterSheetHead"><div><b id="movementFilterTitle">Filtra movimenti</b><div id="movementFilterSubtitle" class="kicker"></div></div><button id="closeMovementFilter" class="secondary" type="button">Chiudi</button></div>
+  <div class="movementFilterSheetHead"><div><b id="movementFilterTitle">Filtra movimenti</b><div id="movementFilterSubtitle" class="kicker"></div></div><button id="closeMovementFilter" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
   <div id="movementFilterOptions" class="movementFilterOptions"></div>
 </div></div>
 <div id="previewCategoryModal" class="modal"><div class="sheet previewCategorySheet">
-  <div class="previewCategoryHead"><div><b>Scegli categoria</b><div class="kicker">Assegna la categoria al movimento importato.</div></div><button id="closePreviewCategory" class="secondary" type="button">Chiudi</button></div>
+  <div class="previewCategoryHead"><div><b data-i18n="manual_choose_category">Scegli categoria</b><div class="kicker" data-i18n="preview_category_help">Assegna la categoria al movimento importato.</div></div><button id="closePreviewCategory" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
   <div id="previewCategoryOptions" class="previewCategoryOptions"></div>
 </div></div>
 <div id="editModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><b>Dettaglio movimento</b><button id="closeEdit" class="secondary">Chiudi</button></div>
-<p id="editDesc" style="font-weight:800"></p><div id="editMeta" class="kicker"></div><label class="f">Nome movimento</label><input id="moveName" type="text" placeholder="Nome personalizzato"><label class="f">Categoria</label><select id="categorySelect"></select>
-<label class="f">Nota</label><textarea id="moveNote" placeholder="Es. regalo, vacanza, spesa condivisa…"></textarea>
-<div class="toggleLine"><div><b>Escludi dalle statistiche</b><div class="kicker editMoveActionsReal">Il movimento resta visibile ma non pesa su grafici e totali di spesa.</div></div><input id="excludeStats" type="checkbox"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><b data-i18n="transaction_detail">Dettaglio movimento</b><button id="closeEdit" class="secondary" data-i18n="close">Chiudi</button></div>
+<p id="editDesc" style="font-weight:800"></p><div id="editMeta" class="kicker"></div><label class="f" data-i18n="transaction_name">Nome movimento</label><input id="moveName" type="text" placeholder="Nome personalizzato" data-i18n-placeholder="custom_name_hint"><label class="f" data-i18n="category">Categoria</label><select id="categorySelect"></select>
+<label class="f" data-i18n="note">Nota</label><textarea id="moveNote" placeholder="Es. regalo, vacanza, spesa condivisa…" data-i18n-placeholder="note_hint"></textarea>
+<div class="toggleLine"><div><b data-i18n="exclude_stats">Escludi dalle statistiche</b><div class="kicker editMoveActionsReal" data-i18n="exclude_help">Il movimento resta visibile ma non pesa su grafici e totali di spesa.</div></div><input id="excludeStats" type="checkbox"></div>
 <div id="splitSummary" class="splitSummary"></div>
 <button id="openSplitMove" class="secondary" type="button" style="width:100%;margin-top:10px">Dividi movimento</button>
 <div class="movementAttachments">
-  <div class="movementAttachmentsHead"><div><b>Allegati</b><div class="kicker">Foto, ricevute, scontrini o PDF</div></div><button id="addMovementAttachment" class="secondary" type="button">＋ Aggiungi</button></div>
+  <div class="movementAttachmentsHead"><div><b data-i18n="attachments">Allegati</b><div class="kicker" data-i18n="attachments_help">Foto, ricevute, scontrini o PDF</div></div><button id="addMovementAttachment" class="secondary" type="button" data-i18n="add">＋ Aggiungi</button></div>
   <div id="movementAttachmentsList"></div>
-  <div class="attachmentBackupNote">Massimo 20 MB per file. Gli allegati restano sul dispositivo e non sono ancora inclusi nel backup JSON.</div>
+  <div class="attachmentBackupNote" data-i18n="attachments_backup">Massimo 20 MB per file. Gli allegati restano sul dispositivo e non sono ancora inclusi nel backup JSON.</div>
 </div>
-<div class="editMoveFooterInside"><button id="saveCat" class="primary">Salva</button><button id="deleteMove" class="danger">Elimina movimento</button></div></div></div>
+<div class="editMoveFooterInside"><button id="saveCat" class="primary" data-i18n="save">Salva</button><button id="deleteMove" class="danger" data-i18n="delete_transaction">Elimina movimento</button></div></div></div>
 
 
 
 
 <div id="budgetModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><b id="budgetModalTitle">Nuovo budget</b><button id="closeBudget" class="secondary">Chiudi</button></div>
-<label class="f">Categoria</label><input id="budgetCat" type="hidden"><div id="budgetCategoryPicker" class="budgetCategoryPicker"></div>
-<label class="f">Importo mensile (€)</label><input id="budgetAmount" type="number" min="0.01" step="0.01" inputmode="decimal">
-<div class="actions" style="margin-top:12px"><button id="saveBudgetBtn" class="primary">Salva</button><button id="deleteBudgetBtn" class="danger" style="display:none">Elimina</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><b id="budgetModalTitle">Nuovo budget</b><button id="closeBudget" class="secondary" data-i18n="close">Chiudi</button></div>
+<label class="f" data-i18n="category">Categoria</label><input id="budgetCat" type="hidden"><div id="budgetCategoryPicker" class="budgetCategoryPicker"></div>
+<label class="f" data-i18n="monthly_amount">Importo mensile (€)</label><input id="budgetAmount" type="number" min="0.01" step="0.01" inputmode="decimal">
+<div class="actions" style="margin-top:12px"><button id="saveBudgetBtn" class="primary" data-i18n="save">Salva</button><button id="deleteBudgetBtn" class="danger" style="display:none" data-i18n="delete">Elimina</button></div>
 <div id="budgetMsg" class="status"></div>
 </div></div>
 
 <div id="manageCatModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center"><b id="manageCatTitle">Categoria</b><button id="closeManageCat" class="secondary">Chiudi</button></div>
-<label class="f">Nome categoria</label><input id="manageCatName" type="text" maxlength="30" placeholder="es. Animali">
-<label class="f">Icona</label><div id="iconPicker" class="iconGrid"></div>
-<label class="f">Colore</label><div id="colorPicker" class="colorGrid"></div>
-<div class="actions" style="margin-top:12px"><button id="saveManagedCat" class="primary">Salva</button><button id="deleteManagedCat" class="danger" style="display:none">Elimina</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><b id="manageCatTitle">Categoria</b><button id="closeManageCat" class="secondary" data-i18n="close">Chiudi</button></div>
+<label class="f" data-i18n="category_name">Nome categoria</label><input id="manageCatName" type="text" maxlength="30" placeholder="es. Animali" data-i18n-placeholder="category_name_hint">
+<label class="f" data-i18n="icon">Icona</label><div id="iconPicker" class="iconGrid"></div>
+<label class="f" data-i18n="color">Colore</label><div id="colorPicker" class="colorGrid"></div>
+<div class="actions" style="margin-top:12px"><button id="saveManagedCat" class="primary" data-i18n="save">Salva</button><button id="deleteManagedCat" class="danger" style="display:none" data-i18n="delete">Elimina</button></div>
 <div id="manageCatMsg" class="status"></div>
 </div></div>
 
 <div id="categoryDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
 <div><b id="categoryDeleteQuestion">Sei sicuro di voler eliminare questa categoria?</b></div>
-<div class="actions" style="margin-top:14px"><button id="confirmCategoryDelete" class="danger" type="button">Elimina categoria</button><button id="cancelCategoryDelete" class="secondary" type="button">Annulla</button></div>
+<div class="actions" style="margin-top:14px"><button id="confirmCategoryDelete" class="danger" type="button" data-i18n="delete_category">Elimina categoria</button><button id="cancelCategoryDelete" class="secondary" type="button" data-i18n="cancel">Annulla</button></div>
 </div></div>
 
 <div id="moveDeleteModal" class="modal"><div class="sheet" style="max-width:430px">
-<div><b>Sei sicuro di voler eliminare questo movimento?</b></div>
-<div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button">Annulla</button></div>
+<div><b data-i18n="delete_move_question">Sei sicuro di voler eliminare questo movimento?</b></div>
+<div class="actions" style="margin-top:14px"><button id="confirmMoveDelete" class="danger" type="button" data-i18n="delete_transaction">Elimina movimento</button><button id="cancelMoveDelete" class="secondary" type="button" data-i18n="cancel">Annulla</button></div>
 </div></div>
 
 <div id="nekoConfirmModal" class="modal"><div class="sheet" style="max-width:430px">
 <div><b id="nekoConfirmTitle">Conferma operazione</b><div id="nekoConfirmMessage" class="kicker" style="margin-top:6px"></div></div>
-<div class="actions" style="margin-top:14px"><button id="nekoConfirmAction" class="danger" type="button">Conferma</button><button id="nekoConfirmCancel" class="secondary" type="button">Annulla</button></div>
+<div class="actions" style="margin-top:14px"><button id="nekoConfirmAction" class="danger" type="button">Conferma</button><button id="nekoConfirmCancel" class="secondary" type="button" data-i18n="cancel">Annulla</button></div>
 </div></div>
 
 <div id="splitMoveModal" class="modal"><div class="sheet" style="max-width:540px">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>Dividi movimento</b><div id="splitMoveTotal" class="kicker"></div></div><button id="closeSplitMove" class="secondary" type="button">Chiudi</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b data-i18n="split_transaction">Dividi movimento</b><div id="splitMoveTotal" class="kicker"></div></div><button id="closeSplitMove" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
 <div id="splitRows" class="splitRows"></div>
-<button id="addSplitPart" class="secondary" type="button" style="margin-top:10px">＋ Aggiungi parte</button>
+<button id="addSplitPart" class="secondary" type="button" style="margin-top:10px" data-i18n="manual_add_part">＋ Aggiungi parte</button>
 <div id="splitBalance" class="splitBalance"></div>
-<div class="actions" style="margin-top:12px"><button id="saveSplitMove" class="primary" type="button">Salva divisione</button><button id="removeSplitMove" class="danger" type="button">Rimuovi divisione</button></div>
+<div class="actions" style="margin-top:12px"><button id="saveSplitMove" class="primary" type="button" data-i18n="save_split">Salva divisione</button><button id="removeSplitMove" class="danger" type="button" data-i18n="remove_split">Rimuovi divisione</button></div>
 </div></div>
 
-<div id="undoToast" class="undoToast" role="status" aria-live="polite"><span id="undoToastText"></span><button id="undoToastAction" type="button">Annulla</button></div>
+<div id="undoToast" class="undoToast" role="status" aria-live="polite"><span id="undoToastText"></span><button id="undoToastAction" type="button" data-i18n="cancel">Annulla</button></div>
 
 </div>
 <div id="catSubstats" style="margin-top:12px"></div>
@@ -2535,7 +2535,7 @@ if(window.pdfjsLib){
 
 window.addEventListener("error",function(ev){
  const s=document.getElementById("status");
- if(s&&ev.error){s.textContent="Errore applicazione: "+(ev.error.message||String(ev.error));s.className="status err"}
+ if(s&&ev.error){s.textContent=NekoI18n.t("app_error",{message:ev.error.message||String(ev.error)});s.className="status err"}
 });
 const DEFAULT_CATS=["Da classificare","Shopping","Cibo","Telefono","Divertimento","Istruzione","Bellezza","Sport","Attività sociali","Trasporti","Abbigliamento","Auto","Alcol","Sigarette","Elettronica","Viaggi","Salute","Animali domestici","Abitazione","Mobili","Regali","Gioco d'azzardo","Spuntini","Bambini","Frutta e Verdura","Stipendio","Altre entrate","Rimborsi","Trasferimenti"];
 let customCats=JSON.parse(localStorage.getItem("micio_v7_customcats")||"[]");
@@ -2722,12 +2722,12 @@ function renderAvailableEstimate(){
  if(!homeLabel||!homeMeta||!homeAmount||!detail||!homeCard)return;
  homeCard.classList.remove("negative","unavailable");
  if(result.mode==="future"){
-  homeLabel.textContent="Disponibile stimato del mese";homeAmount.textContent="—";homeMeta.textContent=NekoI18n.t("future_available");homeCard.classList.add("unavailable");
+  NekoI18n.setText(homeLabel,"estimated_available");homeAmount.textContent="—";NekoI18n.setText(homeMeta,"future_available");homeCard.classList.add("unavailable");
   detail.innerHTML=`<div class="availableEmpty">${NekoI18n.t("future_estimate")}</div>`;return;
  }
  const negative=result.amount<0;homeCard.classList.toggle("negative",negative);homeAmount.textContent=euro(result.amount);
  if(result.mode==="closed"){
-  homeLabel.textContent=NekoI18n.t("closed_result");homeMeta.textContent=NekoI18n.t("closed_meta");
+  NekoI18n.setText(homeLabel,"closed_result");NekoI18n.setText(homeMeta,"closed_meta");
   detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>${NekoI18n.t("closed_result")}</span><b>${euro(result.amount)}</b><small>${NekoI18n.t("closed_detail")}</small></div>`;return;
  }
  homeLabel.textContent="Disponibile stimato del mese";homeMeta.textContent=result.remaining>0?NekoI18n.t(result.pending.length===1?"pending_count_one":"pending_count_many",{count:result.pending.length}):NekoI18n.t("no_pending");
@@ -2861,33 +2861,33 @@ function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="${esc(NekoI18n.t("select_move"))}">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?`<span class="noteBadge">${NekoI18n.t("note_badge")}</span>`:""}${(m._splitPart||validSplitParts(m))?`<span class="noteBadge">${NekoI18n.t("split_badge")}</span>`:""}</div><div class="meta">${displayDate(m.date)} · ${esc(categoryLabel(m.category))}${subtype(m)?" · "+NekoI18n.t({"Finanziamento":"subtype_finance","Carburante":"subtype_fuel","Parcheggio":"subtype_parking","Altro auto":"subtype_other_auto"}[subtype(m)]):""}${m.excludeStats?NekoI18n.t("excluded_suffix"):""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${attachmentCounts[m.id]} allegati">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="${esc(NekoI18n.t("select_move"))}">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?`<span class="noteBadge">${NekoI18n.t("note_badge")}</span>`:""}${(m._splitPart||validSplitParts(m))?`<span class="noteBadge">${NekoI18n.t("split_badge")}</span>`:""}</div><div class="meta">${displayDate(m.date)} · ${esc(categoryLabel(m.category))}${subtype(m)?" · "+NekoI18n.t({"Finanziamento":"subtype_finance","Carburante":"subtype_fuel","Parcheggio":"subtype_parking","Altro auto":"subtype_other_auto"}[subtype(m)]):""}${m.excludeStats?NekoI18n.t("excluded_suffix"):""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${NekoI18n.t("attachments_count",{count:attachmentCounts[m.id]})}">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
 function refreshAttachmentCounts(){
  attachmentCounts={};
  try{if(window.NekoApp&&typeof window.NekoApp.getAttachmentCounts==="function")attachmentCounts=JSON.parse(String(window.NekoApp.getAttachmentCounts())||"{}")}catch(e){console.warn("Conteggio allegati non disponibile",e)}
 }
-function attachmentSize(bytes){const n=Number(bytes)||0;if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toLocaleString("it-IT",{maximumFractionDigits:1})} KB`;return`${(n/1024/1024).toLocaleString("it-IT",{maximumFractionDigits:1})} MB`}
+function attachmentSize(bytes){const n=Number(bytes)||0;if(n<1024)return`${n} B`;if(n<1024*1024)return`${(n/1024).toLocaleString(nekoLocale(),{maximumFractionDigits:1})} KB`;return`${(n/1024/1024).toLocaleString("it-IT",{maximumFractionDigits:1})} MB`}
 function renderMovementAttachments(movementId){
  const root=document.getElementById("movementAttachmentsList"),add=document.getElementById("addMovementAttachment");if(!root||!add)return;
  const nativeAvailable=window.NekoApp&&typeof window.NekoApp.listAttachments==="function"&&typeof window.NekoApp.chooseAttachments==="function";add.disabled=!nativeAvailable;
- if(!nativeAvailable){root.innerHTML='<div class="attachmentEmpty">Gli allegati sono disponibili nella build Android.</div>';return}
+ if(!nativeAvailable){root.innerHTML=`<div class="attachmentEmpty">${NekoI18n.t("attachments_android")}</div>`;return}
  let items=[];try{items=JSON.parse(String(window.NekoApp.listAttachments(movementId))||"[]")}catch(e){items=[]}
- root.innerHTML=items.length?items.map(item=>`<div class="attachmentRow" data-attachment-id="${esc(item.id)}"><button type="button" class="attachmentOpen"><span class="attachmentFileIcon">${String(item.mime||"").startsWith("image/")?"▧":"PDF"}</span><span class="attachmentFileCopy"><b>${esc(item.name)}</b><small>${attachmentSize(item.size)}</small></span><span class="attachmentChevron">›</span></button><button type="button" class="attachmentRemove danger" aria-label="Rimuovi ${esc(item.name)}">×</button></div>`).join(""):'<div class="attachmentEmpty">Nessun allegato per questo movimento.</div>';
- root.querySelectorAll(".attachmentRow").forEach(rowEl=>{const id=rowEl.dataset.attachmentId;rowEl.querySelector(".attachmentOpen").onclick=()=>window.NekoApp.openAttachment(movementId,id);rowEl.querySelector(".attachmentRemove").onclick=()=>openNekoConfirm("Rimuovere questo allegato?","Il file verrà eliminato definitivamente dal dispositivo.","Rimuovi",()=>{if(window.NekoApp.removeAttachment(movementId,id)){refreshAttachmentCounts();render();renderMovementAttachments(movementId);showTemporaryMessage("Allegato rimosso")}else showTemporaryMessage("Non è stato possibile rimuovere l’allegato")})});
+ root.innerHTML=items.length?items.map(item=>`<div class="attachmentRow" data-attachment-id="${esc(item.id)}"><button type="button" class="attachmentOpen"><span class="attachmentFileIcon">${String(item.mime||"").startsWith("image/")?"▧":"PDF"}</span><span class="attachmentFileCopy"><b>${esc(item.name)}</b><small>${attachmentSize(item.size)}</small></span><span class="attachmentChevron">›</span></button><button type="button" class="attachmentRemove danger" aria-label="${esc(NekoI18n.t("remove_named_attachment",{name:item.name}))}">×</button></div>`).join(""):`<div class="attachmentEmpty">${NekoI18n.t("no_attachments")}</div>`;
+ root.querySelectorAll(".attachmentRow").forEach(rowEl=>{const id=rowEl.dataset.attachmentId;rowEl.querySelector(".attachmentOpen").onclick=()=>window.NekoApp.openAttachment(movementId,id);rowEl.querySelector(".attachmentRemove").onclick=()=>openNekoConfirm(NekoI18n.t("remove_attachment_question"),NekoI18n.t("remove_attachment_help"),NekoI18n.t("remove"),()=>{if(window.NekoApp.removeAttachment(movementId,id)){refreshAttachmentCounts();render();renderMovementAttachments(movementId);showTemporaryMessage(NekoI18n.t("attachment_removed"))}else showTemporaryMessage(NekoI18n.t("attachment_remove_failed"))})});
 }
-window.onNekoAttachmentsChanged=function(movementId,added,failed){refreshAttachmentCounts();render();if(selected===movementId)renderMovementAttachments(movementId);if(added>0)showTemporaryMessage(`${added} allegat${added===1?"o aggiunto":"i aggiunti"}`);else if(failed>0)showTemporaryMessage("Allegato non aggiunto: formato o dimensione non supportati")};
-window.onNekoAttachmentOpenFailed=function(){showTemporaryMessage("Nessuna app disponibile per aprire questo allegato")};
+window.onNekoAttachmentsChanged=function(movementId,added,failed){refreshAttachmentCounts();render();if(selected===movementId)renderMovementAttachments(movementId);if(added>0)showTemporaryMessage(NekoI18n.t(added===1?"attachment_added_one":"attachment_added_many",{count:added}));else if(failed>0)showTemporaryMessage(NekoI18n.t("attachment_add_failed"))};
+window.onNekoAttachmentOpenFailed=function(){showTemporaryMessage(NekoI18n.t("attachment_open_failed"))};
 async function extract(file){
- if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile.");
+ if(!window.pdfjsLib)throw new Error(NekoI18n.t("pdf_unavailable"));
  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),disableWorker:true}).promise;let text="";
  for(let p=1;p<=doc.numPages;p++){const page=await doc.getPage(p),tc=await page.getTextContent();text+=" "+tc.items.map(i=>i.str).join(" ")}
  text=text.replace(/\s+/g," ");const re=/(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+([+-]?\d{1,3}(?:\.\d{3})*,\d{2})\s+(.+?)(?=\s+\d{2}\/\d{2}\/\d{4}\s+\d{2}\/\d{2}\/\d{4}\s+[+-]?\d|$)/g;
  let out=[],m;while((m=re.exec(text))){let amount=parseAmount(m[3]),desc=sanitizeDescription(m[4].replace(/Stampa da Relax Banking.*?(?=\d{2}\/\d{2}\/\d{4}|$)/i,"").trim()),cl=classify(desc,amount);out.push({date:m[1],valueDate:m[2],amount,description:desc,category:cl.cat,why:cl.why,source:"pdf",note:"",excludeStats:false})}return out
 }
-function badge(m){if(m.duplicateReview)return'<span class="badge warn">possibile duplicato</span>';if(m.why==="learned")return'<span class="badge learn">imparato</span>';if(m.why==="local")return'<span class="badge auto">riconosciuto</span>';return'<span class="badge warn">da controllare</span>'}
-function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${displayDate(m.date)} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><button type="button" class="previewCategoryButton" data-i="${i}"><span class="previewCategoryIcon" style="background:${softColor(colorFor(m.category),.24)};color:${colorFor(m.category)}">${iconFor(m.category)}</span><span><small>Categoria</small><b>${esc(categoryLabel(m.category))}</b></span><span class="previewCategoryChevron">›</span></button></div>`}
+function badge(m){if(m.duplicateReview)return`<span class="badge warn">${NekoI18n.t("possible_duplicate")}</span>`;if(m.why==="learned")return`<span class="badge learn">${NekoI18n.t("learned_badge")}</span>`;if(m.why==="local")return`<span class="badge auto">${NekoI18n.t("recognized_badge")}</span>`;return`<span class="badge warn">${NekoI18n.t("review_badge")}</span>`}
+function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${displayDate(m.date)} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><button type="button" class="previewCategoryButton" data-i="${i}"><span class="previewCategoryIcon" style="background:${softColor(colorFor(m.category),.24)};color:${colorFor(m.category)}">${iconFor(m.category)}</span><span><small>${NekoI18n.t("category")}</small><b>${esc(categoryLabel(m.category))}</b></span><span class="previewCategoryChevron">›</span></button></div>`}
 function renderPendingPreview(){
- const root=document.getElementById("previewList");if(!root)return;root.innerHTML=pending.map(previewCard).join("")||'<div class="empty">Nessun nuovo movimento.</div>';root.querySelectorAll(".previewCategoryButton").forEach(button=>button.onclick=()=>openPreviewCategory(Number(button.dataset.i)));
+ const root=document.getElementById("previewList");if(!root)return;root.innerHTML=pending.map(previewCard).join("")||`<div class="empty">${NekoI18n.t("no_new_moves")}</div>`;root.querySelectorAll(".previewCategoryButton").forEach(button=>button.onclick=()=>openPreviewCategory(Number(button.dataset.i)));
 }
 let previewCategoryIndex=null;
 function closePreviewCategory(){const modal=document.getElementById("previewCategoryModal");if(modal)modal.style.display="none";previewCategoryIndex=null}
@@ -2928,7 +2928,7 @@ function openMonthPicker(){
  monthPickerYearValue=Number(parts[0])||new Date().getFullYear();
  renderMonthPicker();
  const modal=document.getElementById("monthPickerModal");
- if(modal)modal.style.display="flex";
+ if(modal){NekoI18n.apply(modal);modal.style.display="flex";}
 }
 function renderMonthPicker(){
  const yearEl=document.getElementById("monthPickerYear");
@@ -3035,7 +3035,7 @@ function applyStatsBulkCategory(){
  const modal=document.getElementById("bulkModal");if(modal){modal.style.display="none";delete modal.dataset.source}
  render();
  if(currentStatsCategory)openCategory(currentStatsCategory);
- offerMovementUndo("Categorie aggiornate",undoState);
+ offerMovementUndo(NekoI18n.t("categories_updated"),undoState);
 }
 function applyBulkCategory(){
  const sel=document.getElementById("bulkCategorySelect");if(!sel||!bulkSelected.size)return;
@@ -3090,7 +3090,7 @@ function renderCategoryManager(){
 }
 
 function openBudget(cat=null){
- editingBudget=cat;budgetMsg.textContent="";budgetModalTitle.textContent=cat?"Modifica budget":"Nuovo budget";
+ editingBudget=cat;budgetMsg.textContent="";NekoI18n.setText(budgetModalTitle,cat?"edit_budget":"new_budget");
  const picker=document.getElementById("budgetCategoryPicker"),cats=cat?[cat]:CATS(),initial=cat||cats[0]||"";budgetCat.value=initial;
  if(picker){picker.classList.toggle("locked",!!cat);picker.innerHTML=cats.map(c=>`<button type="button" class="budgetCategoryOption ${c===initial?"active":""}" data-cat="${esc(c)}"><span class="budgetCategoryOptionIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span>${esc(categoryLabel(c))}</span><span class="budgetCategoryCheck">✓</span></button>`).join("");if(!cat)picker.querySelectorAll(".budgetCategoryOption").forEach(b=>b.onclick=()=>{budgetCat.value=b.dataset.cat;picker.querySelectorAll(".budgetCategoryOption").forEach(x=>x.classList.toggle("active",x===b))})}
  budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
@@ -3102,8 +3102,8 @@ let pickedIcon=null,pickedColor=null;
 function renderStylePickers(name,reset=false){
  if(reset||!pickedIcon)pickedIcon=(categoryStyles[name]&&categoryStyles[name].icon)||iconFor(name);
  if(reset||!pickedColor)pickedColor=(categoryStyles[name]&&categoryStyles[name].color)||colorFor(name);
- iconPicker.innerHTML=CATEGORY_ICONS.map(i=>`<button type="button" class="iconChoice ${i===pickedIcon?"active":""}" data-icon="${i}">${i}</button>`).join("");
- colorPicker.innerHTML=CATEGORY_COLORS.map(c=>`<button type="button" class="colorChoice ${c===pickedColor?"active":""}" data-color="${c}" style="background:${c}"></button>`).join("");
+ iconPicker.innerHTML=CATEGORY_ICONS.map(i=>`<button type="button" class="iconChoice ${i===pickedIcon?"active":""}" data-icon="${i}" aria-label="${esc(NekoI18n.t("choose_icon",{icon:i}))}">${i}</button>`).join("");
+ colorPicker.innerHTML=CATEGORY_COLORS.map(c=>`<button type="button" class="colorChoice ${c===pickedColor?"active":""}" data-color="${c}" aria-label="${esc(NekoI18n.t("choose_color",{color:c}))}" style="background:${c}"></button>`).join("");
  iconPicker.querySelectorAll(".iconChoice").forEach(b=>b.onclick=()=>{pickedIcon=b.dataset.icon;renderStylePickers(name)});
  colorPicker.querySelectorAll(".colorChoice").forEach(b=>b.onclick=()=>{pickedColor=b.dataset.color;renderStylePickers(name)});
 }
@@ -3250,7 +3250,7 @@ function exitHomeEdit(){
 
 function openCategoryManager(name=null){
  editingCategory=name; manageCatMsg.textContent="";
- manageCatTitle.textContent=name?"Modifica categoria":"Nuova categoria";manageCatName.value=name||"";
+ NekoI18n.setText(manageCatTitle,name?"edit_category":"new_category");manageCatName.value=name||"";
  deleteManagedCat.style.display=name&&name!=="Da classificare"?"inline-block":"none";pickedIcon=null;pickedColor=null;renderStylePickers(name||"Altro",true);manageCatModal.style.display="flex";
 }
 function renameCategory(oldName,newName){
@@ -3277,7 +3277,7 @@ function setStatsEditMode(active){
  statsEditMode=active;const card=document.getElementById("statsCategoriesCard"),btn=document.getElementById("toggleStatsEdit");
  if(active)closeStatsCategoryDetail();
  if(card)card.classList.toggle("statsEditing",active);
- if(btn)btn.textContent="Fine";
+ if(btn)NekoI18n.setText(btn,"done");
 }
 function bindStatsCategoryEditing(){
  document.querySelectorAll("#catstats .catStatBtn").forEach(el=>{
@@ -3309,7 +3309,7 @@ function openCategory(catName){
  const panel=document.getElementById("statsCategoryDetail"),title=document.getElementById("statsDetailTitle"),summary=document.getElementById("statsDetailSummary");
  if(!panel||!title||!summary)return;
  title.textContent=`${iconFor(catName)} ${categoryLabel(catName)}`;
- summary.textContent=`${list.length} movimenti · Totale spese ${euro(total)}`;
+ summary.textContent=NekoI18n.t("category_detail_totals",{count:list.length,amount:euro(total)});
  panel.style.display="block";
  renderStatsCategoryMoves();
  panel.scrollIntoView({behavior:"smooth",block:"start"});
@@ -3399,23 +3399,23 @@ let editingSplitParts=[];
 function splitTargetCents(){const m=moves.find(x=>x.id===selected);return m?Math.round(Math.abs(m.amount)*100):0}
 function updateSplitBalance(){
  const el=document.getElementById("splitBalance"),target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),diff=target-sum;if(!el)return;
- if(diff===0&&editingSplitParts.length>=2){el.textContent="Totale corretto: "+euro(target/100);el.className="splitBalance ok"}
- else{el.textContent=diff>0?`Mancano ${euro(diff/100)}`:`Eccedono ${euro(Math.abs(diff)/100)}`;el.className="splitBalance err"}
+ if(diff===0&&editingSplitParts.length>=2){el.textContent=NekoI18n.t("split_matches",{amount:euro(target/100)});el.className="splitBalance ok"}
+ else{el.textContent=diff>0?NekoI18n.t("split_missing",{amount:euro(diff/100)}):NekoI18n.t("split_excess",{amount:euro(Math.abs(diff)/100)});el.className="splitBalance err"}
 }
 function renderSplitRows(){
  const root=document.getElementById("splitRows");if(!root)return;
- root.innerHTML=editingSplitParts.map((p,i)=>`<div class="splitRow" data-i="${i}"><select aria-label="Categoria parte ${i+1}">${CATS().map(c=>`<option value="${esc(c)}" ${c===p.category?"selected":""}>${esc(categoryLabel(c))}</option>`).join("")}</select><input type="number" min="0.01" step="0.01" inputmode="decimal" value="${p.amount||""}" placeholder="0,00" aria-label="Importo parte ${i+1}"><button type="button" class="danger splitRemove" aria-label="Rimuovi parte">×</button></div>`).join("");
+ root.innerHTML=editingSplitParts.map((p,i)=>`<div class="splitRow" data-i="${i}"><select aria-label="${NekoI18n.t("split_category_aria",{number:i+1})}">${CATS().map(c=>`<option value="${esc(c)}" ${c===p.category?"selected":""}>${esc(categoryLabel(c))}</option>`).join("")}</select><input type="number" min="0.01" step="0.01" inputmode="decimal" value="${p.amount||""}" placeholder="0,00" data-i18n-placeholder="amount_placeholder" aria-label="${NekoI18n.t("split_amount_aria",{number:i+1})}"><button type="button" class="danger splitRemove" aria-label="${NekoI18n.t("manual_remove_part")}">×</button></div>`).join("");
  root.querySelectorAll(".splitRow").forEach(rowEl=>{const i=Number(rowEl.dataset.i),sel=rowEl.querySelector("select"),input=rowEl.querySelector("input"),remove=rowEl.querySelector("button");sel.onchange=()=>{editingSplitParts[i].category=sel.value;updateSplitBalance()};input.oninput=()=>{editingSplitParts[i].amount=Number(String(input.value).replace(",","."))||0;updateSplitBalance()};remove.onclick=()=>{if(editingSplitParts.length<=2)return;editingSplitParts.splice(i,1);renderSplitRows()}});
  updateSplitBalance();
 }
 function openSplitEditor(){
  const m=moves.find(x=>x.id===selected);if(!m||m.amount>=0)return;const existing=validSplitParts(m),target=splitTargetCents(),first=Math.floor(target/2),second=target-first;
  editingSplitParts=existing?existing.map(p=>({...p})):[{category:m.category,amount:first/100},{category:CATS().find(c=>c!==m.category)||"Da classificare",amount:second/100}];
- document.getElementById("splitMoveTotal").textContent=`Importo da suddividere: ${euro(target/100)}`;document.getElementById("removeSplitMove").style.display=existing?"inline-block":"none";renderSplitRows();document.getElementById("splitMoveModal").style.display="flex";
+ document.getElementById("splitMoveTotal").textContent=NekoI18n.t("split_total",{amount:euro(target/100)});document.getElementById("removeSplitMove").style.display=existing?"inline-block":"none";renderSplitRows();document.getElementById("splitMoveModal").style.display="flex";
 }
 function updateSplitSummary(m){
  const summary=document.getElementById("splitSummary"),button=document.getElementById("openSplitMove");if(!summary||!button)return;const parts=validSplitParts(m);
- button.style.display=m.amount<0?"block":"none";button.textContent=parts?"Modifica divisione":"Dividi movimento";summary.classList.toggle("active",!!parts);summary.innerHTML=parts?`<b>Movimento diviso</b><br>${parts.map(p=>`${iconFor(p.category)} ${esc(p.category)} · ${euro(p.amount)}`).join("<br>")}`:"";
+ button.style.display=m.amount<0?"block":"none";NekoI18n.setText(button,parts?"edit_split":"split_transaction");summary.classList.toggle("active",!!parts);summary.innerHTML=parts?`<b>${NekoI18n.t("split_transaction_label")}</b><br>${parts.map(p=>`${iconFor(p.category)} ${esc(categoryLabel(p.category))} · ${euro(p.amount)}`).join("<br>")}`:"";
 }
 function edit(mid){
  selected=mid;
@@ -3495,7 +3495,7 @@ function renderLanguageOptions(){
 }
 document.querySelectorAll("#settings [data-settings-page]").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage(btn.dataset.settingsPage)));
 document.querySelectorAll("#settings .settingsBack").forEach(btn=>btn.addEventListener("click",()=>openSettingsPage("settingsMainPage")));
-document.querySelectorAll(".languageOption").forEach(option=>option.addEventListener("click",()=>{if(!window.NekoI18n)return;NekoI18n.setLanguage(option.dataset.language);renderLanguageOptions();render();applyTheme(darkMode,false);NekoI18n.apply()}));
+document.querySelectorAll(".languageOption").forEach(option=>option.addEventListener("click",()=>{if(!window.NekoI18n)return;NekoI18n.setLanguage(option.dataset.language);renderLanguageOptions();render();renderAddHomePanel();applyTheme(darkMode,false);NekoI18n.apply()}));
 const appInfoModal=document.getElementById("appInfoModal");
 const openAppInfoBtn=document.getElementById("openAppInfo");
 const closeAppInfoBtn=document.getElementById("closeAppInfo");
@@ -3524,7 +3524,7 @@ document.getElementById("nekoConfirmCancel").onclick=closeNekoConfirm;
 nekoConfirmAction.onclick=()=>{const action=pendingConfirmAction;closeNekoConfirm();if(action)action()};
 const clearRulesBtn=document.getElementById("clearRules");
 if(clearRulesBtn)clearRulesBtn.onclick=()=>{
- openNekoConfirm("Cancellare le regole automatiche?","Le categorie e i movimenti non verranno modificati.","Cancella regole",()=>{rules={};save();renderRulesManager()});
+ openNekoConfirm(NekoI18n.t("delete_rules_question"),NekoI18n.t("delete_rules_help"),NekoI18n.t("delete_rules"),()=>{rules={};save();renderRulesManager()});
 };
 function movementFilterOptions(){const t=key=>window.NekoI18n?NekoI18n.t(key):({all_movements:"Tutti i movimenti",income_and_expenses:"Entrate e uscite",only_expenses:"Solo uscite",payments_expenses:"Pagamenti e spese",only_income:"Solo entrate",income_receipts:"Accrediti e incassi",all:"Tutti",without_stats_filter:"Senza filtro statistiche",in_statistics:"Nelle statistiche",included_calculations:"Movimenti inclusi nei calcoli",outside_statistics:"Fuori statistiche",excluded_calculations:"Movimenti esclusi dai calcoli"}[key]||key);return{type:[{value:"all",label:t("all_movements"),description:t("income_and_expenses")},{value:"expense",label:t("only_expenses"),description:t("payments_expenses")},{value:"income",label:t("only_income"),description:t("income_receipts")}],stats:[{value:"all",label:t("all"),description:t("without_stats_filter")},{value:"included",label:t("in_statistics"),description:t("included_calculations")},{value:"excluded",label:t("outside_statistics"),description:t("excluded_calculations")}]}}
 function updateMovementFilterButtons(){
@@ -3545,23 +3545,22 @@ async function choose(file){
  const previewModalEl=document.getElementById("previewModal");
  const previewInfoEl=document.getElementById("previewInfo");
  const previewListEl=document.getElementById("previewList");
- if(!file){if(statusEl){statusEl.textContent="Nessun file selezionato.";statusEl.className="status err"}return}
- if(statusEl){statusEl.className="status";statusEl.textContent=`File selezionato: ${file.name}
-Analisi PDF…`}
+ if(!file){if(statusEl){NekoI18n.setText(statusEl,"no_selected_file");statusEl.className="status err"}return}
+ if(statusEl){statusEl.className="status";statusEl.textContent=NekoI18n.t("pdf_analyzing",{name:file.name})}
  try{
-   if(!window.pdfjsLib)throw new Error("Lettore PDF non disponibile. Chiudi e riapri l'app.");
+   if(!window.pdfjsLib)throw new Error(NekoI18n.t("pdf_restart"));
    pendingPdfFingerprint=await pdfFingerprint(file);
    const extracted=await extract(file);
    const detection=importedPdfFingerprints.includes(pendingPdfFingerprint)?{accepted:[],ignored:extracted.length,ambiguous:0}:detectImportedDuplicates(extracted,moves);pending=detection.accepted;pendingImportSummary={ignored:detection.ignored,ambiguous:detection.ambiguous};
    const unknown=pending.filter(m=>m.category==="Da classificare"&&!m.duplicateReview).length,review=unknown+detection.ambiguous;
-   if(previewInfoEl)previewInfoEl.textContent=`${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`;
+   if(previewInfoEl)previewInfoEl.textContent=NekoI18n.t("preview_counts",{count:pending.length,ignored:detection.ignored,review});
    if(previewListEl)renderPendingPreview();
    if(previewModalEl)previewModalEl.style.display="flex";
    if(statusEl)statusEl.textContent="";
-   showTemporaryMessage(`PDF letto · ${pending.length} nuovi · ${detection.ignored} già presenti ignorati · ${review} da controllare`);
+   showTemporaryMessage(NekoI18n.t("pdf_summary",{count:pending.length,ignored:detection.ignored,review}));
  }catch(e){
    console.error("Errore import PDF",e);
-   if(statusEl){statusEl.textContent="Errore importazione: "+(e&&e.message?e.message:String(e));statusEl.className="status err"}
+   if(statusEl){statusEl.textContent=NekoI18n.t("import_error",{message:e&&e.message?e.message:String(e)});statusEl.className="status err"}
  }
 }
 async function pdfFingerprint(file){
@@ -3570,14 +3569,14 @@ async function pdfFingerprint(file){
 function onPdfSelected(e){
  const input=e.currentTarget;const file=input.files&&input.files[0];
  const statusEl=document.getElementById("status");
- if(file){if(statusEl){statusEl.textContent=`File selezionato: ${file.name}`;statusEl.className="status"}choose(file)}
+ if(file){if(statusEl){statusEl.textContent=NekoI18n.t("file_selected",{name:file.name});statusEl.className="status"}choose(file)}
  else if(statusEl)statusEl.textContent="";
  input.value="";
 }
 if(pdfInput){pdfInput.addEventListener("change",onPdfSelected);pdfInput.addEventListener("input",()=>{})}
 let importSummaryTimer=null;
 function showTemporaryMessage(message,duration=4500,kind="info"){const el=document.getElementById("importSummaryToast");if(!el)return;el.textContent=message;el.classList.toggle("exitHint",kind==="exit");el.classList.add("active");clearTimeout(importSummaryTimer);importSummaryTimer=setTimeout(()=>el.classList.remove("active"),duration)}
-function showImportSummary(imported,ignored,ambiguous){showTemporaryMessage(`${imported} movimenti importati · ${ignored} già presenti ignorati · ${ambiguous} da controllare`,6500)}
+function showImportSummary(imported,ignored,ambiguous){showTemporaryMessage(NekoI18n.t("import_summary",{count:imported,ignored,review:ambiguous}),6500)}
 let pendingUndo=null,undoTimer=null;
 function captureMovementState(){return{moves:JSON.parse(JSON.stringify(moves)),rules:JSON.parse(JSON.stringify(rules))}}
 function dismissUndo(){const el=document.getElementById("undoToast");if(el)el.classList.remove("active");clearTimeout(undoTimer);pendingUndo=null}
@@ -3590,7 +3589,7 @@ function restoreLastMovementAction(){
  if(!pendingUndo)return;const state=pendingUndo;clearTimeout(undoTimer);pendingUndo=null;
  moves=state.moves;rules=state.rules;save();render();applyHomePrefs();
  if(currentStatsCategory)openCategory(currentStatsCategory);const selectedMove=moves.find(x=>x.id===selected);if(selectedMove)updateSplitSummary(selectedMove);
- const el=document.getElementById("undoToast");if(el)el.classList.remove("active");showTemporaryMessage("Modifica annullata");
+ const el=document.getElementById("undoToast");if(el)el.classList.remove("active");showTemporaryMessage(NekoI18n.t("undo_message"));
 }
 const undoToastAction=document.getElementById("undoToastAction");if(undoToastAction)undoToastAction.onclick=restoreLastMovementAction;
 confirmImport.onclick=()=>{const imported=pending.length,summary={...pendingImportSummary};for(const m of pending){if(m.why==="learned"&&m.category!=="Da classificare"){const k=merchantKey(m.description);if(k)rules[k]=m.category}m.id=uid();moves.push(m)}if(imported&&pendingPdfFingerprint&&!importedPdfFingerprints.includes(pendingPdfFingerprint))importedPdfFingerprints.push(pendingPdfFingerprint);pending=[];pendingPdfFingerprint=null;pendingImportSummary={ignored:0,ambiguous:0};save();previewModal.style.display="none";render();go("home");showImportSummary(imported,summary.ignored,summary.ambiguous)};cancelImport.onclick=()=>{pending=[];pendingPdfFingerprint=null;pendingImportSummary={ignored:0,ambiguous:0};previewModal.style.display="none"};
@@ -3633,7 +3632,7 @@ if(saveBudgetButton)saveBudgetButton.onclick=()=>{
  const cat=catEl.value;
  const amount=Number(String(amountEl.value).replace(",","."));
  if(!cat||!Number.isFinite(amount)||amount<=0){
-   if(msgEl){msgEl.textContent="Inserisci un importo valido.";msgEl.className="status err";}
+   if(msgEl){NekoI18n.setText(msgEl,"valid_amount");msgEl.className="status err";}
    return;
  }
  budgets[cat]=amount;
@@ -3646,7 +3645,7 @@ if(saveBudgetButton)saveBudgetButton.onclick=()=>{
 
 if(deleteBudgetButton)deleteBudgetButton.onclick=()=>{
  if(!editingBudget)return;
- openNekoConfirm("Eliminare questo budget?",`Il budget di “${editingBudget}” verrà rimosso.`,"Elimina budget",()=>{
+ openNekoConfirm(NekoI18n.t("delete_budget_question"),NekoI18n.t("delete_named_budget",{category:categoryLabel(editingBudget)}),NekoI18n.t("delete_budget"),()=>{
    delete budgets[editingBudget];
    editingBudget=null;
    save();
@@ -3663,25 +3662,25 @@ function saveTextFile(name,mime,content,statusEl){
  pendingExportStatus=statusEl||null;
  if(window.NekoApp&&typeof window.NekoApp.saveTextFile==="function"){window.NekoApp.saveTextFile(name,mime,content);return}
  const blob=new Blob([content],{type:mime}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
- if(statusEl){statusEl.textContent="File esportato.";statusEl.className="status ok"}
+ if(statusEl){NekoI18n.setText(statusEl,"exported");statusEl.className="status ok"}
 }
-window.onNekoFileSaved=success=>{if(pendingExportStatus){if(success){const el=pendingExportStatus;el.textContent="File salvato correttamente.";el.className="status ok";setTimeout(()=>{if(el.textContent==="File salvato correttamente.")el.textContent=""},3500)}else pendingExportStatus.textContent=""}pendingExportStatus=null};
+window.onNekoFileSaved=success=>{if(pendingExportStatus){if(success){const el=pendingExportStatus;NekoI18n.setText(el,"file_saved");el.className="status ok";setTimeout(()=>{if(el.textContent===NekoI18n.t("file_saved"))el.textContent=""},3500)}else pendingExportStatus.textContent=""}pendingExportStatus=null};
 exportCsv.onclick=()=>{
- const headers=["Data","Data valuta","Tipo","Importo","Categoria","Descrizione","Nota","Escluso statistiche"];
- const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>{const parts=validSplitParts(m),category=parts?parts.map(p=>`${p.category}: ${p.amount.toFixed(2)} €`).join(" | "):m.category;return[displayDate(m.date),displayDate(m.valueDate||m.date),m.amount<0?"Uscita":"Entrata",m.amount,category,sanitizeDescription(m.description),m.note||"",m.excludeStats?"Sì":"No"]});
+ const headers=[NekoI18n.t("manual_date"),NekoI18n.t("csv_value_date"),NekoI18n.t("type"),NekoI18n.t("csv_amount"),NekoI18n.t("category"),NekoI18n.t("csv_description"),NekoI18n.t("note"),NekoI18n.t("csv_excluded")];
+ const rows=moves.slice().sort((a,b)=>parseItDate(a.date)-parseItDate(b.date)).map(m=>{const parts=validSplitParts(m),category=parts?parts.map(p=>`${categoryLabel(p.category)}: ${euro(p.amount)}`).join(" | "):categoryLabel(m.category);return[displayDate(m.date),displayDate(m.valueDate||m.date),m.amount<0?NekoI18n.t("expense_singular"):NekoI18n.t("income_singular"),m.amount,category,sanitizeDescription(m.description),m.note||"",m.excludeStats?NekoI18n.t("yes"):NekoI18n.t("no")]});
  const escCsv=v=>`"${String(v??"").replace(/"/g,'""')}"`;
  const csv="\uFEFF"+[headers,...rows].map(r=>r.map(escCsv).join(";")).join("\r\n");
  saveTextFile("neko-movimenti.csv","text/csv",csv,document.getElementById("backupStatus"));
 };
 function backupData(){return{version:11,exportedAt:new Date().toISOString(),moves,rules,customCats,renamedCats,deletedCats,budgets,categoryStyles,recurringPrefs,categoryOrder,homePrefs,homeOrder,statsCategoryOrder,importedPdfFingerprints}}
 exportBackup.onclick=()=>saveTextFile("neko-backup.json","application/json",JSON.stringify(backupData(),null,2),backupStatus);
-importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error("Backup non valido");moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];importedPdfFingerprints=d.importedPdfFingerprints||[];save();render();backupStatus.textContent="Backup ripristinato.";backupStatus.className="status ok"}catch(err){backupStatus.textContent="Errore: "+err.message;backupStatus.className="status err"}e.target.value=""};
+importBackup.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.moves))throw new Error(NekoI18n.t("invalid_backup"));moves=d.moves||[];rules=d.rules||{};customCats=d.customCats||[];renamedCats=d.renamedCats||{};deletedCats=d.deletedCats||[];budgets=d.budgets||{};categoryStyles=d.categoryStyles||{};recurringPrefs=d.recurringPrefs||{};categoryOrder=d.categoryOrder||[];homePrefs=d.homePrefs||homePrefs;homeOrder=d.homeOrder||homeOrder;statsCategoryOrder=d.statsCategoryOrder||[];importedPdfFingerprints=d.importedPdfFingerprints||[];save();render();NekoI18n.setText(backupStatus,"backup_restored");backupStatus.className="status ok"}catch(err){backupStatus.textContent=NekoI18n.t("general_error",{message:err.message});backupStatus.className="status err"}e.target.value=""};
 closeManageCat.onclick=()=>manageCatModal.style.display="none";newCategory.onclick=()=>openCategoryManager();
-saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){manageCatMsg.textContent="Inserisci un nome.";return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){manageCatMsg.textContent="Esiste già una categoria con questo nome.";return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
+saveManagedCat.onclick=()=>{const n=manageCatName.value.trim();if(!n){NekoI18n.setText(manageCatMsg,"enter_name");return}if(CATS().some(c=>c.toLowerCase()===n.toLowerCase()&&c!==editingCategory)){NekoI18n.setText(manageCatMsg,"duplicate_category_name");return}if(editingCategory){const old=editingCategory;renameCategory(old,n);if(categoryStyles[old]&&old!==n){categoryStyles[n]=categoryStyles[old];delete categoryStyles[old]}}else customCats.push(n);
 categoryStyles[n]={icon:pickedIcon||iconFor(n),color:pickedColor||colorFor(n)};save();render();renderCategoryManager();manageCatModal.style.display="none"};
 const categoryDeleteModal=document.getElementById("categoryDeleteModal"),categoryDeleteQuestion=document.getElementById("categoryDeleteQuestion");
 const closeCategoryDelete=()=>{if(categoryDeleteModal)categoryDeleteModal.style.display="none"};
-deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteQuestion)categoryDeleteQuestion.textContent=`Sei sicuro di voler eliminare “${editingCategory}”?`;if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
+deleteManagedCat.onclick=()=>{if(!editingCategory)return;if(categoryDeleteQuestion)categoryDeleteQuestion.textContent=NekoI18n.t("delete_named_category",{category:categoryLabel(editingCategory)});if(categoryDeleteModal)categoryDeleteModal.style.display="flex"};
 document.getElementById("cancelCategoryDelete").onclick=closeCategoryDelete;
 document.getElementById("confirmCategoryDelete").onclick=()=>{if(!editingCategory)return;removeCategory(editingCategory);save();render();renderCategoryManager();manageCatModal.style.display="none";closeCategoryDelete()};
 const bulkModalCloseBtn=document.getElementById("bulkModalClose");
@@ -3703,15 +3702,15 @@ document.getElementById("closeSplitMove").onclick=()=>splitMoveModal.style.displ
 document.getElementById("addSplitPart").onclick=()=>{const used=new Set(editingSplitParts.map(p=>p.category)),category=CATS().find(c=>!used.has(c))||CATS()[0];editingSplitParts.push({category,amount:0});renderSplitRows()};
 document.getElementById("saveSplitMove").onclick=()=>{
  const m=moves.find(x=>x.id===selected);if(!m)return;const target=splitTargetCents(),sum=editingSplitParts.reduce((s,p)=>s+Math.round((Number(p.amount)||0)*100),0),cats=editingSplitParts.map(p=>p.category);
- if(editingSplitParts.length<2||editingSplitParts.some(p=>!p.category||Number(p.amount)<=0)||new Set(cats).size!==cats.length||sum!==target){const el=document.getElementById("splitBalance");if(el){el.textContent=new Set(cats).size!==cats.length?"Scegli categorie diverse per ogni parte.":"Controlla gli importi: la somma deve coincidere esattamente.";el.className="splitBalance err"}return}
+ if(editingSplitParts.length<2||editingSplitParts.some(p=>!p.category||Number(p.amount)<=0)||new Set(cats).size!==cats.length||sum!==target){const el=document.getElementById("splitBalance");if(el){el.textContent=new Set(cats).size!==cats.length?NekoI18n.t("different_split_categories"):NekoI18n.t("split_amount_mismatch");el.className="splitBalance err"}return}
  m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";
 };
-document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
-saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl&&nameEl.value.trim()!==shortDesc(m)?nameEl.value.trim():(m.customName||"");m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
+document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo(NekoI18n.t("split_removed"),undoState)};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl&&nameEl.value.trim()!==shortDesc(m)?nameEl.value.trim():(m.customName||"");m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo(NekoI18n.t("category_updated"),undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
 document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
-document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";document.body.classList.remove("edit-modal-open");closeMoveDelete();offerMovementUndo("Movimento eliminato",undoState)};
+document.getElementById("confirmMoveDelete").onclick=()=>{if(!selected)return;const undoState=captureMovementState();moves=moves.filter(x=>x.id!==selected);selected=null;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);editModal.style.display="none";document.body.classList.remove("edit-modal-open");closeMoveDelete();offerMovementUndo(NekoI18n.t("transaction_deleted"),undoState)};
 const homeBudgetList=document.getElementById("homeBudget");
 if(homeBudgetList){
  homeBudgetList.addEventListener("click",e=>{
@@ -3757,7 +3756,7 @@ document.getElementById("addManualAction").onclick=()=>{closeAddActions();openMa
 document.getElementById("addDocumentAction").onclick=()=>{closeAddActions();go("moves");pdfInput.click()};
 if(addMoveBtn)addMoveBtn.addEventListener("click",openManual);
 NekoManual.bind();
-clear.onclick=()=>openNekoConfirm("Cancellare tutti i dati?","Verranno rimossi movimenti, allegati, regole, categorie personalizzate e budget. L'operazione non può essere annullata.","Cancella tutto",()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];importedPdfFingerprints=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
+clear.onclick=()=>openNekoConfirm(NekoI18n.t("delete_all_question"),NekoI18n.t("delete_all_help"),NekoI18n.t("delete_everything"),()=>{if(window.NekoApp&&typeof window.NekoApp.deleteAllAttachments==="function")window.NekoApp.deleteAllAttachments();moves=[];rules={};customCats=[];renamedCats={};deletedCats=[];budgets={};categoryStyles={};recurringPrefs={};categoryOrder=[];homePrefs={summary:true,compare:true,budget:true,topcats:true,latest:true};homeOrder=["summary","compare","budget","topcats","latest"];statsCategoryOrder=[];importedPdfFingerprints=[];attachmentCounts={};selectedMonth=nowMonthKey();save();render()});
 document.querySelectorAll(".nav button[data-screen]").forEach(x=>x.onclick=()=>go(x.dataset.screen));
 const monthPickerBtn=document.getElementById("monthPickerBtn");
 const themeToggleBtn=document.getElementById("themeToggle");
@@ -4130,3 +4129,5 @@ html #settings #settingsMainPage .settingsList::after{display:none!important;con
  brand.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();if(!event.repeat)spin()}});
 })();
 </script>
+
+<script>document.querySelector('label[for="importBackup"]').addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();if(!event.repeat)document.getElementById("importBackup").click()}});</script>
