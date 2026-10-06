@@ -96,8 +96,8 @@ public class MainActivity extends Activity {
                     ? WindowInsets.CONSUMED
                     : insets.consumeSystemWindowInsets();
         });
-        setContentView(webView);
-        webView.requestApplyInsets();
+        setContentView(content);
+        content.requestApplyInsets();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             backCallback = this::dispatchAppBack;
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
