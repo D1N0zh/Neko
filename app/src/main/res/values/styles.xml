@@ -1,14 +1,17 @@
 <resources>
-    <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+    <style name="AppThemeBase" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowBackground">#F6F7F9</item>
-        <item name="android:statusBarColor">#F6F7F9</item>
-        <item name="android:navigationBarColor">#F6F7F9</item>
-        <item name="android:windowSplashScreenBackground">#F6F7F9</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowBackground">@color/koin_launch_surface</item>
+        <item name="android:statusBarColor">@color/koin_launch_surface</item>
+        <item name="android:navigationBarColor">@color/koin_launch_surface</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground">@color/koin_launch_surface</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/koin_launch_blank</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
         <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:colorAccent">#5F6FE4</item>
+        <item name="android:colorAccent">#D99D32</item>
     </style>
+    <style name="AppTheme" parent="AppThemeBase" />
 </resources>

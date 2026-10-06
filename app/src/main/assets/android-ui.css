@@ -410,3 +410,26 @@ html #settings #settingsRecurringPage #concludedRecurring[hidden]{display:none!i
 #settingsRecurringPage .recurringIgnoredToggle[aria-expanded]::after{content:"⌄";display:inline-block;margin-left:6px;transition:transform .15s ease}
 #settingsRecurringPage .recurringIgnoredToggle[aria-expanded="true"]::after{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){#settingsRecurringPage .recurringIgnoredToggle::after{transition:none}}
+
+/* The transparent coin has no surrounding tile in the header. */
+html .compactHead .compactBrandMark,
+html[data-theme="dark"] .compactHead .compactBrandMark,
+html .compactHead .compactBrandMark img{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;clip-path:none!important}
+
+/* Temporary messages share the active Koin surface and text palette. */
+html #importSummaryToast{background:var(--card)!important;color:var(--text)!important;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line))!important;border-radius:16px!important;box-shadow:0 8px 24px rgba(0,0,0,.16)!important;font-size:13px;line-height:1.4}
+html #importSummaryToast.exitHint{width:max-content;max-width:calc(100% - 32px);padding:11px 18px;text-align:center;font-weight:650}
+@media(prefers-reduced-motion:reduce){html #importSummaryToast{transition:none}}
+
+html .compactHead .compactBrandMark[role="button"]{cursor:pointer;touch-action:manipulation}
+html .compactHead .compactBrandMark[role="button"]:focus-visible{outline:2px solid var(--accent)!important;outline-offset:3px}
+
+/* Central add menu integrated into the five-slot bottom navigation. */
+html .bottom .nav{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 60px minmax(0,1fr) minmax(0,1fr)!important;align-items:center}
+html .bottom .nav #addTop.compactAddMove{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;justify-self:center;align-self:center;transform:translateY(-16px);width:56px!important;min-width:56px!important;height:56px!important;min-height:56px!important;border-radius:19px!important;z-index:1!important}
+html .bottom .nav #addTop .plusMark{font-size:29px!important;margin:0!important;line-height:1!important}
+html .bottom .nav button[data-screen]{min-width:0!important;padding-left:2px!important;padding-right:2px!important}
+html .bottom .nav .navLabel{font-size:10px!important;line-height:1.25!important;overflow-wrap:normal}
+.addActionOptions{display:grid;gap:10px;margin-top:16px}.addActionOption{display:grid;grid-template-columns:42px minmax(0,1fr) 18px;align-items:center;gap:12px;width:100%;padding:12px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--card)!important;color:var(--text)!important;text-align:left}
+.addActionOption>span:nth-child(2){display:flex;flex-direction:column;gap:4px}.addActionOption b{font-size:14px}.addActionOption small{font-size:11px;font-weight:400;color:var(--muted);line-height:1.35}.addActionIcon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);font-size:23px}.addActionOption>span:last-child{color:var(--muted);font-size:22px}
+@media(max-width:380px){html .bottom .nav .navLabel,html .bottom .nav button[data-screen]{font-size:9px!important}}
