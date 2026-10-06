@@ -29,9 +29,8 @@ jobs:
 
       - name: Android command-line tools
         uses: android-actions/setup-android@v3
-
-      - name: Android SDK 36
-        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
 
       - name: Recreate signing files
         shell: bash
