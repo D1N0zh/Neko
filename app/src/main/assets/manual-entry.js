@@ -15,12 +15,12 @@ window.NekoManual=(()=>{
    $("manualSplitBalance").className=difference===0?"status ok":"status err";
  }
  function categoryButton(button,category){
-   button.innerHTML=`<b>${esc(category)}</b><span aria-hidden="true">›</span>`;
+   button.innerHTML=`<b>${esc(categoryLabel(category))}</b><span aria-hidden="true">›</span>`;
  }
  function chooseCategory(current,onChoose){
    if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
    const root=$("manualCategoryOptions");
-   root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===current?"active":""}" data-cat="${esc(category)}"><span>${esc(category)}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
+   root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===current?"active":""}" data-cat="${esc(category)}"><span>${esc(categoryLabel(category))}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
    root.querySelectorAll("button").forEach(button=>button.onclick=()=>{onChoose(button.dataset.cat);$("manualCategoryModal").style.display="none"});
    $("manualCategoryModal").style.display="flex";
  }
@@ -43,7 +43,7 @@ window.NekoManual=(()=>{
    $("toggleManualSplit").textContent=t(enabled?"manual_remove_split":"manual_split");
    $("manualSplitPanel").hidden=!enabled;$("manualCategoryButton").hidden=enabled;$("manualCategoryLabel").hidden=enabled;
    $("manualTypeName").textContent=t(expense?"expenses":"income");
-   $("manualCategoryName").textContent=$("mcat").value;
+   $("manualCategoryName").textContent=categoryLabel($("mcat").value);
    // Hidden draft fields must not block an income or an unsplit movement.
    $("manualSplitRows").querySelectorAll("input").forEach(input=>input.disabled=!enabled);
  }

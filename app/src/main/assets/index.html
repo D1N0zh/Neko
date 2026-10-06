@@ -902,7 +902,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,
 #stats #pieChart{display:block!important;width:220px!important;height:220px!important;max-width:100%!important}
 #stats .pieLegend{flex:1;min-width:150px}
 @media(max-width:430px){#stats .pieWrap{justify-content:center!important}#stats .pieBox{width:200px!important;min-width:200px!important;height:200px!important}#stats #pieChart{width:200px!important;height:200px!important}}
-</style><link rel="icon" type="image/png" href="koin-coin.svg">
+</style><link rel="icon" type="image/png" href="koin-coin.png">
 
 <style>
 .compactHead .compactBrandMark{
@@ -1905,17 +1905,25 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 [data-theme="dark"] .themeToggle .themeSun{opacity:0;transform:rotate(35deg) scale(.65)}
 [data-theme="dark"] .themeToggle .themeMoon{opacity:1;transform:rotate(0) scale(1)}
 </style>
+<style id="koin-coin-startup">
+.startupSplash{transition:opacity .14s ease,visibility 0s linear .14s}
+.startupSplashBrand{animation:none!important;perspective:650px;gap:16px}
+html #startupSplash .startupSplashLogo{width:112px!important;height:112px!important;object-fit:contain;clip-path:none!important;border-radius:0!important;transform-origin:50% 50%;animation:koinCoinIntro .65s ease-out both;filter:drop-shadow(0 9px 13px rgba(100,65,15,.20));will-change:transform}
+@keyframes koinCoinIntro{0%{transform:rotateY(0deg) translateY(0)}55%{transform:rotateY(360deg) translateY(0)}65%{transform:rotateY(360deg) translateY(0) scale(1)}72%{transform:rotateY(360deg) translateY(4px) scale(1.04,.94)}84%{transform:rotateY(360deg) translateY(-10px) scale(.98,1.02)}94%{transform:rotateY(360deg) translateY(2px) scale(1.02,.98)}100%{transform:rotateY(360deg) translateY(0) scale(1)}}
+html .compactBrandMark img{object-fit:contain!important;clip-path:none!important;border-radius:0!important}
+@media(prefers-reduced-motion:reduce){html #startupSplash .startupSplashLogo{animation:none!important;will-change:auto}.startupSplash{transition:none!important}}
+</style>
 </head>
 <body class="home-loading">
 <div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Koin Finance Manager" data-i18n-aria="startup_label">
   <div class="startupSplashBrand">
-    <img class="startupSplashLogo" src="koin-coin.svg" alt="Koin Finance Manager">
+    <img class="startupSplashLogo" src="koin-coin.png" alt="Koin Finance Manager">
     <span class="startupSplashName">Koin Finance Manager</span>
   </div>
 </div>
 <div class="app">
 <div class="head compactHead">
-  <div class="compactBrandMark" aria-label="Koin Finance Manager"><img src="koin-coin.svg" alt="Logo Koin Finance Manager"></div>
+  <div class="compactBrandMark" aria-label="Koin Finance Manager"><img src="koin-coin.png" alt="Logo Koin Finance Manager"></div>
   <div class="monthControl">
     <button id="prevMonth" class="monthArrow secondary" type="button" aria-label="Mese precedente" data-i18n-aria="previous_month">‹</button>
     <button id="monthPickerBtn" class="monthCenter" type="button" aria-label="Seleziona mese" data-i18n-aria="select_month">
@@ -2325,13 +2333,13 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
         <div class="recurringGroupLabel" data-i18n="expected_this_month">Attese questo mese</div>
         <div id="expectedRecurringList"></div>
       </div>
-      <div class="recurringGroupLabel" data-i18n="your_choices">Le tue scelte</div>
-      <div id="managedRecurring"></div>
-      <button id="toggleIgnoredRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
+      <button id="toggleManagedRecurring" class="recurringIgnoredToggle" type="button" aria-controls="managedRecurring" aria-expanded="false"></button>
+      <div id="managedRecurring" hidden></div>
+      <button id="toggleIgnoredRecurring" aria-controls="ignoredRecurring" aria-expanded="false" class="recurringIgnoredToggle" type="button" style="display:none"></button>
       <div id="ignoredRecurring" hidden></div>
       <div class="recurringGroupLabel recurringDetectedLabel" data-i18n="to_review">Da controllare</div>
       <div id="recurringList"></div>
-      <button id="toggleConcludedRecurring" class="recurringIgnoredToggle" type="button" style="display:none"></button>
+      <button id="toggleConcludedRecurring" aria-controls="concludedRecurring" aria-expanded="false" class="recurringIgnoredToggle" type="button" style="display:none"></button>
       <div id="concludedRecurring" hidden></div>
     </div>
   </div>
@@ -2513,20 +2521,19 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <script src="pdf.min.js"></script>
 <script>
 
-const nekoStartupStartedAt=performance.now();
-const nekoStartupMinimumMs=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches?220:900;
 let nekoStartupFinishing=false;
 function finishStartupSplash(){
  if(nekoStartupFinishing)return;
  nekoStartupFinishing=true;
- const remaining=Math.max(0,nekoStartupMinimumMs-(performance.now()-nekoStartupStartedAt));
- setTimeout(()=>{
-   document.body.classList.remove("home-loading");
-   const splash=document.getElementById("startupSplash");
-   if(!splash)return;
-   requestAnimationFrame(()=>splash.classList.add("leaving"));
-   setTimeout(()=>splash.remove(),320);
- },remaining);
+ requestAnimationFrame(()=>{
+  const splash=document.getElementById("startupSplash"),logo=splash&&splash.querySelector(".startupSplashLogo");
+  const reveal=()=>{document.body.classList.remove("home-loading");if(splash){splash.classList.add("leaving");setTimeout(()=>splash.remove(),180)}};
+  if(!splash){reveal();return}
+  const animations=logo&&logo.getAnimations?logo.getAnimations():[];
+  const decoded=logo&&logo.decode?logo.decode().catch(()=>{}):Promise.resolve();
+  // Wait for the one short coin animation, with a bound if an image or animation fails.
+  Promise.race([Promise.all([decoded,...animations.map(animation=>animation.finished?animation.finished.catch(()=>{}):new Promise(resolve=>setTimeout(resolve,650)))]),new Promise(resolve=>setTimeout(resolve,900))]).then(reveal);
+ });
 }
 setTimeout(finishStartupSplash,2600);
 
@@ -2538,40 +2545,24 @@ window.addEventListener("error",function(ev){
  const s=document.getElementById("status");
  if(s&&ev.error){s.textContent="Errore applicazione: "+(ev.error.message||String(ev.error));s.className="status err"}
 });
-const DEFAULT_CATS=["Da classificare","Alimentari","Casa","Mutuo","Bollette","Auto","Trasporti","Ristorazione","Shopping","Svago","Salute","Abbonamenti","Prelievi","Commissioni","Stipendio","Entrate","Trasferimenti","Tasse","Altro"];
+const DEFAULT_CATS=["Da classificare","Shopping","Cibo","Telefono","Divertimento","Istruzione","Bellezza","Sport","Attività sociali","Trasporti","Abbigliamento","Auto","Alcol","Sigarette","Elettronica","Viaggi","Salute","Animali domestici","Abitazione","Mobili","Regali","Gioco d'azzardo","Spuntini","Bambini","Frutta e Verdura","Stipendio","Altre entrate","Rimborsi","Trasferimenti"];
 let customCats=JSON.parse(localStorage.getItem("micio_v7_customcats")||"[]");
 let renamedCats=JSON.parse(localStorage.getItem("micio_v7_renamedcats")||"{}");
 let deletedCats=JSON.parse(localStorage.getItem("micio_v7_deletedcats")||"[]");
 function CATS(){
- const base=[...new Set([...DEFAULT_CATS.filter(c=>!deletedCats.includes(c)).map(c=>renamedCats[c]||c),...customCats])];
+ // Keep referenced historical categories valid without changing transactions or backup data.
+ const referenced=[...moves.flatMap(m=>[m.category,...(Array.isArray(m.splitParts)?m.splitParts.map(p=>p&&p.category):[])]),...Object.keys(budgets),...Object.values(rules)].filter(c=>typeof c==="string"&&c&&!deletedCats.includes(c));
+ const base=[...new Set([...DEFAULT_CATS.filter(c=>!deletedCats.includes(c)).map(c=>renamedCats[c]||c),...customCats,...referenced])];
  if(!categoryOrder.length)return base;
  const ordered=categoryOrder.filter(c=>base.includes(c));
  return [...ordered,...base.filter(c=>!ordered.includes(c))];
 }
+const CATEGORY_LABEL_KEYS={"Da classificare":"category_0","Shopping":"category_1","Cibo":"category_2","Telefono":"category_3","Divertimento":"category_4","Istruzione":"category_5","Bellezza":"category_6","Sport":"category_7","Attività sociali":"category_8","Trasporti":"category_9","Abbigliamento":"category_10","Auto":"category_11","Alcol":"category_12","Sigarette":"category_13","Elettronica":"category_14","Viaggi":"category_15","Salute":"category_16","Animali domestici":"category_17","Abitazione":"category_18","Mobili":"category_19","Regali":"category_20","Gioco d'azzardo":"category_21","Spuntini":"category_22","Bambini":"category_23","Frutta e Verdura":"category_24","Stipendio":"category_25","Altre entrate":"category_26","Rimborsi":"category_27","Trasferimenti":"category_28","Alimentari":"category_29","Casa":"category_30","Mutuo":"category_31","Bollette":"category_32","Ristorazione":"category_33","Svago":"category_34","Abbonamenti":"category_35","Prelievi":"category_36","Commissioni":"category_37","Entrate":"category_38","Tasse":"category_39","Altro":"category_40"};
+function categoryLabel(name){if(customCats.includes(name)||Object.values(renamedCats).includes(name))return name;const key=CATEGORY_LABEL_KEYS[name];return key?NekoI18n.t(key):name}
 function canonicalCat(name){for(const [old,nw] of Object.entries(renamedCats))if(nw===name)return old;return name}
 function iconFor(name){return (categoryStyles[name]&&categoryStyles[name].icon)||ICON[canonicalCat(name)]||"•"}
-const ICON={"Da classificare":"?","Alimentari":"🛒","Casa":"🏠","Mutuo":"🏡","Bollette":"💡","Auto":"🚗","Trasporti":"🚌","Ristorazione":"🍴","Shopping":"🛍️","Svago":"🎮","Salute":"✚","Abbonamenti":"↻","Prelievi":"🏧","Commissioni":"€","Stipendio":"💼","Entrate":"↑","Trasferimenti":"⇄","Tasse":"§","Altro":"•"};
-const CAT_COLORS={
- "Da classificare":"#94a3b8",
- "Alimentari":"#55a870",
- "Casa":"#8c7ac8",
- "Mutuo":"#7a8fc7",
- "Bollette":"#d6a84b",
- "Auto":"#4f8fb8",
- "Trasporti":"#62a6a0",
- "Ristorazione":"#d67c65",
- "Shopping":"#c56fa6",
- "Svago":"#8c73bd",
- "Salute":"#d26176",
- "Abbonamenti":"#6985c8",
- "Prelievi":"#9b7f72",
- "Commissioni":"#8c929c",
- "Stipendio":"#43a376",
- "Entrate":"#5aae84",
- "Trasferimenti":"#5e91a8",
- "Tasse":"#b9895f",
- "Altro":"#8d98a8"
-};
+const ICON={"Da classificare":"?","Alimentari":"🛒","Casa":"🏠","Mutuo":"🏡","Bollette":"💡","Auto":"🚗","Trasporti":"🚌","Ristorazione":"🍴","Shopping":"🛍️","Svago":"🎮","Salute":"✚","Abbonamenti":"↻","Prelievi":"🏧","Commissioni":"€","Stipendio":"💼","Entrate":"↑","Trasferimenti":"⇄","Tasse":"§","Altro":"•","Cibo":"🍽️","Telefono":"📱","Divertimento":"🎮","Istruzione":"🎓","Bellezza":"💄","Sport":"⚽","Attività sociali":"🤝","Abbigliamento":"👕","Alcol":"🍷","Sigarette":"🚬","Elettronica":"💻","Viaggi":"✈️","Animali domestici":"🐾","Abitazione":"🏠","Mobili":"🛋️","Regali":"🎁","Gioco d'azzardo":"🎲","Spuntini":"🍿","Bambini":"👶","Frutta e Verdura":"🥬","Altre entrate":"💰","Rimborsi":"↩️"};
+const CAT_COLORS={"Da classificare":"#94a3b8","Alimentari":"#55a870","Casa":"#8c7ac8","Mutuo":"#7a8fc7","Bollette":"#d6a84b","Auto":"#4f8fb8","Trasporti":"#62a6a0","Ristorazione":"#d67c65","Shopping":"#c56fa6","Svago":"#8c73bd","Salute":"#d26176","Abbonamenti":"#6985c8","Prelievi":"#9b7f72","Commissioni":"#8c929c","Stipendio":"#43a376","Entrate":"#5aae84","Trasferimenti":"#5e91a8","Tasse":"#b9895f","Altro":"#8d98a8","Cibo":"#55a870","Telefono":"#6985c8","Divertimento":"#8c73bd","Istruzione":"#7a8fc7","Bellezza":"#d67ca3","Sport":"#58a488","Attività sociali":"#ba8468","Abbigliamento":"#9986bd","Alcol":"#b57588","Sigarette":"#9b7f72","Elettronica":"#608bb3","Viaggi":"#5f9fa5","Animali domestici":"#a08960","Abitazione":"#8c7ac8","Mobili":"#b68f65","Regali":"#ce8a91","Gioco d'azzardo":"#af844e","Spuntini":"#d6a84b","Bambini":"#83a8bd","Frutta e Verdura":"#71a45e","Altre entrate":"#5aae84","Rimborsi":"#70a9b4"};
 const EXTRA_CAT_COLORS=["#6f8ccf","#7ba89a","#c88b74","#9a86c8","#b77fa4","#7197a8","#a18c6e","#809a77"];
 function colorFor(name){
  if(categoryStyles[name]&&categoryStyles[name].color)return categoryStyles[name].color;
@@ -2585,22 +2576,14 @@ function softColor(hex,alpha=.12){
 }
 
 
-const MERCHANT_RULES=[
- ["LIDL","Alimentari"],["CONAD","Alimentari"],["EUROSPIN","Alimentari"],["SUPERMERCATO","Alimentari"],["CARREFOUR","Alimentari"],["MD SPA","Alimentari"],["ARD DISCOUNT","Alimentari"],["DECO","Alimentari"],
- ["FARMACIA","Salute"],["PARAFARMACIA","Salute"],["OSPEDALE","Salute"],
- ["ILIAD","Abbonamenti"],["VODAFONE","Abbonamenti"],["WIND","Abbonamenti"],["TIM ","Abbonamenti"],["NETFLIX","Abbonamenti"],["SPOTIFY","Abbonamenti"],
- ["SORGENIA","Bollette"],["ENEL","Bollette"],["ENI PLENITUDE","Bollette"],["EDISON","Bollette"],
- ["PITTAROSSO","Shopping"],["AMAZON","Shopping"],["SCALAPAY","Shopping"],["PAYPAL","Shopping"],["ZALANDO","Shopping"],["SHEIN","Shopping"],
- ["APCOA","Auto"],["Q8","Auto"],["TAMOIL","Auto"],["ESSO","Auto"],["IP ","Auto"],["ENI STATION","Auto"],["CARBURANTE","Auto"],["BENZINA","Auto"],
- ["BANCA POPOLARE PUGLIESE","Mutuo"],["BCC CREDITOCONSUMO","Auto"],
- ["CAFFE","Ristorazione"],["CAFE","Ristorazione"],["RISTORANTE","Ristorazione"],["PIZZERIA","Ristorazione"],["PANIFICIO","Ristorazione"],["BAR ","Ristorazione"],["FOOD","Ristorazione"]
-];
+const MERCHANT_RULES=[["LIDL","Cibo"],["CONAD","Cibo"],["EUROSPIN","Cibo"],["SUPERMERCATO","Cibo"],["CARREFOUR","Cibo"],["MD SPA","Cibo"],["ARD DISCOUNT","Cibo"],["DECO","Cibo"],["FARMACIA","Salute"],["PARAFARMACIA","Salute"],["OSPEDALE","Salute"],["ILIAD","Telefono"],["VODAFONE","Telefono"],["WIND","Telefono"],["TIM ","Telefono"],["NETFLIX","Divertimento"],["SPOTIFY","Divertimento"],["SORGENIA","Abitazione"],["ENEL","Abitazione"],["ENI PLENITUDE","Abitazione"],["EDISON","Abitazione"],["PITTAROSSO","Abbigliamento"],["ZALANDO","Abbigliamento"],["SHEIN","Abbigliamento"],["AMAZON","Shopping"],["SCALAPAY","Shopping"],["PAYPAL","Shopping"],["APCOA","Auto"],["Q8","Auto"],["TAMOIL","Auto"],["ESSO","Auto"],["IP ","Auto"],["ENI STATION","Auto"],["CARBURANTE","Auto"],["BENZINA","Auto"],["BCC CREDITOCONSUMO","Auto"],["RISTORANTE","Cibo"],["PIZZERIA","Cibo"],["FOOD","Cibo"],["CAFFE","Spuntini"],["CAFE","Spuntini"],["PANIFICIO","Spuntini"],["BAR ","Spuntini"],["IKEA","Mobili"],["DECATHLON","Sport"],["SEPHORA","Bellezza"],["DOUGLAS","Bellezza"],["MEDIAWORLD","Elettronica"],["UNIEURO","Elettronica"],["TRENITALIA","Trasporti"],["ITALO","Trasporti"]];
 
 let moves=JSON.parse(localStorage.getItem("micio_v5_moves")||"[]"),rules=JSON.parse(localStorage.getItem("micio_v5_rules")||"{}"),pending=[],pendingImportSummary={ignored:0,ambiguous:0},selected=null,filter="Tutte",attachmentCounts={};
 let importedPdfFingerprints=JSON.parse(localStorage.getItem("micio_v11_imported_pdfs")||"[]"),pendingPdfFingerprint=null;
 let budgets=JSON.parse(localStorage.getItem("micio_v8_budgets")||"{}");
 let categoryStyles=JSON.parse(localStorage.getItem("micio_v9_catstyles")||"{}");
 let recurringPrefs=JSON.parse(localStorage.getItem("micio_v9_recurring")||"{}");
+let managedRecurringOpen=false;
 let ignoredRecurringOpen=false;
 let concludedRecurringOpen=false;
 let searchText="",filterTypeValue="all",filterStatsValue="all";
@@ -2708,7 +2691,7 @@ function normalizeMovementSplit(m){if(!Array.isArray(m.splitParts))return;const 
 function statMoves(k){return monthMoves(k).filter(m=>!m.excludeStats).flatMap(splitEntries)}
 function categoryViewMoves(k,cat){return monthMoves(k).flatMap(m=>splitEntries(m).filter(x=>x.category===cat))}
 function movementMatchesCategory(m,cat){return splitEntries(m).some(x=>x.category===cat)}
-function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category} ${(validSplitParts(m)||[]).map(p=>p.category).join(" ")}`.toLowerCase()}
+function searchable(m){return `${sanitizeDescription(m.description)} ${m.note||""} ${m.amount} ${m.category} ${categoryLabel(m.category)} ${(validSplitParts(m)||[]).map(p=>p.category).join(" ")}`.toLowerCase()}
 function monthTotals(k){const original=monthMoves(k),included=statMoves(k),income=included.filter(x=>x.amount>0).reduce((s,x)=>s+x.amount,0),expense=included.filter(x=>x.amount<0).reduce((s,x)=>s+Math.abs(x.amount),0);return {moves:original,income,expense,saving:income-expense}}
 function expenseCategoriesForMonth(k){const totals={};statMoves(k).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});return totals}
 function renderMonthComparison(){
@@ -2717,7 +2700,7 @@ function renderMonthComparison(){
  const increases=changes.filter(x=>x.diff>0.004).sort((a,b)=>b.diff-a.diff).slice(0,3),decreases=changes.filter(x=>x.diff<-.004).sort((a,b)=>a.diff-b.diff).slice(0,3);
  let sentence,meta="";if(previousTotal<=0){sentence=NekoI18n.t("no_comparison_data");meta=NekoI18n.t("comparison_empty",{current:currentName,amount:euro(currentTotal),previous:previousName})}
  else{const pct=Math.abs(diff/previousTotal*100),direction=diff>0?"in più":diff<0?"in meno":"come",amount=Math.abs(diff);sentence=NekoI18n.t(diff===0?"comparison_equal":diff>0?"comparison_more":"comparison_less",{month:currentName,amount:euro(amount),previous:previousName,percent:(diff>0?"+":"−")+pct.toLocaleString(nekoLocale(),{maximumFractionDigits:1})+"%"});meta=NekoI18n.t("comparison_total",{amount:(diff>0?"+":diff<0?"−":"")+euro(amount)})}
- const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(x.category)}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):`<div class="monthCompareEmpty">${NekoI18n.t("no_changes")}</div>`;
+ const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(categoryLabel(x.category))}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):`<div class="monthCompareEmpty">${NekoI18n.t("no_changes")}</div>`;
  root.innerHTML=`<div class="monthCompareHero"><div class="monthCompareSentence">${sentence}</div><div class="monthCompareMeta">${meta}</div></div><div class="monthCompareTotals"><div class="monthCompareTotal"><span>${currentName}</span><b>${euro(currentTotal)}</b></div><div class="monthCompareTotal"><span>${previousName}</span><b>${euro(previousTotal)}</b></div></div><div class="monthCompareColumns"><div><div class="monthCompareListTitle">${NekoI18n.t("top_increases")}</div>${list(increases,true)}</div><div><div class="monthCompareListTitle">${NekoI18n.t("top_decreases")}</div>${list(decreases,false)}</div></div>`;
 }
 function renderSpendingForecast(){
@@ -2767,7 +2750,7 @@ function renderBudgets(container,compact=false){
  if(!container)return;
  const entries=Object.entries(budgets).filter(([c,v])=>Number(v)>0);
  if(!entries.length){container.innerHTML=`<div class="empty">${NekoI18n.t("no_budget")}</div>`;return}
- container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;if(compact)return `<div class="budgetRow"><div class="budgetTop"><div><b>${esc(cat)}</b><div class="kicker">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?NekoI18n.t("budget_over",{amount:euro(Math.abs(rem))}):NekoI18n.t("budget_left",{amount:euro(rem)})}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div></div>`;return `<button type="button" class="budgetManageRow" data-cat="${esc(cat)}" aria-label="${esc(NekoI18n.t("budget_edit_label",{category:cat}))}"><span class="budgetManageIcon" style="background:${softColor(colorFor(cat),.24)};color:${colorFor(cat)}">${iconFor(cat)}</span><span class="budgetManageText"><span class="budgetManageTop"><b>${esc(cat)}</b><span class="${rem<0?"out":"in"}">${rem<0?"− "+euro(Math.abs(rem)):euro(rem)}</span></span><span class="budgetManageMeta">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</span><span class="budgetBar"><span class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></span></span></span><span class="budgetManageChevron" aria-hidden="true">›</span></button>`}).join("");
+ container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;if(compact)return `<div class="budgetRow" data-cat="${esc(cat)}"><div class="budgetTop"><div><b>${esc(categoryLabel(cat))}</b><div class="kicker">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?NekoI18n.t("budget_over",{amount:euro(Math.abs(rem))}):NekoI18n.t("budget_left",{amount:euro(rem)})}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div></div>`;return `<button type="button" class="budgetManageRow" data-cat="${esc(cat)}" aria-label="${esc(NekoI18n.t("budget_edit_label",{category:categoryLabel(cat)}))}"><span class="budgetManageIcon" style="background:${softColor(colorFor(cat),.24)};color:${colorFor(cat)}">${iconFor(cat)}</span><span class="budgetManageText"><span class="budgetManageTop"><b>${esc(categoryLabel(cat))}</b><span class="${rem<0?"out":"in"}">${rem<0?"− "+euro(Math.abs(rem)):euro(rem)}</span></span><span class="budgetManageMeta">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</span><span class="budgetBar"><span class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></span></span></span><span class="budgetManageChevron" aria-hidden="true">›</span></button>`}).join("");
  if(!compact)container.querySelectorAll(".budgetManageRow").forEach(b=>b.onclick=()=>openBudget(b.dataset.cat));
 }
 function buildRecurringCandidate(arr,meta={}){
@@ -2793,18 +2776,24 @@ function recurringCandidates(){
  return detected.sort((a,b)=>b.avg-a.avg);
 }
 function renderRecurringManager(){
- const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring"),concludedToggle=document.getElementById("toggleConcludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot||!concludedToggle)return;
+ const managedRoot=document.getElementById("managedRecurring"),managedToggle=document.getElementById("toggleManagedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring"),concludedToggle=document.getElementById("toggleConcludedRecurring");if(!managedRoot||!managedToggle||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot||!concludedToggle)return;
  const candidates=recurringCandidates(),active=candidates.filter(c=>c.active),concluded=candidates.filter(c=>!c.active&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false).sort((a,b)=>b.lastMonth.localeCompare(a.lastMonth)),managed=active.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=active.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?NekoI18n.t("concluded_recurring"):confirmed?NekoI18n.t("included_recurring"):ignored?NekoI18n.t("excluded_recurring"):automatic?NekoI18n.t("auto_included"):NekoI18n.t("review_needed"),badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("include_action")}</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("confirm_action")}</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">${NekoI18n.t("ignore_action")}</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · ${NekoI18n.t("recurring_meta",{day:c.avgDay,count:c.count})}${concluded?NekoI18n.t("recurring_last",{month:monthLabelText(c.lastMonth)}):""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>${NekoI18n.t("per_month")}</small></span><span class="recurringActions">${actions}</span></div>`};
+ const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?NekoI18n.t("concluded_recurring"):confirmed?NekoI18n.t("included_recurring"):ignored?NekoI18n.t("excluded_recurring"):automatic?NekoI18n.t("auto_included"):NekoI18n.t("review_needed"),badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("include_action")}</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("confirm_action")}</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">${NekoI18n.t("ignore_action")}</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(categoryLabel(c.category))} · ${NekoI18n.t("recurring_meta",{day:c.avgDay,count:c.count})}${concluded?NekoI18n.t("recurring_last",{month:monthLabelText(c.lastMonth)}):""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>${NekoI18n.t("per_month")}</small></span><span class="recurringActions">${actions}</span></div>`};
  const expectedEstimate=availableEstimateForMonth(selectedMonth),expected=expectedEstimate.mode==="current"?expectedEstimate.pending:[],expectedSection=document.getElementById("expectedRecurringSection"),expectedRoot=document.getElementById("expectedRecurringList");
  if(expectedSection&&expectedRoot){expectedSection.hidden=!expected.length;expectedRoot.innerHTML=expected.map(c=>row(c,recurringPrefs[c.key]==="confirmed"?"confirmed":"expected")).join("")}
  managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):`<div class="recurringEmpty">${NekoI18n.t("no_confirmed_recurring")}</div>`;
+ managedRoot.hidden=!managedRecurringOpen;
+ managedToggle.textContent=NekoI18n.t(managedRecurringOpen?"hide_your_choices":"show_your_choices",{count:managed.length});
+ managedToggle.setAttribute("aria-expanded",String(managedRecurringOpen));
+ managedToggle.onclick=()=>{managedRecurringOpen=!managedRecurringOpen;renderRecurringManager()};
  ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
  ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=NekoI18n.t(ignoredRecurringOpen?"hide_ignored":"show_ignored",{count:ignored.length});
+ ignoredToggle.setAttribute("aria-expanded",String(ignoredRecurringOpen));
  ignoredToggle.onclick=()=>{ignoredRecurringOpen=!ignoredRecurringOpen;renderRecurringManager()};
  detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):`<div class="recurringEmpty">${NekoI18n.t("no_new_recurring")}</div>`;
  concludedRoot.innerHTML=concluded.map(c=>row(c,"concluded")).join("");concludedRoot.hidden=!concludedRecurringOpen;
  concludedToggle.style.display=concluded.length?"flex":"none";concludedToggle.textContent=NekoI18n.t(concludedRecurringOpen?"hide_concluded":"show_concluded",{count:concluded.length});
+ concludedToggle.setAttribute("aria-expanded",String(concludedRecurringOpen));
  concludedToggle.onclick=()=>{concludedRecurringOpen=!concludedRecurringOpen;renderRecurringManager()};
  [expectedRoot,managedRoot,ignoredRoot,detectedRoot,concludedRoot].filter(Boolean).forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
@@ -2833,29 +2822,48 @@ function recurringMatchesCandidate(move,candidate){
 }
 function learned(desc){const k=merchantKey(desc);for(const [rk,v] of Object.entries(rules))if(k.includes(rk)||rk.includes(k))return v;return null}
 function localRule(desc){const u=desc.toUpperCase();for(const [needle,c] of MERCHANT_RULES)if(u.includes(needle))return c;return null}
+function classificationCategory(name){const target=renamedCats[name]||name;return CATS().includes(target)?target:"Da classificare"}
 function classify(desc,amount){
- const l=learned(desc); if(l)return {cat:l,why:"learned"};
- const d=desc.toLowerCase(),r=localRule(desc); if(r)return {cat:r,why:"local"};
- if(amount>0&&/stipend/i.test(d))return{cat:"Stipendio",why:"local"}; if(amount>0)return{cat:"Entrate",why:"local"};
- if(/rata/i.test(d)&&Math.abs(amount)>450&&Math.abs(amount)<530)return{cat:"Mutuo",why:"local"};
- if(Math.abs(amount)>225&&Math.abs(amount)<260&&/sdd|rata|credito/i.test(d))return{cat:"Auto",why:"local"};
- if(/supermerc|aliment|grocery/i.test(d))return{cat:"Alimentari",why:"local"};
- if(/farmac|salute|medical|ospedale/i.test(d))return{cat:"Salute",why:"local"};
- if(/carbur|benz|parchegg|parking/i.test(d))return{cat:"Auto",why:"local"};
- if(/ristor|caffe|café|bar|pizzeria|panific|food/i.test(d))return{cat:"Ristorazione",why:"local"};
- if(/telefon|mobile/i.test(d))return{cat:"Abbonamenti",why:"local"};
- if(/energia|luce|gas|acqua|utenza/i.test(d))return{cat:"Bollette",why:"local"};
- if(/imposta|tassa/i.test(d))return{cat:"Tasse",why:"local"};if(/commission/i.test(d))return{cat:"Commissioni",why:"local"};if(/prelievo|atm/i.test(d))return{cat:"Prelievi",why:"local"};if(/bonifico/i.test(d))return{cat:"Trasferimenti",why:"local"};
+ const learnedCategory=learned(desc);if(learnedCategory&&CATS().includes(learnedCategory))return{cat:learnedCategory,why:"learned"};
+ // Income and explicit transfers use their own categories; the signed amount remains unchanged.
+ const d=normalizedMovementDescription(desc);
+ if(/\b(trasferimento|giroconto|giro conto|transfer between)/i.test(d))return{cat:classificationCategory("Trasferimenti"),why:"local"};
+ if(amount>0){const category=/\b(stipend|salary|payroll)/i.test(d)?"Stipendio":/\b(rimborso|refund|storno)/i.test(d)?"Rimborsi":"Altre entrate";return{cat:classificationCategory(category),why:"local"}}
+ if(amount===0)return{cat:"Da classificare",why:"unknown"};
+ const local=localRule(desc);
+ const result=cat=>({cat:classificationCategory(cat),why:"local"});
+ if(local)return result(local);
+ const keywords=[
+  [/\b(mutuo|affitto|energia|luce|gas|acqua|utenza|condomin)/i,"Abitazione"],
+  [/\b(supermerc|aliment|grocery|ristor|pizzeria|food)/i,"Cibo"],
+  [/\b(frutta|verdura|ortofrutt)/i,"Frutta e Verdura"],
+  [/\b(farmac|salute|medical|ospedale|dentist)/i,"Salute"],
+  [/\b(carbur|benz|parchegg|parking)/i,"Auto"],
+  [/\b(telefon|mobile|ricarica telefon)/i,"Telefono"],
+  [/\b(scuola|universita|istruzione|corso|lezion)/i,"Istruzione"],
+  [/\b(parrucchi|barbiere|estetist|cosmetic)/i,"Bellezza"],
+  [/\b(palestra|fitness|sport|piscina)/i,"Sport"],
+  [/\b(veterinar|pet shop|negozio animali)/i,"Animali domestici"],
+  [/\b(abbigliamento|vestiti|scarpe)/i,"Abbigliamento"],
+  [/\b(elettronica|computer|informatica)/i,"Elettronica"],
+  [/\b(mobili|arredamento)/i,"Mobili"],
+  [/\b(treno|autobus|metro|taxi|biglietto bus)/i,"Trasporti"],
+  [/\b(hotel|albergo|volo|vacanza|viaggio)/i,"Viaggi"],
+  [/\b(cinema|teatro|concerto)/i,"Divertimento"],
+  [/\b(caffe|cafe|bar\b|panific|spuntin)/i,"Spuntini"]
+ ];
+ for(const [pattern,cat]of keywords)if(pattern.test(d))return result(cat);
+ // Sensitive or ambiguous purchases are only assigned through an explicit learned rule.
  return{cat:"Da classificare",why:"unknown"};
 }
 function subtype(m){let d=m.description.toLowerCase();if(m.category!=="Auto")return"";if(/bcc creditoconsumo|finanzi/i.test(d))return"Finanziamento";if(/carbur|benz|q8|tamoil|esso|eni station/i.test(d))return"Carburante";if(/parchegg|parking|apcoa/i.test(d))return"Parcheggio";return"Altro auto"}
-function shortDesc(m){if(m&&m.customName)return m.customName;if(m.category==="Mutuo")return"Rata mutuo";if(m.category==="Auto"&&subtype(m)==="Finanziamento")return"Finanziamento auto";if(m.category==="Stipendio")return"Stipendio";return merchantKey(sanitizeDescription(m.description))||sanitizeDescription(m.description).slice(0,55)}
+function shortDesc(m){if(m&&m.customName)return m.customName;if(m.category==="Mutuo")return NekoI18n.t("movement_mortgage");if(m.category==="Auto"&&subtype(m)==="Finanziamento")return NekoI18n.t("movement_car_finance");if(m.category==="Stipendio")return NekoI18n.t("movement_salary");return merchantKey(sanitizeDescription(m.description))||sanitizeDescription(m.description).slice(0,55)}
 function parseAmount(s){return Number(s.replace(/\./g,"").replace(",","."))}
 function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="${esc(NekoI18n.t("select_move"))}">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?`<span class="noteBadge">${NekoI18n.t("note_badge")}</span>`:""}${(m._splitPart||validSplitParts(m))?`<span class="noteBadge">${NekoI18n.t("split_badge")}</span>`:""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?NekoI18n.t("excluded_suffix"):""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${attachmentCounts[m.id]} allegati">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="${esc(NekoI18n.t("select_move"))}">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?`<span class="noteBadge">${NekoI18n.t("note_badge")}</span>`:""}${(m._splitPart||validSplitParts(m))?`<span class="noteBadge">${NekoI18n.t("split_badge")}</span>`:""}</div><div class="meta">${m.date} · ${esc(categoryLabel(m.category))}${subtype(m)?" · "+NekoI18n.t({"Finanziamento":"subtype_finance","Carburante":"subtype_fuel","Parcheggio":"subtype_parking","Altro auto":"subtype_other_auto"}[subtype(m)]):""}${m.excludeStats?NekoI18n.t("excluded_suffix"):""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${attachmentCounts[m.id]} allegati">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
 function refreshAttachmentCounts(){
  attachmentCounts={};
  try{if(window.NekoApp&&typeof window.NekoApp.getAttachmentCounts==="function")attachmentCounts=JSON.parse(String(window.NekoApp.getAttachmentCounts())||"{}")}catch(e){console.warn("Conteggio allegati non disponibile",e)}
@@ -2879,7 +2887,7 @@ async function extract(file){
  let out=[],m;while((m=re.exec(text))){let amount=parseAmount(m[3]),desc=sanitizeDescription(m[4].replace(/Stampa da Relax Banking.*?(?=\d{2}\/\d{2}\/\d{4}|$)/i,"").trim()),cl=classify(desc,amount);out.push({date:m[1],valueDate:m[2],amount,description:desc,category:cl.cat,why:cl.why,source:"pdf",note:"",excludeStats:false})}return out
 }
 function badge(m){if(m.duplicateReview)return'<span class="badge warn">possibile duplicato</span>';if(m.why==="learned")return'<span class="badge learn">imparato</span>';if(m.why==="local")return'<span class="badge auto">riconosciuto</span>';return'<span class="badge warn">da controllare</span>'}
-function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${m.date} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><button type="button" class="previewCategoryButton" data-i="${i}"><span class="previewCategoryIcon" style="background:${softColor(colorFor(m.category),.24)};color:${colorFor(m.category)}">${iconFor(m.category)}</span><span><small>Categoria</small><b>${esc(m.category)}</b></span><span class="previewCategoryChevron">›</span></button></div>`}
+function previewCard(m,i){return `<div class="previewItem"><div class="previewHead"><div><div style="font-weight:800">${esc(shortDesc(m))}</div><div class="kicker">${m.date} · ${esc(sanitizeDescription(m.description).slice(0,90))}</div><div style="margin-top:5px">${badge(m)}</div></div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div><button type="button" class="previewCategoryButton" data-i="${i}"><span class="previewCategoryIcon" style="background:${softColor(colorFor(m.category),.24)};color:${colorFor(m.category)}">${iconFor(m.category)}</span><span><small>Categoria</small><b>${esc(categoryLabel(m.category))}</b></span><span class="previewCategoryChevron">›</span></button></div>`}
 function renderPendingPreview(){
  const root=document.getElementById("previewList");if(!root)return;root.innerHTML=pending.map(previewCard).join("")||'<div class="empty">Nessun nuovo movimento.</div>';root.querySelectorAll(".previewCategoryButton").forEach(button=>button.onclick=()=>openPreviewCategory(Number(button.dataset.i)));
 }
@@ -2887,7 +2895,7 @@ let previewCategoryIndex=null;
 function closePreviewCategory(){const modal=document.getElementById("previewCategoryModal");if(modal)modal.style.display="none";previewCategoryIndex=null}
 function openPreviewCategory(index){
  const movement=pending[index],modal=document.getElementById("previewCategoryModal"),root=document.getElementById("previewCategoryOptions");if(!movement||!modal||!root)return;previewCategoryIndex=index;
- root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===movement.category?"active":""}" data-cat="${esc(category)}"><span class="previewCategoryOptionIcon" style="background:${softColor(colorFor(category),.24)};color:${colorFor(category)}">${iconFor(category)}</span><span>${esc(category)}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
+ root.innerHTML=CATS().map(category=>`<button type="button" class="previewCategoryOption ${category===movement.category?"active":""}" data-cat="${esc(category)}"><span class="previewCategoryOptionIcon" style="background:${softColor(colorFor(category),.24)};color:${colorFor(category)}">${iconFor(category)}</span><span>${esc(categoryLabel(category))}</span><span class="previewCategoryCheck">✓</span></button>`).join("");
  root.querySelectorAll(".previewCategoryOption").forEach(button=>button.onclick=()=>{movement.category=button.dataset.cat;movement.why="learned";closePreviewCategory();renderPendingPreview()});modal.style.display="flex";
 }
 
@@ -2900,7 +2908,7 @@ function renderRulesManager(){
    <div class="ruleRow">
      <div class="ruleInfo">
        <div class="ruleMerchant">${esc(merchant)}</div>
-       <div class="ruleCategory">→ ${esc(cat)}</div>
+       <div class="ruleCategory">→ ${esc(categoryLabel(cat))}</div>
      </div>
      <div class="ruleActions">
        <button type="button" class="secondary deleteRuleBtn" data-rule="${esc(merchant)}">${NekoI18n.t("delete")}</button>
@@ -2958,14 +2966,14 @@ function render(){
  renderBudgets(homeBudget,true);
  const sorted=[...cur.moves].sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));latest.innerHTML=sorted.length?sorted.slice(0,5).map(row).join(""):`<div class="empty">${NekoI18n.t("no_month_moves")}</div>`;
  const totals={};statMoves(selectedMonth).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});const vals=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=vals[0]?.[1]||1;
- topcats.innerHTML=vals.length?vals.slice(0,4).map(([k,v])=>`<button type="button" class="homeTopCatRow" data-home-cat="${esc(k)}"><span class="homeTopCatMain"><span class="catSwatch" style="background:${colorFor(k)}"></span><span class="homeTopCatName">${iconFor(k)} ${esc(k)}</span></span><span class="homeTopCatValue"><b>${euro(v)}</b><span class="homeTopCatArrow">›</span></span><span class="homeTopCatBar"><span class="catBar"><span class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></span></span></span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_expenses")}</div>`;
+ topcats.innerHTML=vals.length?vals.slice(0,4).map(([k,v])=>`<button type="button" class="homeTopCatRow" data-home-cat="${esc(k)}"><span class="homeTopCatMain"><span class="catSwatch" style="background:${colorFor(k)}"></span><span class="homeTopCatName">${iconFor(k)} ${esc(categoryLabel(k))}</span></span><span class="homeTopCatValue"><b>${euro(v)}</b><span class="homeTopCatArrow">›</span></span><span class="homeTopCatBar"><span class="catBar"><span class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></span></span></span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_expenses")}</div>`;
  const filterCatsEl=document.getElementById("filterCats"),filtersSummaryEl=document.getElementById("filtersSummary"),allmovesEl=document.getElementById("allmoves");
  const avail=["Tutte",...CATS().filter(c=>cur.moves.some(m=>movementMatchesCategory(m,c)))];
  if(filterCatsEl){
-   filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${c==="Tutte"?NekoI18n.t("all"):esc(c)}</button>`).join("");
+   filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${c==="Tutte"?NekoI18n.t("all"):esc(categoryLabel(c))}</button>`).join("");
    filterCatsEl.querySelectorAll(".filterCatBtn").forEach(x=>x.onclick=()=>{filter=x.dataset.cat;bulkSelected.clear();bulkMode=false;render()});
  }
-  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?(window.NekoI18n?NekoI18n.t("no_category_filter"):"Nessun filtro categoria"):(window.NekoI18n?NekoI18n.t("category_prefix",{category:filter}):`Categoria: ${filter}`);
+  if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?(window.NekoI18n?NekoI18n.t("no_category_filter"):"Nessun filtro categoria"):(window.NekoI18n?NekoI18n.t("category_prefix",{category:categoryLabel(filter)}):`Categoria: ${filter}`);
   updateMovementFilterButtons();
  let visible=(filter==="Tutte"?sorted:sorted.flatMap(m=>splitEntries(m).filter(x=>x.category===filter)));
  if(searchText)visible=visible.filter(m=>searchable(m).includes(searchText));
@@ -2976,7 +2984,7 @@ function render(){
    allmovesEl.querySelectorAll(".row[data-id]").forEach(x=>x.onclick=()=>edit(x.dataset.id));
  }
  const valsMap=Object.fromEntries(vals);const statsCats=[...statsCategoryOrder.filter(c=>valsMap[c]!=null),...vals.map(([k])=>k).filter(k=>!statsCategoryOrder.includes(k))];statsCategoryOrder=statsCats;
- catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.15)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):`<div class="empty">${NekoI18n.t("no_data")}</div>`;
+ catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.15)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(categoryLabel(k))}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):`<div class="empty">${NekoI18n.t("no_data")}</div>`;
  requestAnimationFrame(()=>drawPie(vals));
  document.querySelectorAll(".catStatBtn").forEach(x=>{
    x.onclick=e=>{if(statsEditMode||e.target.closest(".statsMoveControls"))return;openCategory(x.dataset.cat)};
@@ -3009,14 +3017,14 @@ function selectAllVisible(){
 function openBulkAssign(){
  if(!bulkSelected.size)return;
  const sel=document.getElementById("bulkCategorySelect"),modal=document.getElementById("bulkModal");
- if(sel)sel.innerHTML=CATS().filter(c=>c!=="Da classificare").map(c=>`<option>${c}</option>`).join("");
+ if(sel)sel.innerHTML=CATS().filter(c=>c!=="Da classificare").map(c=>`<option value="${esc(c)}">${esc(categoryLabel(c))}</option>`).join("");
  if(modal)modal.style.display="flex";
 }
 
 function openStatsBulkAssign(){
  if(!statsSelected.size)return;
  const sel=document.getElementById("bulkCategorySelect"),modal=document.getElementById("bulkModal");
- if(sel)sel.innerHTML=CATS().map(c=>`<option>${c}</option>`).join("");
+ if(sel)sel.innerHTML=CATS().map(c=>`<option value="${esc(c)}">${esc(categoryLabel(c))}</option>`).join("");
  if(modal)modal.style.display="flex";
  modal.dataset.source="stats";
 }
@@ -3071,7 +3079,7 @@ function drawPie(vals){
  shown.forEach(([k,v],i)=>{const slice=v/total*Math.PI*2;ctx.beginPath();ctx.moveTo(size/2,size/2);ctx.arc(size/2,size/2,size*.43,angle,angle+slice);ctx.closePath();ctx.fillStyle=colorFor(k);ctx.fill();angle+=slice});
  ctx.beginPath();ctx.arc(size/2,size/2,size*.23,0,Math.PI*2);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue("--card").trim()||"#fff";ctx.fill();
  ctx.fillStyle=getComputedStyle(document.body).getPropertyValue("--text").trim()||"#111";ctx.textAlign="center";ctx.font="700 15px system-ui";ctx.fillText("Spese",size/2,size/2-3);ctx.font="800 16px system-ui";ctx.fillText(euro(total),size/2,size/2+18);
- legend.innerHTML=shown.map(([k,v],i)=>`<button type="button" class="legendRow catLegendBtn" data-cat="${esc(k)}" style="border:0;background:transparent;padding:4px 0;text-align:left"><span style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:${colorFor(k)}"></span><span>${esc(k)}</span></span><b>${Math.round(v/total*100)}%</b></button>`).join("");
+ legend.innerHTML=shown.map(([k,v],i)=>`<button type="button" class="legendRow catLegendBtn" data-cat="${esc(k)}" style="border:0;background:transparent;padding:4px 0;text-align:left"><span style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:${colorFor(k)}"></span><span>${esc(categoryLabel(k))}</span></span><b>${Math.round(v/total*100)}%</b></button>`).join("");
  legend.querySelectorAll(".catLegendBtn").forEach(b=>b.onclick=()=>openCategory(b.dataset.cat));
 }
 let editingCategory=null;
@@ -3079,18 +3087,18 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="${esc(NekoI18n.t("category_customize",{category:c}))}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_categories")}</div>`;
+ el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="${esc(NekoI18n.t("category_customize",{category:categoryLabel(c)}))}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(categoryLabel(c))}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_categories")}</div>`;
  el.querySelectorAll(".catManageRow").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
 function openBudget(cat=null){
  editingBudget=cat;budgetMsg.textContent="";budgetModalTitle.textContent=cat?"Modifica budget":"Nuovo budget";
  const picker=document.getElementById("budgetCategoryPicker"),cats=cat?[cat]:CATS(),initial=cat||cats[0]||"";budgetCat.value=initial;
- if(picker){picker.classList.toggle("locked",!!cat);picker.innerHTML=cats.map(c=>`<button type="button" class="budgetCategoryOption ${c===initial?"active":""}" data-cat="${esc(c)}"><span class="budgetCategoryOptionIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span>${esc(c)}</span><span class="budgetCategoryCheck">✓</span></button>`).join("");if(!cat)picker.querySelectorAll(".budgetCategoryOption").forEach(b=>b.onclick=()=>{budgetCat.value=b.dataset.cat;picker.querySelectorAll(".budgetCategoryOption").forEach(x=>x.classList.toggle("active",x===b))})}
+ if(picker){picker.classList.toggle("locked",!!cat);picker.innerHTML=cats.map(c=>`<button type="button" class="budgetCategoryOption ${c===initial?"active":""}" data-cat="${esc(c)}"><span class="budgetCategoryOptionIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span>${esc(categoryLabel(c))}</span><span class="budgetCategoryCheck">✓</span></button>`).join("");if(!cat)picker.querySelectorAll(".budgetCategoryOption").forEach(b=>b.onclick=()=>{budgetCat.value=b.dataset.cat;picker.querySelectorAll(".budgetCategoryOption").forEach(x=>x.classList.toggle("active",x===b))})}
  budgetAmount.value=cat?(budgets[cat]||""):"";deleteBudgetBtn.style.display=cat?"inline-block":"none";budgetModal.style.display="flex";
 }
 
-const CATEGORY_ICONS=["•","?","🛒","🥬","🍎","🥖","🏠","🏡","🛋️","💡","💧","🔥","🚗","⛽","🚌","🚆","🚕","🚲","🍴","☕","🍕","🍔","🛍️","👕","👟","💄","🎮","🎵","🎬","🎭","⚽","🏋️","✚","💊","🩺","🦷","↻","🏧","€","💳","💰","💼","↑","⇄","§","🧾","🐾","🐱","🐶","🎁","✈️","🏖️","🏨","🎓","📚","💻","📱","🌐","👶","🧸","🛠️","🌱","💇","❤️","⭐","📦","🔧","🛡️","🎯","📌","🗓️","🔔"];
+const CATEGORY_ICONS=["•","?","🛒","🥬","🍎","🥖","🏠","🏡","🛋️","💡","💧","🔥","🚗","⛽","🚌","🚆","🚕","🚲","🍴","☕","🍕","🍔","🛍️","👕","👟","💄","🎮","🎵","🎬","🎭","⚽","🏋️","✚","💊","🩺","🦷","↻","🏧","€","💳","💰","💼","↑","⇄","§","🧾","🐾","🐱","🐶","🎁","✈️","🏖️","🏨","🎓","📚","💻","📱","🌐","👶","🧸","🛠️","🌱","💇","❤️","⭐","📦","🔧","🛡️","🎯","📌","🗓️","🔔","🍽️","🤝","🍷","🚬","🎲","🍿","↩️"];
 const CATEGORY_COLORS=["#55a870","#7a8fc7","#d6a84b","#4f8fb8","#62a6a0","#d67c65","#c56fa6","#8c73bd","#d26176","#6985c8","#9b7f72","#8c929c","#43a376","#5e91a8","#b9895f","#94a3b8"];
 let pickedIcon=null,pickedColor=null;
 function renderStylePickers(name,reset=false){
@@ -3302,7 +3310,7 @@ function openCategory(catName){
  const total=included.reduce((s,m)=>s+Math.abs(m.amount),0);
  const panel=document.getElementById("statsCategoryDetail"),title=document.getElementById("statsDetailTitle"),summary=document.getElementById("statsDetailSummary");
  if(!panel||!title||!summary)return;
- title.textContent=`${iconFor(catName)} ${catName}`;
+ title.textContent=`${iconFor(catName)} ${categoryLabel(catName)}`;
  summary.textContent=`${list.length} movimenti · Totale spese ${euro(total)}`;
  panel.style.display="block";
  renderStatsCategoryMoves();
@@ -3398,7 +3406,7 @@ function updateSplitBalance(){
 }
 function renderSplitRows(){
  const root=document.getElementById("splitRows");if(!root)return;
- root.innerHTML=editingSplitParts.map((p,i)=>`<div class="splitRow" data-i="${i}"><select aria-label="Categoria parte ${i+1}">${CATS().map(c=>`<option ${c===p.category?"selected":""}>${esc(c)}</option>`).join("")}</select><input type="number" min="0.01" step="0.01" inputmode="decimal" value="${p.amount||""}" placeholder="0,00" aria-label="Importo parte ${i+1}"><button type="button" class="danger splitRemove" aria-label="Rimuovi parte">×</button></div>`).join("");
+ root.innerHTML=editingSplitParts.map((p,i)=>`<div class="splitRow" data-i="${i}"><select aria-label="Categoria parte ${i+1}">${CATS().map(c=>`<option value="${esc(c)}" ${c===p.category?"selected":""}>${esc(categoryLabel(c))}</option>`).join("")}</select><input type="number" min="0.01" step="0.01" inputmode="decimal" value="${p.amount||""}" placeholder="0,00" aria-label="Importo parte ${i+1}"><button type="button" class="danger splitRemove" aria-label="Rimuovi parte">×</button></div>`).join("");
  root.querySelectorAll(".splitRow").forEach(rowEl=>{const i=Number(rowEl.dataset.i),sel=rowEl.querySelector("select"),input=rowEl.querySelector("input"),remove=rowEl.querySelector("button");sel.onchange=()=>{editingSplitParts[i].category=sel.value;updateSplitBalance()};input.oninput=()=>{editingSplitParts[i].amount=Number(String(input.value).replace(",","."))||0;updateSplitBalance()};remove.onclick=()=>{if(editingSplitParts.length<=2)return;editingSplitParts.splice(i,1);renderSplitRows()}});
  updateSplitBalance();
 }
@@ -3418,7 +3426,7 @@ function edit(mid){
  if(descEl)descEl.textContent=shortDesc(m);
  if(metaEl)metaEl.textContent=`${m.date} · ${euro(m.amount)}\n${sanitizeDescription(m.description)}`;
  if(nameEl)nameEl.value=m.customName||shortDesc(m);
- if(catEl){catEl.innerHTML=CATS().map(c=>`<option ${c===m.category?"selected":""}>${c}</option>`).join("");catEl.disabled=!!validSplitParts(m)}
+ if(catEl){catEl.innerHTML=CATS().map(c=>`<option value="${esc(c)}" ${c===m.category?"selected":""}>${esc(categoryLabel(c))}</option>`).join("");catEl.disabled=!!validSplitParts(m)}
  if(noteEl)noteEl.value=m.note||"";
  if(excludeEl)excludeEl.checked=!!m.excludeStats;
   updateSplitSummary(m);
@@ -3705,7 +3713,7 @@ document.getElementById("saveSplitMove").onclick=()=>{
  m.splitParts=editingSplitParts.map(p=>({category:p.category,amount:Math.round(Number(p.amount)*100)/100}));save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";
 };
 document.getElementById("removeSplitMove").onclick=()=>{const m=moves.find(x=>x.id===selected);if(!m||!validSplitParts(m))return;const undoState=captureMovementState();delete m.splitParts;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);updateSplitSummary(m);splitMoveModal.style.display="none";offerMovementUndo("Divisione rimossa",undoState)};
-saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl?nameEl.value.trim():"";m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
+saveCat.onclick=()=>{const m=moves.find(x=>x.id===selected);if(m){const undoState=captureMovementState(),oldCategory=m.category;const nameEl=document.getElementById("moveName");m.customName=nameEl&&nameEl.value.trim()!==shortDesc(m)?nameEl.value.trim():(m.customName||"");m.category=categorySelect.value;m.note=moveNote.value.trim();m.excludeStats=excludeStats.checked;const k=merchantKey(m.description);if(k)rules[k]=m.category;save();render();if(currentStatsCategory)openCategory(currentStatsCategory);if(oldCategory!==m.category)offerMovementUndo("Categoria aggiornata",undoState)}editModal.style.display="none";document.body.classList.remove("edit-modal-open")};
 const moveDeleteModal=document.getElementById("moveDeleteModal"),closeMoveDelete=()=>{if(moveDeleteModal)moveDeleteModal.style.display="none"};
 deleteMove.onclick=()=>{if(selected&&moveDeleteModal)moveDeleteModal.style.display="flex"};
 document.getElementById("cancelMoveDelete").onclick=closeMoveDelete;
@@ -3906,7 +3914,7 @@ html:not([data-theme="dark"]) #home .homeMetric{background:#fff8e7!important;bor
 </style>
 <script>
 document.title="Koin Finance Manager";
-const koinSplashLogo=document.querySelector('.startupSplashLogo');if(koinSplashLogo){koinSplashLogo.src="koin-coin.svg";koinSplashLogo.alt="Koin Finance Manager"}
+const koinSplashLogo=document.querySelector('.startupSplashLogo');if(koinSplashLogo){koinSplashLogo.src="koin-coin.png";koinSplashLogo.alt="Koin Finance Manager"}
 const koinSplashName=document.querySelector('.startupSplashName');if(koinSplashName)koinSplashName.textContent="Koin Finance Manager";
 const koinBrand=document.querySelector('.compactBrandMark');if(koinBrand)koinBrand.setAttribute('aria-label','Koin Finance Manager');
 </script>
@@ -3919,7 +3927,7 @@ const koinBrand=document.querySelector('.compactBrandMark');if(koinBrand)koinBra
 [data-theme="dark"] .settingsHero,[data-theme="dark"] .forecastHero{background:linear-gradient(135deg,#4b3b1b,#25221d)!important;color:#f7f1e3!important;border-color:#8d6a22!important}
 [data-theme="dark"] .badge,[data-theme="dark"] .hint,[data-theme="dark"] .splitBalance{background:#342f28!important;color:#f7f1e3!important;border-color:#40382e!important}
 </style>
-<script>(function(){var b=document.querySelector('.compactBrandMark');if(b){var i=b.querySelector('img');b.setAttribute('aria-label','Koin Finance Manager');if(i){i.src='koin-coin.svg';i.alt='Logo Koin Finance Manager'}}})();</script>
+<script>(function(){var b=document.querySelector('.compactBrandMark');if(b){var i=b.querySelector('img');b.setAttribute('aria-label','Koin Finance Manager');if(i){i.src='koin-coin.png';i.alt='Logo Koin Finance Manager'}}})();</script>
 
 
 <style id="koin-dark-and-fab-final">
@@ -3936,7 +3944,7 @@ html[data-theme="dark"] .bottom{background:rgba(24,23,21,.97)!important;border-c
 #addTop.compactAddMove span:last-child{display:none!important}
 .startupSplashLogo,.compactBrandMark img{display:block;width:100%;height:100%;object-fit:contain}
 </style>
-<script>(function(){var coin='koin-coin.svg';var splash=document.querySelector('.startupSplashLogo');if(splash){splash.src=coin;splash.alt='Koin Finance Manager'}var name=document.querySelector('.startupSplashName');if(name)name.textContent='Koin Finance Manager';var brand=document.querySelector('.compactBrandMark');if(brand){brand.setAttribute('aria-label','Koin Finance Manager');var img=brand.querySelector('img');if(img){img.src=coin;img.alt='Logo Koin Finance Manager'}}})();</script>
+<script>(function(){var coin='koin-coin.png';var splash=document.querySelector('.startupSplashLogo');if(splash){splash.src=coin;splash.alt='Koin Finance Manager'}var name=document.querySelector('.startupSplashName');if(name)name.textContent='Koin Finance Manager';var brand=document.querySelector('.compactBrandMark');if(brand){brand.setAttribute('aria-label','Koin Finance Manager');var img=brand.querySelector('img');if(img){img.src=coin;img.alt='Logo Koin Finance Manager'}}})();</script>
 
 
 <style id="koin-dark-depth-polish">
@@ -4048,10 +4056,10 @@ html[data-theme="dark"] #settings .settingsItem{box-shadow:0 9px 22px rgba(0,0,0
  function toneFor(name,fallback){try{return typeof colorFor==='function'?colorFor(name):fallback}catch(e){return fallback}}
  function apply(){
   var label=document.getElementById('homeAvailableLabel');var translated=NekoI18n.t('final_estimate');if(label&&label.textContent!==translated)label.textContent=translated;
-  document.querySelectorAll('#homeBudget .budgetRow').forEach(function(row){var labelEl=row.querySelector('.budgetTop b');var name=labelEl?labelEl.textContent.trim():'';row.style.setProperty('--home-tone',toneFor(name,'#d99d32'))});
+  document.querySelectorAll('#homeBudget .budgetRow').forEach(function(row){var labelEl=row.querySelector('.budgetTop b');var name=row.dataset.cat||(labelEl?labelEl.textContent.trim():'');row.style.setProperty('--home-tone',toneFor(name,'#d99d32'))});
   document.querySelectorAll('#homeTopCats .homeTopCatRow').forEach(function(row){var labelEl=row.querySelector('.homeTopCatName');var name=labelEl?labelEl.textContent.replace(/^\S+\s+/,'').trim():'';var swatch=row.querySelector('.catSwatch');var tone=swatch&&swatch.style.background?swatch.style.background:toneFor(name,'#d99d32');row.style.setProperty('--home-tone',tone)});
   var cycle=['#ef8178','#6fc394','#ac8be0','#70a9dd','#d99d32'];
-  document.querySelectorAll('#homeLatest #latest .row[data-id]').forEach(function(row,index){var meta=row.querySelector('.meta');var parts=meta?meta.textContent.split('·'):[];var category=parts.length>1?parts[1].trim():'';row.style.setProperty('--home-tone',toneFor(category,cycle[index%cycle.length]))});
+  document.querySelectorAll('#homeLatest #latest .row[data-id]').forEach(function(row,index){var meta=row.querySelector('.meta');var parts=meta?meta.textContent.split('·'):[];var movement=moves.find(function(m){return m.id===row.dataset.id});var category=movement?movement.category:(parts.length>1?parts[1].trim():'');row.style.setProperty('--home-tone',toneFor(category,cycle[index%cycle.length]))});
  }
  if(home){var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;apply()})});observer.observe(home,{subtree:true,childList:true,characterData:true});}
  apply();

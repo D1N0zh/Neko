@@ -398,3 +398,15 @@ body.edit-modal-open #editModal .sheet{touch-action:pan-y;overscroll-behavior:co
 #manualForm .manualFieldButton{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:10px 12px!important;border:1px solid var(--line)!important;border-radius:14px!important;background:var(--android-surface-muted)!important;color:var(--text)!important;text-align:left;font-size:14px!important;font-weight:500!important}
 .manualFieldButton>span:first-child{min-width:0;overflow-wrap:anywhere}.manualFieldButton>span:last-child{color:var(--muted);font-size:20px;line-height:1}
 #manualTypeModal{z-index:2200}.manualTypeOptions{display:grid;gap:8px;margin-top:14px}#manualTypeOptions .previewCategoryOption{grid-template-columns:minmax(0,1fr) 22px!important;font-size:13px!important}
+
+/* Recurring groups have no outer rectangular surface in either theme. */
+html #settings #settingsRecurringPage #managedRecurring,
+html #settings #settingsRecurringPage #recurringList,
+html #settings #settingsRecurringPage #ignoredRecurring,
+html #settings #settingsRecurringPage #concludedRecurring{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+html #settings #settingsRecurringPage #managedRecurring[hidden],
+html #settings #settingsRecurringPage #ignoredRecurring[hidden],
+html #settings #settingsRecurringPage #concludedRecurring[hidden]{display:none!important}
+#settingsRecurringPage .recurringIgnoredToggle[aria-expanded]::after{content:"⌄";display:inline-block;margin-left:6px;transition:transform .15s ease}
+#settingsRecurringPage .recurringIgnoredToggle[aria-expanded="true"]::after{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){#settingsRecurringPage .recurringIgnoredToggle::after{transition:none}}
