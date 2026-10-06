@@ -2399,8 +2399,8 @@ html .compactBrandMark img{object-fit:contain!important;clip-path:none!important
 <div id="appInfoModal" class="modal"><div class="sheet">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b data-i18n="app_info_title">Info Neko</b><div class="kicker" data-i18n="app_info_help">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button" data-i18n="close">Chiudi</button></div>
 <div class="card" style="margin-top:14px">
-  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="version_label">Versione</div><div id="appVersionText" class="settingsActionDesc">1.1.1</div></div></div>
-  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_number">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">5</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="version_label">Versione</div><div id="appVersionText" class="settingsActionDesc">1.0.0-beta</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_number">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">6</div></div></div>
   <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_revision">Build GitHub</div><div id="appRevisionText" class="settingsActionDesc">—</div></div></div>
 </div>
 </div></div>
@@ -3500,7 +3500,7 @@ const appInfoModal=document.getElementById("appInfoModal");
 const openAppInfoBtn=document.getElementById("openAppInfo");
 const closeAppInfoBtn=document.getElementById("closeAppInfo");
 function showAppInfo(){
- let version="1.1.1",buildCode="5",revision="local";
+ let version="1.0.0-beta",buildCode="6",revision="local";
  try{
    if(window.NekoApp){
      version=String(window.NekoApp.getVersionName());

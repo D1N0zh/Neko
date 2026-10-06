@@ -18,6 +18,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
+import android.widget.FrameLayout;
 
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -41,6 +44,8 @@ public class MainActivity extends Activity {
     private static final long MAX_ATTACHMENT_BYTES = 20L * 1024L * 1024L;
 
     private WebView webView;
+    private OnBackInvokedCallback backCallback;
+    private boolean backDispatchPending;
     private ValueCallback<Uri[]> filePathCallback;
     private byte[] pendingSaveContent;
     private String pendingAttachmentMovementId;
@@ -54,7 +59,7 @@ public class MainActivity extends Activity {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(true);
+            getWindow().setDecorFitsSystemWindows(false);
         }
 
         boolean initialDarkMode = getPreferences(MODE_PRIVATE).getBoolean("darkMode", false);
@@ -65,14 +70,16 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
-        webView.setOnApplyWindowInsetsListener((view, insets) -> {
+        FrameLayout content = new FrameLayout(this);
+        content.addView(webView);
+        content.setOnApplyWindowInsetsListener((view, insets) -> {
             int left;
             int top;
             int right;
             int bottom;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 android.graphics.Insets safeArea = insets.getInsets(
-                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime()
                 );
                 left = safeArea.left;
                 top = safeArea.top;
@@ -91,6 +98,11 @@ public class MainActivity extends Activity {
         });
         setContentView(webView);
         webView.requestApplyInsets();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            backCallback = this::dispatchAppBack;
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT, backCallback);
+        }
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -141,10 +153,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html?v=signed112-koin-theme-bars");
-        } else {
-            webView.restoreState(savedInstanceState);
+        if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
+            webView.loadUrl("file:///android_asset/index.html?v=" + BuildConfig.BUILD_REVISION);
         }
     }
 
@@ -478,22 +488,31 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+        dispatchAppBack();
+    }
+
+    private void dispatchAppBack() {
+        if (backDispatchPending) return;
         if (webView == null) {
-            super.onBackPressed();
+            finish();
             return;
         }
+        backDispatchPending = true;
         webView.evaluateJavascript(
                 "window.nekoHandleAndroidBack ? window.nekoHandleAndroidBack() : 'exit'",
                 result -> {
-                    if ("\"exit\"".equals(result)) {
-                        MainActivity.super.onBackPressed();
-                    }
+                    backDispatchPending = false;
+                    if ("\"exit\"".equals(result)) finish();
                 }
         );
     }
 
     @Override
     protected void onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && backCallback != null) {
+            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backCallback);
+            backCallback = null;
+        }
         if (webView != null) {
             webView.loadUrl("about:blank");
             webView.stopLoading();
