@@ -1907,7 +1907,7 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 </style>
 </head>
 <body class="home-loading">
-<div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Koin Finance Manager">
+<div id="startupSplash" class="startupSplash" role="status" aria-label="Avvio di Koin Finance Manager" data-i18n-aria="startup_label">
   <div class="startupSplashBrand">
     <img class="startupSplashLogo" src="koin-coin.svg" alt="Koin Finance Manager">
     <span class="startupSplashName">Koin Finance Manager</span>
@@ -2320,9 +2320,9 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
       <div><h3 class="settingsSectionTitle" data-i18n="recurrences">Ricorrenze</h3><div class="kicker" data-i18n="recurrences_help">Conferma o ignora quelle rilevate.</div></div>
     </div>
     <div class="card">
-      <div class="recurringIntro" data-i18n="recurrences_intro">Neko rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
+      <div class="recurringIntro" data-i18n="recurrences_intro">Koin rileva importi simili ripetuti in mesi diversi. Conferma ciò che riconosci oppure ignoralo per escluderlo dalle stime.</div>
       <div id="expectedRecurringSection" class="recurringExpectedSection" hidden>
-        <div class="recurringGroupLabel">Attese questo mese</div>
+        <div class="recurringGroupLabel" data-i18n="expected_this_month">Attese questo mese</div>
         <div id="expectedRecurringList"></div>
       </div>
       <div class="recurringGroupLabel" data-i18n="your_choices">Le tue scelte</div>
@@ -2398,11 +2398,11 @@ html,body,.card,.sheet,.bottom,input,select,textarea,.settingsItem,.settingsActi
 <div id="importSummaryToast" class="importSummaryToast" role="status" aria-live="polite"></div>
 
 <div id="appInfoModal" class="modal"><div class="sheet">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b>Info Neko</b><div class="kicker">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button">Chiudi</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><b data-i18n="app_info_title">Info Neko</b><div class="kicker" data-i18n="app_info_help">Dettagli della versione installata</div></div><button id="closeAppInfo" class="secondary" type="button">Chiudi</button></div>
 <div class="card" style="margin-top:14px">
-  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Versione</div><div id="appVersionText" class="settingsActionDesc">1.1.1</div></div></div>
-  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">5</div></div></div>
-  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle">Build GitHub</div><div id="appRevisionText" class="settingsActionDesc">—</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="version_label">Versione</div><div id="appVersionText" class="settingsActionDesc">1.1.1</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_number">Numero build</div><div id="appBuildCodeText" class="settingsActionDesc">5</div></div></div>
+  <div class="settingsActionRow"><div class="settingsActionText"><div class="settingsActionTitle" data-i18n="build_revision">Build GitHub</div><div id="appRevisionText" class="settingsActionDesc">—</div></div></div>
 </div>
 </div></div>
 
@@ -2715,19 +2715,19 @@ function renderMonthComparison(){
  const root=document.getElementById("monthComparison");if(!root)return;const previousKey=shiftMonth(selectedMonth,-1),current=expenseCategoriesForMonth(selectedMonth),previous=expenseCategoriesForMonth(previousKey),currentTotal=Object.values(current).reduce((s,v)=>s+v,0),previousTotal=Object.values(previous).reduce((s,v)=>s+v,0),diff=currentTotal-previousTotal;
  const currentName=monthLabelText(selectedMonth),previousName=monthLabelText(previousKey),all=[...new Set([...Object.keys(current),...Object.keys(previous)])],changes=all.map(category=>({category,diff:(current[category]||0)-(previous[category]||0)}));
  const increases=changes.filter(x=>x.diff>0.004).sort((a,b)=>b.diff-a.diff).slice(0,3),decreases=changes.filter(x=>x.diff<-.004).sort((a,b)=>a.diff-b.diff).slice(0,3);
- let sentence,meta="";if(previousTotal<=0){sentence="Non ci sono ancora dati sufficienti per il confronto.";meta=`${currentName}: ${euro(currentTotal)} · ${previousName}: nessuna spesa`}
- else{const pct=Math.abs(diff/previousTotal*100),direction=diff>0?"in più":diff<0?"in meno":"come",amount=Math.abs(diff);sentence=diff===0?`A ${currentName} hai speso quanto nel mese precedente.`:`A ${currentName} hai speso ${euro(amount)} ${direction} rispetto a ${previousName} (${diff>0?"+":"−"}${pct.toLocaleString("it-IT",{maximumFractionDigits:1})}%).`;meta=`Differenza complessiva: ${diff>0?"+":diff<0?"−":""}${euro(amount)}`}
- const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(x.category)}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):'<div class="monthCompareEmpty">Nessuna variazione rilevante</div>';
- root.innerHTML=`<div class="monthCompareHero"><div class="monthCompareSentence">${sentence}</div><div class="monthCompareMeta">${meta}</div></div><div class="monthCompareTotals"><div class="monthCompareTotal"><span>${currentName}</span><b>${euro(currentTotal)}</b></div><div class="monthCompareTotal"><span>${previousName}</span><b>${euro(previousTotal)}</b></div></div><div class="monthCompareColumns"><div><div class="monthCompareListTitle">Principali aumenti</div>${list(increases,true)}</div><div><div class="monthCompareListTitle">Principali diminuzioni</div>${list(decreases,false)}</div></div>`;
+ let sentence,meta="";if(previousTotal<=0){sentence=NekoI18n.t("no_comparison_data");meta=NekoI18n.t("comparison_empty",{current:currentName,amount:euro(currentTotal),previous:previousName})}
+ else{const pct=Math.abs(diff/previousTotal*100),direction=diff>0?"in più":diff<0?"in meno":"come",amount=Math.abs(diff);sentence=NekoI18n.t(diff===0?"comparison_equal":diff>0?"comparison_more":"comparison_less",{month:currentName,amount:euro(amount),previous:previousName,percent:(diff>0?"+":"−")+pct.toLocaleString(nekoLocale(),{maximumFractionDigits:1})+"%"});meta=NekoI18n.t("comparison_total",{amount:(diff>0?"+":diff<0?"−":"")+euro(amount)})}
+ const list=(items,positive)=>items.length?items.map(x=>`<div class="monthCompareRow"><span class="monthCompareName">${iconFor(x.category)} ${esc(x.category)}</span><b class="${positive?"out":"in"}">${positive?"+":"−"}${euro(Math.abs(x.diff))}</b></div>`).join(""):`<div class="monthCompareEmpty">${NekoI18n.t("no_changes")}</div>`;
+ root.innerHTML=`<div class="monthCompareHero"><div class="monthCompareSentence">${sentence}</div><div class="monthCompareMeta">${meta}</div></div><div class="monthCompareTotals"><div class="monthCompareTotal"><span>${currentName}</span><b>${euro(currentTotal)}</b></div><div class="monthCompareTotal"><span>${previousName}</span><b>${euro(previousTotal)}</b></div></div><div class="monthCompareColumns"><div><div class="monthCompareListTitle">${NekoI18n.t("top_increases")}</div>${list(increases,true)}</div><div><div class="monthCompareListTitle">${NekoI18n.t("top_decreases")}</div>${list(decreases,false)}</div></div>`;
 }
 function renderSpendingForecast(){
  const root=document.getElementById("spendingForecast");if(!root)return;const [year,month]=selectedMonth.split("-").map(Number),today=new Date(),currentKey=nowMonthKey(),daysInMonth=new Date(year,month,0).getDate(),entries=statMoves(selectedMonth).filter(m=>m.amount<0),spent=entries.reduce((s,m)=>s+Math.abs(m.amount),0);
- if(selectedMonth>currentKey){root.innerHTML='<div class="monthCompareEmpty">La previsione sarà disponibile quando inizierà il mese selezionato.</div>';return}
- if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Mese concluso</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">Il mese selezionato è terminato: viene mostrata la spesa effettiva, non una previsione.</div></div>`;return}
+ if(selectedMonth>currentKey){root.innerHTML=`<div class="monthCompareEmpty">${NekoI18n.t("future_forecast")}</div>`;return}
+ if(selectedMonth<currentKey){root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">${NekoI18n.t("closed_month")}</div><div class="forecastValue">${euro(spent)}</div><div class="forecastNote">${NekoI18n.t("closed_forecast")}</div></div>`;return}
  const elapsed=Math.max(1,Math.min(today.getDate(),daysInMonth)),remaining=Math.max(0,daysInMonth-elapsed),monthOriginal=monthMoves(selectedMonth).filter(m=>m.amount<0&&!m.excludeStats),candidates=recurringCandidates().filter(c=>c.active&&(!c.reviewOnly||recurringPrefs[c.key]==="confirmed")&&(c.count>=3||recurringPrefs[c.key]==="confirmed")&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
  let fixedPaid=0,fixedRemaining=0;candidates.forEach(c=>{const paid=monthOriginal.filter(m=>recurringMatchesCandidate(m,c));if(paid.length)fixedPaid+=paid.reduce((s,m)=>s+Math.abs(m.amount),0);else fixedRemaining+=c.avg});fixedPaid=Math.min(fixedPaid,spent);
- const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?"Affidabilità media":"Affidabilità iniziale"):"Dati ancora insufficienti per proiettare la spesa variabile";
- root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">Spesa prevista a fine mese · stima</div><div class="forecastValue">circa ${euro(forecast)}</div><div class="forecastNote">La previsione si aggiorna con i nuovi movimenti e non rappresenta un importo certo.</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>Già speso</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>Ricorrenze ancora previste</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>Variabile stimata restante</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${remaining} giorni rimanenti</div>`;
+ const variableSpent=Math.max(0,spent-fixedPaid),enoughData=elapsed>=5&&new Set(monthOriginal.map(m=>m.id)).size>=3,dailyAverage=enoughData?variableSpent/elapsed:0,variableRemaining=dailyAverage*remaining,forecast=spent+fixedRemaining+variableRemaining,confidence=enoughData?(elapsed>=14?NekoI18n.t("confidence_medium"):NekoI18n.t("confidence_initial")):NekoI18n.t("confidence_low");
+ root.innerHTML=`<div class="forecastHero"><div class="forecastLabel">${NekoI18n.t("forecast_heading")}</div><div class="forecastValue">${NekoI18n.t("approximately",{amount:euro(forecast)})}</div><div class="forecastNote">${NekoI18n.t("forecast_disclaimer")}</div></div><div class="forecastBreakdown"><div class="forecastItem"><span>${NekoI18n.t("spent_so_far")}</span><b>${euro(spent)}</b></div><div class="forecastItem"><span>${NekoI18n.t("forecast_fixed")}</span><b>${euro(fixedRemaining)}</b></div><div class="forecastItem"><span>${NekoI18n.t("forecast_variable")}</span><b>${enoughData?euro(variableRemaining):"—"}</b></div></div><div class="forecastConfidence">${confidence} · ${NekoI18n.t("days_remaining",{count:remaining})}</div>`;
 }
 function availableEstimateForMonth(k){
  const totals=monthTotals(k),currentKey=nowMonthKey();
@@ -2741,33 +2741,33 @@ function renderAvailableEstimate(){
  if(!homeLabel||!homeMeta||!homeAmount||!detail||!homeCard)return;
  homeCard.classList.remove("negative","unavailable");
  if(result.mode==="future"){
-  homeLabel.textContent="Disponibile stimato del mese";homeAmount.textContent="—";homeMeta.textContent="Disponibile quando inizierà il mese";homeCard.classList.add("unavailable");
-  detail.innerHTML='<div class="availableEmpty">La stima sarà disponibile quando inizierà il mese selezionato.</div>';return;
+  homeLabel.textContent="Disponibile stimato del mese";homeAmount.textContent="—";homeMeta.textContent=NekoI18n.t("future_available");homeCard.classList.add("unavailable");
+  detail.innerHTML=`<div class="availableEmpty">${NekoI18n.t("future_estimate")}</div>`;return;
  }
  const negative=result.amount<0;homeCard.classList.toggle("negative",negative);homeAmount.textContent=euro(result.amount);
  if(result.mode==="closed"){
-  homeLabel.textContent="Risultato finale del mese";homeMeta.textContent="Mese concluso · entrate meno uscite";
-  detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Risultato finale del mese</span><b>${euro(result.amount)}</b><small>Il mese è concluso: non vengono sottratte altre spese previste.</small></div>`;return;
+  homeLabel.textContent=NekoI18n.t("closed_result");homeMeta.textContent=NekoI18n.t("closed_meta");
+  detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>${NekoI18n.t("closed_result")}</span><b>${euro(result.amount)}</b><small>${NekoI18n.t("closed_detail")}</small></div>`;return;
  }
- homeLabel.textContent="Disponibile stimato del mese";homeMeta.textContent=result.remaining>0?`${result.pending.length} ricorrenz${result.pending.length===1?"a":"e"} ancora attes${result.pending.length===1?"a":"e"}`:"Nessuna ricorrenza ancora da sottrarre";
+ homeLabel.textContent="Disponibile stimato del mese";homeMeta.textContent=result.remaining>0?NekoI18n.t(result.pending.length===1?"pending_count_one":"pending_count_many",{count:result.pending.length}):NekoI18n.t("no_pending");
  const pendingNames=result.pending.slice(0,3).map(c=>esc(c.name)).join(" · ");
- detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>Stima disponibile</span><b>${euro(result.amount)}</b><small>${negative?"Le uscite e le ricorrenze attese superano le entrate registrate.":"Quanto resterebbe dopo le ricorrenze ancora attese."}</small></div><div class="availableBreakdown"><div><span>Saldo del mese finora</span><b>${euro(result.base)}</b></div><div><span>Ricorrenze ancora attese</span><b>${result.remaining?"− "+euro(result.remaining):euro(0)}</b></div></div>${pendingNames?`<button type="button" class="availablePending expectedRecurringLink" id="viewExpectedRecurring"><span>Incluse nella stima: ${pendingNames}${result.pending.length>3?` · +${result.pending.length-3}`:""}</span><b>Vedi tutte ›</b></button>`:""}<div class="availableDisclaimer">Non è il saldo bancario: considera solo i movimenti presenti in Neko e le ricorrenze rilevate.</div>`;
+ detail.innerHTML=`<div class="availableHero ${negative?"negative":""}"><span>${NekoI18n.t("estimate_detail")}</span><b>${euro(result.amount)}</b><small>${negative?NekoI18n.t("estimate_negative"):NekoI18n.t("estimate_positive")}</small></div><div class="availableBreakdown"><div><span>${NekoI18n.t("balance_so_far")}</span><b>${euro(result.base)}</b></div><div><span>${NekoI18n.t("pending_recurring")}</span><b>${result.remaining?"− "+euro(result.remaining):euro(0)}</b></div></div>${pendingNames?`<button type="button" class="availablePending expectedRecurringLink" id="viewExpectedRecurring"><span>${NekoI18n.t("included_estimate",{names:pendingNames})}${result.pending.length>3?` · +${result.pending.length-3}`:""}</span><b>${NekoI18n.t("view_all")} ›</b></button>`:""}<div class="availableDisclaimer">${NekoI18n.t("estimate_disclaimer")}</div>`;
  const viewExpectedButton=document.getElementById("viewExpectedRecurring");if(viewExpectedButton)viewExpectedButton.onclick=openExpectedRecurringView;
 }
 function openExpectedRecurringView(){go("settings");openSettingsPage("settingsRecurringPage");requestAnimationFrame(()=>{const section=document.getElementById("expectedRecurringSection");if(section&&!section.hidden)section.scrollIntoView({behavior:"smooth",block:"start"})})}
 function pctChange(cur,prev){if(prev===0)return cur===0?0:null;return (cur-prev)/Math.abs(prev)*100}
 function compareText(cur,prev,preferLower=false){
- const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:"Nessun confronto",cls:""};
- const abs=Math.abs(p).toFixed(0)+"%";if(p===0)return {main:"0%",txt:"uguale al mese prima",cls:""};
- const improved=preferLower?p<0:p>0;return {main:(p>0?"+":"−")+abs,txt:(p>0?"in più":"in meno")+" del mese prima",cls:improved?"good":"bad"};
+ const p=pctChange(cur,prev);if(p===null)return {main:"—",txt:NekoI18n.t("no_comparison"),cls:""};
+ const abs=Math.abs(p).toFixed(0)+"%";if(p===0)return {main:"0%",txt:NekoI18n.t("same_previous"),cls:""};
+ const improved=preferLower?p<0:p>0;return {main:(p>0?"+":"−")+abs,txt:NekoI18n.t(p>0?"more_previous":"less_previous"),cls:improved?"good":"bad"};
 }
 function budgetFor(cat){return Number(budgets[cat]||0)}
 function categorySpent(cat,k=selectedMonth){return statMoves(k).filter(m=>m.amount<0&&m.category===cat).reduce((s,m)=>s+Math.abs(m.amount),0)}
 function renderBudgets(container,compact=false){
  if(!container)return;
  const entries=Object.entries(budgets).filter(([c,v])=>Number(v)>0);
- if(!entries.length){container.innerHTML='<div class="empty">Nessun budget impostato.</div>';return}
- container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;if(compact)return `<div class="budgetRow"><div class="budgetTop"><div><b>${esc(cat)}</b><div class="kicker">${euro(spent)} di ${euro(Number(limit))}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?"Superato di "+euro(Math.abs(rem)):"Restano "+euro(rem)}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div></div>`;return `<button type="button" class="budgetManageRow" data-cat="${esc(cat)}" aria-label="Modifica budget ${esc(cat)}"><span class="budgetManageIcon" style="background:${softColor(colorFor(cat),.24)};color:${colorFor(cat)}">${iconFor(cat)}</span><span class="budgetManageText"><span class="budgetManageTop"><b>${esc(cat)}</b><span class="${rem<0?"out":"in"}">${rem<0?"− "+euro(Math.abs(rem)):euro(rem)}</span></span><span class="budgetManageMeta">${euro(spent)} di ${euro(Number(limit))}</span><span class="budgetBar"><span class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></span></span></span><span class="budgetManageChevron" aria-hidden="true">›</span></button>`}).join("");
+ if(!entries.length){container.innerHTML=`<div class="empty">${NekoI18n.t("no_budget")}</div>`;return}
+ container.innerHTML=entries.map(([cat,limit])=>{const spent=categorySpent(cat),pct=Math.min(100,spent/limit*100),rem=limit-spent;if(compact)return `<div class="budgetRow"><div class="budgetTop"><div><b>${esc(cat)}</b><div class="kicker">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</div></div><div class="${rem<0?"out":"in"}"><b>${rem<0?NekoI18n.t("budget_over",{amount:euro(Math.abs(rem))}):NekoI18n.t("budget_left",{amount:euro(rem)})}</b></div></div><div class="budgetBar"><div class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></div></div></div>`;return `<button type="button" class="budgetManageRow" data-cat="${esc(cat)}" aria-label="${esc(NekoI18n.t("budget_edit_label",{category:cat}))}"><span class="budgetManageIcon" style="background:${softColor(colorFor(cat),.24)};color:${colorFor(cat)}">${iconFor(cat)}</span><span class="budgetManageText"><span class="budgetManageTop"><b>${esc(cat)}</b><span class="${rem<0?"out":"in"}">${rem<0?"− "+euro(Math.abs(rem)):euro(rem)}</span></span><span class="budgetManageMeta">${NekoI18n.t("budget_fraction",{spent:euro(spent),limit:euro(Number(limit))})}</span><span class="budgetBar"><span class="budgetFill ${spent>limit?"over":""}" style="width:${pct}%"></span></span></span><span class="budgetManageChevron" aria-hidden="true">›</span></button>`}).join("");
  if(!compact)container.querySelectorAll(".budgetManageRow").forEach(b=>b.onclick=()=>openBudget(b.dataset.cat));
 }
 function buildRecurringCandidate(arr,meta={}){
@@ -2795,16 +2795,16 @@ function recurringCandidates(){
 function renderRecurringManager(){
  const managedRoot=document.getElementById("managedRecurring"),ignoredRoot=document.getElementById("ignoredRecurring"),ignoredToggle=document.getElementById("toggleIgnoredRecurring"),detectedRoot=document.getElementById("recurringList"),concludedRoot=document.getElementById("concludedRecurring"),concludedToggle=document.getElementById("toggleConcludedRecurring");if(!managedRoot||!ignoredRoot||!ignoredToggle||!detectedRoot||!concludedRoot||!concludedToggle)return;
  const candidates=recurringCandidates(),active=candidates.filter(c=>c.active),concluded=candidates.filter(c=>!c.active&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false).sort((a,b)=>b.lastMonth.localeCompare(a.lastMonth)),managed=active.filter(c=>recurringPrefs[c.key]==="confirmed"),ignored=candidates.filter(c=>recurringPrefs[c.key]==="ignored"||recurringPrefs[c.key]===false),detected=active.filter(c=>recurringPrefs[c.key]!=="confirmed"&&recurringPrefs[c.key]!=="ignored"&&recurringPrefs[c.key]!==false);
- const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?"Conclusa":confirmed?"Inclusa":ignored?"Esclusa":automatic?"Inclusa automaticamente":"Da verificare",badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Includi</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">Conferma</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">Ignora</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · circa il giorno ${c.avgDay} · ${c.count} mesi${concluded?` · ultimo ${c.lastMonth}`:""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>al mese</small></span><span class="recurringActions">${actions}</span></div>`};
+ const row=(c,state)=>{const confirmed=state==="confirmed",ignored=state==="ignored",concluded=state==="concluded",automatic=c.active&&!c.reviewOnly&&!confirmed&&!ignored&&c.count>=3,label=concluded?NekoI18n.t("concluded_recurring"):confirmed?NekoI18n.t("included_recurring"):ignored?NekoI18n.t("excluded_recurring"):automatic?NekoI18n.t("auto_included"):NekoI18n.t("review_needed"),badgeClass=concluded||ignored?"ignored":confirmed||automatic?"included":"pending",actions=concluded?"":ignored?`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("include_action")}</button>`:`${confirmed?"":`<button type="button" class="secondary" data-recurring-key="${esc(c.key)}" data-recurring-action="confirmed">${NekoI18n.t("confirm_action")}</button>`}<button type="button" class="recurringIgnore" data-recurring-key="${esc(c.key)}" data-recurring-action="ignored">${NekoI18n.t("ignore_action")}</button>`;return `<div class="recurringManageRow"><span class="recurringIcon" style="background:${softColor(colorFor(c.category),.22)};color:${colorFor(c.category)}">${iconFor(c.category)}</span><span class="recurringCopy"><b>${esc(c.name)}</b><small>${esc(c.category)} · ${NekoI18n.t("recurring_meta",{day:c.avgDay,count:c.count})}${concluded?NekoI18n.t("recurring_last",{month:monthLabelText(c.lastMonth)}):""}</small><span class="recurringBadge ${badgeClass}">${label}</span></span><span class="recurringAmount">${euro(c.avg)}<small>${NekoI18n.t("per_month")}</small></span><span class="recurringActions">${actions}</span></div>`};
  const expectedEstimate=availableEstimateForMonth(selectedMonth),expected=expectedEstimate.mode==="current"?expectedEstimate.pending:[],expectedSection=document.getElementById("expectedRecurringSection"),expectedRoot=document.getElementById("expectedRecurringList");
  if(expectedSection&&expectedRoot){expectedSection.hidden=!expected.length;expectedRoot.innerHTML=expected.map(c=>row(c,recurringPrefs[c.key]==="confirmed"?"confirmed":"expected")).join("")}
- managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):'<div class="recurringEmpty">Non hai ancora confermato ricorrenze.</div>';
+ managedRoot.innerHTML=managed.length?managed.map(c=>row(c,"confirmed")).join(""):`<div class="recurringEmpty">${NekoI18n.t("no_confirmed_recurring")}</div>`;
  ignoredRoot.innerHTML=ignored.map(c=>row(c,"ignored")).join("");ignoredRoot.hidden=!ignoredRecurringOpen;
- ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=`${ignoredRecurringOpen?"Nascondi":"Mostra"} ignorate (${ignored.length})`;
+ ignoredToggle.style.display=ignored.length?"flex":"none";ignoredToggle.textContent=NekoI18n.t(ignoredRecurringOpen?"hide_ignored":"show_ignored",{count:ignored.length});
  ignoredToggle.onclick=()=>{ignoredRecurringOpen=!ignoredRecurringOpen;renderRecurringManager()};
- detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):'<div class="recurringEmpty">Nessuna nuova ricorrenza da controllare.</div>';
+ detectedRoot.innerHTML=detected.length?detected.map(c=>row(c,"detected")).join(""):`<div class="recurringEmpty">${NekoI18n.t("no_new_recurring")}</div>`;
  concludedRoot.innerHTML=concluded.map(c=>row(c,"concluded")).join("");concludedRoot.hidden=!concludedRecurringOpen;
- concludedToggle.style.display=concluded.length?"flex":"none";concludedToggle.textContent=`${concludedRecurringOpen?"Nascondi":"Mostra"} conclusi (${concluded.length})`;
+ concludedToggle.style.display=concluded.length?"flex":"none";concludedToggle.textContent=NekoI18n.t(concludedRecurringOpen?"hide_concluded":"show_concluded",{count:concluded.length});
  concludedToggle.onclick=()=>{concludedRecurringOpen=!concludedRecurringOpen;renderRecurringManager()};
  [expectedRoot,managedRoot,ignoredRoot,detectedRoot,concludedRoot].filter(Boolean).forEach(root=>root.querySelectorAll("[data-recurring-action]").forEach(button=>button.onclick=()=>{recurringPrefs[button.dataset.recurringKey]=button.dataset.recurringAction;save();render();renderRecurringManager()}));
 }
@@ -2855,7 +2855,7 @@ function row(m,opts={}){
  const selectable=!!opts.selectable;
  const selectedSet=opts.selectedSet||bulkSelected;const checked=selectedSet.has(m.id);
  return `<div class="row ${m.excludeStats?"excluded":""} ${selectable?"multiRow":""} ${checked?"selected":""}" data-id="${m.id||""}">
- <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="Seleziona movimento">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?'<span class="noteBadge">nota</span>':""}${(m._splitPart||validSplitParts(m))?'<span class="noteBadge">diviso</span>':""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?" · escluso statistiche":""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${attachmentCounts[m.id]} allegati">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
+ <div class="rleft">${selectable?`<input class="multiCheck" type="checkbox" ${checked?"checked":""} aria-label="${esc(NekoI18n.t("select_move"))}">`:""}<div class="ico" style="background:${softColor(colorFor(m.category),.21)}">${iconFor(m.category)}</div><div class="txt"><div class="desc">${esc(shortDesc(m))}${m.note?`<span class="noteBadge">${NekoI18n.t("note_badge")}</span>`:""}${(m._splitPart||validSplitParts(m))?`<span class="noteBadge">${NekoI18n.t("split_badge")}</span>`:""}</div><div class="meta">${m.date} · ${esc(m.category)}${subtype(m)?" · "+subtype(m):""}${m.excludeStats?NekoI18n.t("excluded_suffix"):""}</div></div>${attachmentCounts[m.id]?`<span class="rowAttachmentMarker" aria-label="${attachmentCounts[m.id]} allegati">📎 ${attachmentCounts[m.id]}</span>`:""}</div><div class="amt ${m.amount>=0?"in":"out"}">${m.amount>=0?"+":"−"} ${euro(Math.abs(m.amount))}</div></div>`}
 function refreshAttachmentCounts(){
  attachmentCounts={};
  try{if(window.NekoApp&&typeof window.NekoApp.getAttachmentCounts==="function")attachmentCounts=JSON.parse(String(window.NekoApp.getAttachmentCounts())||"{}")}catch(e){console.warn("Conteggio allegati non disponibile",e)}
@@ -2895,7 +2895,7 @@ function renderRulesManager(){
  const list=document.getElementById("rulesList"),info=document.getElementById("rulesInfo");
  if(!list||!info)return;
  const entries=Object.entries(rules).sort((a,b)=>a[0].localeCompare(b[0]));
- info.textContent=`Regole apprese: ${entries.length}`;
+ info.textContent=NekoI18n.t("rules_count",{count:entries.length});
  list.innerHTML=entries.length?entries.map(([merchant,cat])=>`
    <div class="ruleRow">
      <div class="ruleInfo">
@@ -2903,9 +2903,9 @@ function renderRulesManager(){
        <div class="ruleCategory">→ ${esc(cat)}</div>
      </div>
      <div class="ruleActions">
-       <button type="button" class="secondary deleteRuleBtn" data-rule="${esc(merchant)}">Elimina</button>
+       <button type="button" class="secondary deleteRuleBtn" data-rule="${esc(merchant)}">${NekoI18n.t("delete")}</button>
      </div>
-   </div>`).join(""):'<div class="empty">Nessuna regola appresa. Le regole compariranno quando correggerai manualmente una categoria.</div>';
+   </div>`).join(""):`<div class="empty">${NekoI18n.t("no_rules")}</div>`;
  list.querySelectorAll(".deleteRuleBtn").forEach(b=>b.onclick=()=>{
    delete rules[b.dataset.rule];
    save();
@@ -2956,13 +2956,13 @@ function render(){
  cmpIncome.textContent=ci.main;cmpIncome.className=ci.cls;cmpIncomeTxt.textContent=ci.txt;cmpIncomeTxt.className="compare "+ci.cls;
  cmpSaving.textContent=cs.main;cmpSaving.className=cs.cls;cmpSavingTxt.textContent=cs.txt;cmpSavingTxt.className="compare "+cs.cls;
  renderBudgets(homeBudget,true);
- const sorted=[...cur.moves].sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));latest.innerHTML=sorted.length?sorted.slice(0,5).map(row).join(""):'<div class="empty">Nessun movimento in questo mese.</div>';
+ const sorted=[...cur.moves].sort((a,b)=>b.date.split("/").reverse().join("-").localeCompare(a.date.split("/").reverse().join("-")));latest.innerHTML=sorted.length?sorted.slice(0,5).map(row).join(""):`<div class="empty">${NekoI18n.t("no_month_moves")}</div>`;
  const totals={};statMoves(selectedMonth).forEach(m=>{if(m.amount<0)totals[m.category]=(totals[m.category]||0)+Math.abs(m.amount)});const vals=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=vals[0]?.[1]||1;
- topcats.innerHTML=vals.length?vals.slice(0,4).map(([k,v])=>`<button type="button" class="homeTopCatRow" data-home-cat="${esc(k)}"><span class="homeTopCatMain"><span class="catSwatch" style="background:${colorFor(k)}"></span><span class="homeTopCatName">${iconFor(k)} ${esc(k)}</span></span><span class="homeTopCatValue"><b>${euro(v)}</b><span class="homeTopCatArrow">›</span></span><span class="homeTopCatBar"><span class="catBar"><span class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></span></span></span></button>`).join(""):'<div class="empty">Nessuna spesa.</div>';
+ topcats.innerHTML=vals.length?vals.slice(0,4).map(([k,v])=>`<button type="button" class="homeTopCatRow" data-home-cat="${esc(k)}"><span class="homeTopCatMain"><span class="catSwatch" style="background:${colorFor(k)}"></span><span class="homeTopCatName">${iconFor(k)} ${esc(k)}</span></span><span class="homeTopCatValue"><b>${euro(v)}</b><span class="homeTopCatArrow">›</span></span><span class="homeTopCatBar"><span class="catBar"><span class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></span></span></span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_expenses")}</div>`;
  const filterCatsEl=document.getElementById("filterCats"),filtersSummaryEl=document.getElementById("filtersSummary"),allmovesEl=document.getElementById("allmoves");
  const avail=["Tutte",...CATS().filter(c=>cur.moves.some(m=>movementMatchesCategory(m,c)))];
  if(filterCatsEl){
-   filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+   filterCatsEl.innerHTML=avail.map(c=>`<button type="button" class="filterCatBtn ${filter===c?"active":""}" data-cat="${esc(c)}">${c==="Tutte"?NekoI18n.t("all"):esc(c)}</button>`).join("");
    filterCatsEl.querySelectorAll(".filterCatBtn").forEach(x=>x.onclick=()=>{filter=x.dataset.cat;bulkSelected.clear();bulkMode=false;render()});
  }
   if(filtersSummaryEl)filtersSummaryEl.textContent=filter==="Tutte"?(window.NekoI18n?NekoI18n.t("no_category_filter"):"Nessun filtro categoria"):(window.NekoI18n?NekoI18n.t("category_prefix",{category:filter}):`Categoria: ${filter}`);
@@ -2972,11 +2972,11 @@ function render(){
  if(filterTypeValue==="expense")visible=visible.filter(m=>m.amount<0);else if(filterTypeValue==="income")visible=visible.filter(m=>m.amount>0);
  if(filterStatsValue==="included")visible=visible.filter(m=>!m.excludeStats);else if(filterStatsValue==="excluded")visible=visible.filter(m=>m.excludeStats);
  if(allmovesEl){
-   allmovesEl.innerHTML=visible.length?visible.map(m=>row(m)).join(""):'<div class="empty">Nessun movimento con questi filtri.</div>';
+   allmovesEl.innerHTML=visible.length?visible.map(m=>row(m)).join(""):`<div class="empty">${NekoI18n.t("no_filtered_moves")}</div>`;
    allmovesEl.querySelectorAll(".row[data-id]").forEach(x=>x.onclick=()=>edit(x.dataset.id));
  }
  const valsMap=Object.fromEntries(vals);const statsCats=[...statsCategoryOrder.filter(c=>valsMap[c]!=null),...vals.map(([k])=>k).filter(k=>!statsCategoryOrder.includes(k))];statsCategoryOrder=statsCats;
- catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.15)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):'<div class="empty">Nessun dato.</div>';
+ catstats.innerHTML=statsCats.length?statsCats.map(k=>{const v=valsMap[k];return `<div class="catStatBtn" data-cat="${esc(k)}" style="width:100%;background:${softColor(colorFor(k),.15)};margin:0 0 9px;padding:10px;border-radius:14px"><div class="catStatHead"><span class="catStatName"><span class="catSwatch" style="background:${colorFor(k)}"></span><span>${iconFor(k)} <b>${esc(k)}</b></span></span><span class="catStatValue"><b>${euro(v)}</b><span class="kicker">${statsEditMode?"":"›"}</span></span></div><div class="catBar"><div class="catBarFill" style="width:${v/max*100}%;background:${colorFor(k)}"></div></div></div>`}).join(""):`<div class="empty">${NekoI18n.t("no_data")}</div>`;
  requestAnimationFrame(()=>drawPie(vals));
  document.querySelectorAll(".catStatBtn").forEach(x=>{
    x.onclick=e=>{if(statsEditMode||e.target.closest(".statsMoveControls"))return;openCategory(x.dataset.cat)};
@@ -3066,7 +3066,7 @@ function drawPie(vals){
  const ctx=canvas.getContext("2d"), dpr=window.devicePixelRatio||1, size=Math.max(180,Math.min(280,canvas.parentElement.clientWidth||240));
  canvas.width=size*dpr;canvas.height=size*dpr;canvas.style.width=size+"px";canvas.style.height=size+"px";ctx.setTransform(dpr,0,0,dpr,0,0);
  ctx.clearRect(0,0,size,size);
- const shown=vals.filter(([k,v])=>v>0); const total=shown.reduce((s,[k,v])=>s+v,0); if(!total){legend.innerHTML='<div class="empty">Nessuna spesa.</div>';return}
+ const shown=vals.filter(([k,v])=>v>0); const total=shown.reduce((s,[k,v])=>s+v,0); if(!total){legend.innerHTML=`<div class="empty">${NekoI18n.t("no_expenses")}</div>`;return}
  let angle=-Math.PI/2;
  shown.forEach(([k,v],i)=>{const slice=v/total*Math.PI*2;ctx.beginPath();ctx.moveTo(size/2,size/2);ctx.arc(size/2,size/2,size*.43,angle,angle+slice);ctx.closePath();ctx.fillStyle=colorFor(k);ctx.fill();angle+=slice});
  ctx.beginPath();ctx.arc(size/2,size/2,size*.23,0,Math.PI*2);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue("--card").trim()||"#fff";ctx.fill();
@@ -3079,7 +3079,7 @@ function renderCategoryManager(){
  const el=document.getElementById("categoryManager");
  if(!el)return;
  const cats=CATS();
- el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="Personalizza ${esc(c)}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):'<div class="empty">Nessuna categoria disponibile.</div>';
+ el.innerHTML=cats.length?cats.map(c=>`<button type="button" class="catManageRow" data-cat="${esc(c)}" aria-label="${esc(NekoI18n.t("category_customize",{category:c}))}"><span class="catManageIcon" style="background:${softColor(colorFor(c),.24)};color:${colorFor(c)}">${iconFor(c)}</span><span class="catManageText"><span class="catName">${esc(c)}</span></span><span class="catManageChevron" aria-hidden="true">›</span></button>`).join(""):`<div class="empty">${NekoI18n.t("no_categories")}</div>`;
  el.querySelectorAll(".catManageRow").forEach(b=>b.onclick=()=>openCategoryManager(b.dataset.cat));
 }
 
@@ -3108,7 +3108,7 @@ function moveCategory(name,dir){
  [cats[i],cats[j]]=[cats[j],cats[i]];categoryOrder=cats;save();render();
 }
 function renderHomeConfig(){/* Gestione spostata direttamente nella Home */}
-const HOME_BLOCK_LABELS={summary:"Riepilogo saldo",compare:"Andamento del mese",budget:"Budget del mese",topcats:"Spese principali",latest:"Ultimi movimenti"};
+const HOME_BLOCK_LABELS={summary:"home_summary",compare:"monthly_trend",budget:"home_budget",topcats:"home_top",latest:"latest_movements"};
 function moveHomeBlock(key,dir){
  const keys=[...homeOrder];const i=keys.indexOf(key),j=i+dir;if(i<0||j<0||j>=keys.length)return;
  [keys[i],keys[j]]=[keys[j],keys[i]];homeOrder=keys;save();applyHomePrefs();
@@ -3132,7 +3132,7 @@ function renderAddHomePanel(){
  const panel=document.getElementById("addHomeGrid");if(!panel)return;
  const labels=HOME_BLOCK_LABELS;
  const hidden=Object.keys(labels).filter(k=>homePrefs[k]===false);
- panel.innerHTML=hidden.length?hidden.map(k=>`<button type="button" class="addHomeChoice" data-key="${k}">＋ ${labels[k]}</button>`).join(""):'<div class="kicker">Tutte le sezioni sono già presenti.</div>';
+ panel.innerHTML=hidden.length?hidden.map(k=>`<button type="button" class="addHomeChoice" data-key="${k}">＋ ${NekoI18n.t(labels[k])}</button>`).join(""):`<div class="kicker">${NekoI18n.t("sections_present")}</div>`;
  panel.querySelectorAll(".addHomeChoice").forEach(b=>b.onclick=()=>{homePrefs[b.dataset.key]=true;if(!homeOrder.includes(b.dataset.key))homeOrder.push(b.dataset.key);save();applyHomePrefs()});
 }
 function bindHomeBlockEditing(){
@@ -3513,7 +3513,7 @@ if(appInfoModal)appInfoModal.addEventListener("click",e=>{if(e.target===appInfoM
 const nekoConfirmModal=document.getElementById("nekoConfirmModal"),nekoConfirmTitle=document.getElementById("nekoConfirmTitle"),nekoConfirmMessage=document.getElementById("nekoConfirmMessage"),nekoConfirmAction=document.getElementById("nekoConfirmAction");
 let pendingConfirmAction=null;
 function closeNekoConfirm(){pendingConfirmAction=null;if(nekoConfirmModal)nekoConfirmModal.style.display="none"}
-function openNekoConfirm(title,message,confirmLabel,action){if(!nekoConfirmModal)return;nekoConfirmTitle.textContent=title;nekoConfirmMessage.textContent=message;nekoConfirmAction.textContent=confirmLabel||"Conferma";pendingConfirmAction=action;nekoConfirmModal.style.display="flex"}
+function openNekoConfirm(title,message,confirmLabel,action){if(!nekoConfirmModal)return;nekoConfirmTitle.textContent=title;nekoConfirmMessage.textContent=message;nekoConfirmAction.textContent=confirmLabel||NekoI18n.t("confirm_action");pendingConfirmAction=action;nekoConfirmModal.style.display="flex"}
 document.getElementById("nekoConfirmCancel").onclick=closeNekoConfirm;
 nekoConfirmAction.onclick=()=>{const action=pendingConfirmAction;closeNekoConfirm();if(action)action()};
 const clearRulesBtn=document.getElementById("clearRules");
@@ -4047,7 +4047,7 @@ html[data-theme="dark"] #settings .settingsItem{box-shadow:0 9px 22px rgba(0,0,0
  var home=document.getElementById('home');
  function toneFor(name,fallback){try{return typeof colorFor==='function'?colorFor(name):fallback}catch(e){return fallback}}
  function apply(){
-  var label=document.getElementById('homeAvailableLabel');if(label&&label.textContent!=='Stima finale')label.textContent='Stima finale';
+  var label=document.getElementById('homeAvailableLabel');var translated=NekoI18n.t('final_estimate');if(label&&label.textContent!==translated)label.textContent=translated;
   document.querySelectorAll('#homeBudget .budgetRow').forEach(function(row){var labelEl=row.querySelector('.budgetTop b');var name=labelEl?labelEl.textContent.trim():'';row.style.setProperty('--home-tone',toneFor(name,'#d99d32'))});
   document.querySelectorAll('#homeTopCats .homeTopCatRow').forEach(function(row){var labelEl=row.querySelector('.homeTopCatName');var name=labelEl?labelEl.textContent.replace(/^\S+\s+/,'').trim():'';var swatch=row.querySelector('.catSwatch');var tone=swatch&&swatch.style.background?swatch.style.background:toneFor(name,'#d99d32');row.style.setProperty('--home-tone',tone)});
   var cycle=['#ef8178','#6fc394','#ac8be0','#70a9dd','#d99d32'];
